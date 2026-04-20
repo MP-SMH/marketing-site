@@ -1,4 +1,5 @@
 import { Heart, ArrowRight, TrendingUp, Users, CreditCard, Bell, BarChart3, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useScrollAnimation } from './MarketingAnimations';
 
 function DashboardMockup() {
@@ -196,6 +197,7 @@ function FloatingBadge({ style: posStyle, delay, text, icon: Icon, color }) {
 
 export default function HeroSection() {
   const anim = useScrollAnimation();
+  const navigate = useNavigate();
 
   return (
     <section style={{
@@ -266,6 +268,7 @@ export default function HeroSection() {
             }}
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(224,25,63,0.5)'; }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(224,25,63,0.4)'; }}
+              onClick={() => navigate('/opret-forening')}
             >
               Start gratis <ArrowRight size={18} />
             </button>
@@ -276,6 +279,7 @@ export default function HeroSection() {
             }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
+              onClick={() => document.getElementById('hvordan')?.scrollIntoView({ behavior: 'smooth' })}
             >
               Se hvordan det virker
             </button>

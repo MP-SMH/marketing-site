@@ -1,4 +1,5 @@
 import { Heart, RefreshCw, ShoppingBag, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useScrollAnimation } from './MarketingAnimations';
 
 const rows = [
@@ -9,6 +10,7 @@ const rows = [
 
 export default function PricingSection() {
   const anim = useScrollAnimation();
+  const navigate = useNavigate();
 
   return (
     <section id="priser" style={{
@@ -93,6 +95,7 @@ export default function PricingSection() {
           }}
             onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; }}
             onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; }}
+            onClick={() => navigate('/opret-forening')}
           >
             Start gratis <ArrowRight size={18} />
           </button>
