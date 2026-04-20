@@ -282,7 +282,7 @@ export default function HeroSection() {
           </div>
 
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', margin: '0 0 20px 0' }}>
-            Brugt af 47 foreninger · 1.200+ støtter · 850.000+ kr. doneret
+            Danmarks første automatiske fundraising-platform bygget til foreninger
           </p>
 
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
@@ -319,7 +319,7 @@ export default function HeroSection() {
           <FloatingBadge
             style={{ bottom: 80, right: -10 }}
             delay={2.5}
-            text="Udbetaling d. 28."
+            text="Afregning d. 1."
             icon={CreditCard}
             color="#0891B2"
           />

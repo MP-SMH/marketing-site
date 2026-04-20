@@ -12,7 +12,7 @@ const cards = [
   },
   {
     icon: RefreshCw,
-    title: 'Fast støtter',
+    title: 'Fast Støtte',
     desc: 'Månedligt abonnement fra 100 kr. Forudsigeligt, stabilt, automatisk.',
     features: ['Abonnement fra 100 kr./md.', 'Automatisk trækning', 'Supporter kan pause/opsige', '80% til forening'],
     featured: true,
@@ -45,7 +45,7 @@ function MiniVisual({ type }) {
   if (type === 'subscription') {
     return (
       <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
-        {[100, 200, 500].map((v, i) => (
+        {[100, 200, 300, 500].map((v, i) => (
           <div key={v} style={{
             flex: 1, textAlign: 'center', padding: '10px 0', borderRadius: 10,
             background: i === 1 ? '#E0193F' : '#F9FAFB',
