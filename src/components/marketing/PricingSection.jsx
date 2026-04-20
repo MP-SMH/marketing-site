@@ -5,7 +5,7 @@ import { useScrollAnimation } from './MarketingAnimations';
 const rows = [
   { icon: Heart, type: 'Donation', left: '80% til forening', right: '20% til StøtMedHjerte' },
   { icon: RefreshCw, type: 'Fast Støtte', left: '80% til forening', right: '20% til StøtMedHjerte' },
-  { icon: ShoppingBag, type: 'Merchandise', left: '32,75% nettoprofit', right: 'til forening' },
+  { icon: ShoppingBag, type: 'Merchandise', left: '32,75% af overskud til forening', right: '67,25% til StøtMedHjerte' },
 ];
 
 export default function PricingSection() {
