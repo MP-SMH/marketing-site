@@ -5,7 +5,7 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   { q: 'Er det gratis for foreninger?', a: 'Ja. Det koster ingenting at oprette sig og bruge platformen. Vi tjener kun når foreningen tjener. Se den præcise fordeling under "Hvor meget går til foreningen?"' },
-  { q: 'Hvordan modtager foreningen pengene?', a: 'Afregning sker d. 1. hver måned. Udbetaling overføres 1-3 bankdage efter direkte til foreningens bankkonto.' },
+  { q: 'Hvordan modtager foreningen pengene?', a: 'Afregning sker d. 1. hver måned. Herefter overføres pengene direkte til foreningens bankkonto inden for 1-3 bankdage.' },
   { q: 'Er det lovligt?', a: 'Ja. Alle foreninger verificeres med MitID og CVR. Vi genererer automatisk indsamlingsregnskab til Indsamlingsnævnet.' },
   { q: 'Hvilke betalingsmetoder understøttes?', a: 'Støtter kan betale med MobilePay, Apple Pay, Google Pay og betalingskort (Visa/Mastercard).' },
   { q: 'Hvor meget går til foreningen?', a: 'Ved donationer og abonnementer går 80% til foreningen og 20% til StøtMedHjerte. Ved merchandise går 32,75% af nettoprofitten til foreningen.' },

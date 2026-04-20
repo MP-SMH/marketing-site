@@ -282,7 +282,7 @@ export default function HeroSection() {
           </div>
 
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', margin: '0 0 20px 0' }}>
-            Danmarks første automatiske fundraising-platform bygget til foreninger
+            Tre støttekilder. Én platform. Nul administration.
           </p>
 
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>

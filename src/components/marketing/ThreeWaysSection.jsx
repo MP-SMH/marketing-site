@@ -7,7 +7,7 @@ const cards = [
     title: 'Direkte donation',
     desc: 'Støtter donerer via MobilePay, Apple Pay eller Google Pay. Ét swipe, pengene er der.',
     features: ['MobilePay integration', 'Apple Pay og Google Pay', 'Automatisk kvittering', '80% til forening'],
-    featured: false,
+    accent: '#3B82F6',
     visual: 'mobilepay',
   },
   {
@@ -15,7 +15,7 @@ const cards = [
     title: 'Fast Støtte',
     desc: 'Månedligt abonnement fra 100 kr. Forudsigeligt, stabilt, automatisk.',
     features: ['Abonnement fra 100 kr./md.', 'Automatisk trækning', 'Supporter kan pause/opsige', '80% til forening'],
-    featured: true,
+    accent: '#8B5CF6',
     visual: 'subscription',
   },
   {
@@ -23,7 +23,7 @@ const cards = [
     title: 'Fanshop merchandise',
     desc: 'Foreningen får deres helt egen webshop. Ingen lageromkostninger, ingen risiko.',
     features: ['Professionelt tøj og merchandise', 'Print-on-demand', 'Ingen lager nødvendigt', '32,75% til forening'],
-    featured: false,
+    accent: '#E0193F',
     visual: 'merch',
   },
 ];
@@ -70,46 +70,31 @@ function MiniVisual({ type }) {
         <Heart size={20} color="#E0193F" fill="#E0193F" />
       </div>
       <div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Klubtræning T-shirt</div>
-        <div style={{ fontSize: 12, color: '#9CA3AF' }}>fra 249 kr.</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Forenings-merchandise</div>
+        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Vis din støtte med stil</div>
       </div>
     </div>
   );
 }
 
-function WayCard({ icon: Icon, title, desc, features, featured, visual, delay }) {
+function WayCard({ icon: Icon, title, desc, features, accent, visual, delay }) {
   const anim = useStaggerAnimation(delay);
 
   return (
     <div ref={anim.ref} style={{
       ...anim.style,
       flex: '1 1 300px', background: '#fff', borderRadius: 20, padding: 36,
-      border: featured ? '2px solid #E0193F' : '1px solid #EBEBEB',
-      boxShadow: featured ? '0 16px 48px rgba(224,25,63,0.1)' : 'none',
+      border: '1px solid #EBEBEB', borderLeft: `3px solid ${accent}`,
+      boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
       position: 'relative', display: 'flex', flexDirection: 'column',
     }}>
-      {featured && (
-        <div style={{
-          position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
-          background: '#E0193F', color: '#fff', fontSize: 10, fontWeight: 700,
-          padding: '5px 14px', borderRadius: 100, letterSpacing: '0.06em', textTransform: 'uppercase',
-        }}>
-          MEST POPULÆR
-        </div>
-      )}
-      {featured && (
-        <div style={{
-          height: 3, background: 'linear-gradient(90deg, #E0193F, #f06080)',
-          borderRadius: 2, marginBottom: 20,
-        }} />
-      )}
       <div style={{
         width: 48, height: 48, borderRadius: 14,
-        background: featured ? '#FEF2F2' : '#F9FAFB',
+        background: `${accent}08`,
         display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20,
       }}>
-        <Icon size={22} color={featured ? '#E0193F' : '#6B7280'}
-          style={featured ? { animation: 'mkt-heartbeat 2.5s ease infinite' } : {}} />
+        <Icon size={22} color={accent}
+          />
       </div>
       <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', margin: '0 0 10px 0' }}>{title}</h3>
       <p style={{ fontSize: 15, color: '#6B7280', lineHeight: 1.6, margin: '0 0 20px 0' }}>{desc}</p>
