@@ -1,20 +1,30 @@
-import base44 from "@base44/vite-plugin"
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import path from 'path';
 
-// https://vite.dev/config/
+/**
+ * Vite config - StoetMedHjerte marketing site
+ *
+ * Build target: beta.stotmedhjerte.dk (Netlify hosted)
+ * Migration: replaced Base44 vite-plugin med standard React+Vite config
+ *
+ * Path-alias '@' peger paa src/ for at matche eksisterende imports
+ * (@/lib/AuthContext, @/components/ui/toaster, etc).
+ */
 export default defineConfig({
-  logLevel: 'error', // Suppress warnings, only show errors
-  plugins: [
-    base44({
-      // Support for legacy code that imports the base44 SDK with @/integrations, @/entities, etc.
-      // can be removed if the code has been updated to use the new SDK imports from @base44/sdk
-      legacySDKImports: process.env.BASE44_LEGACY_SDK_IMPORTS === 'true',
-      hmrNotifier: true,
-      navigationNotifier: true,
-      analyticsTracker: true,
-      visualEditAgent: true
-    }),
-    react(),
-  ]
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+  },
+  server: {
+    port: 3000,
+    strictPort: false,
+  },
 });
