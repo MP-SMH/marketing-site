@@ -1,227 +1,1598 @@
-import { useState } from 'react';
-import { Users, ArrowLeft, ShieldCheck, ArrowRight, Mail, Phone, Building } from 'lucide-react';
+/**
+ * OpretForeningPage - 3-step forening signup wizard
+ *
+ * Step 1: Email + send OTP via /api/auth/otp/request
+ * Step 2: OTP-indtastning (8 cifre) via /api/auth/otp/verify
+ * Step 3: Forening-data + password via /api/signup/forening
+ *
+ * Design: Pulse (matcher resten af platformen)
+ * Trust-elementer: ALLE SYSTEMER KORER + TLS + Bygget i Danmark
+ *
+ * Reference: docs/strategy/auth-strategy.md Model D
+ */
+
+import { useState, useEffect, useRef } from 'react';
+// eslint-disable-next-line unused-imports/no-unused-imports
+import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Lock, Building2, Check } from 'lucide-react';
+import zxcvbn from 'zxcvbn';
 import { useNavigate } from 'react-router-dom';
+import { SMH_API_URL } from '@/lib/supabaseClient';
+import { useSystemStatus } from '@/hooks/useSystemStatus';
+import { fetchActiveConsents, ConsentFetchError } from '@/lib/consents';
+import ConsentModal from '@/components/ConsentModal';
+
+// Brand color tokens
+const BRAND_TEAL = '#0891B2';
+const BRAND_TEAL_DARK = '#0e7490';
+
+// OTP konfiguration (matcher smh-api)
+const OTP_LENGTH = 8;
+const RESEND_COOLDOWN_SECONDS = 30;
+
+/**
+ * Map ConsentFetchError codes til danske beskeder for visning til bruger.
+ * ABORTED returnerer tom streng (caller skal ikke vise besked).
+ */
+function mapConsentErrorToMessage(err) {
+  if (!(err instanceof ConsentFetchError)) {
+    return 'Der opstod en fejl. Prøv at genindlæse siden.';
+  }
+  switch (err.code) {
+    case 'TIMEOUT':
+      return 'Forbindelsen tog for lang tid. Tjek dit internet og prøv igen.';
+    case 'NETWORK_ERROR':
+      return 'Kunne ikke forbinde til serveren. Tjek din internetforbindelse.';
+    case 'SUPABASE_ERROR':
+      return 'Server-fejl ved indlæsning af samtykke-tekster. Prøv igen om lidt.';
+    case 'INVALID_RESPONSE':
+    case 'MISSING_CONSENTS':
+      return 'Samtykke-tekster er ikke tilgængelige. Kontakt support.';
+    case 'ABORTED':
+      return '';
+    default:
+      return 'Der opstod en fejl. Prøv at genindlæse siden.';
+  }
+}
 
 export default function OpretForeningPage() {
   const navigate = useNavigate();
+  const status = useSystemStatus();
+
+  // Step state
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ foreningsnavn: '', cvr: '', kontaktperson: '', email: '', telefon: '' });
 
-  const update = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
-  const canSubmit = form.foreningsnavn && form.kontaktperson && form.email;
+  // Step 1: email
+  const [email, setEmail] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
-  const socialBtnStyle = {
-    width: '100%', height: 56, borderRadius: 14,
-    background: 'rgba(255,255,255,0.06)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    color: '#fff', fontSize: 15, fontWeight: 600,
-    cursor: 'pointer', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', gap: 12,
-    transition: 'all 0.2s', fontFamily: 'inherit',
+  // Step 2: OTP-indtastning
+  const [otpDigits, setOtpDigits] = useState(Array(OTP_LENGTH).fill(''));
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [_otpRemainingAttempts, setOtpRemainingAttempts] = useState(null);
+  const [resendCooldown, setResendCooldown] = useState(RESEND_COOLDOWN_SECONDS);
+  const otpInputRefs = useRef([]);
+
+  // ===========================================================================
+  // STEP 3: Konsent-versioner (fetched ved mount)
+  // ===========================================================================
+
+  // Indexed by consent_type. Null indtil fetch er færdig.
+  const [consentVersions, setConsentVersions] = useState(null);
+  const [consentLoading, setConsentLoading] = useState(true);
+  const [consentError, setConsentError] = useState('');
+
+  // Step 3 form-state: 8 felter
+  const [foreningsnavn, setForeningsnavn] = useState('');
+  const [cvrNummer, setCvrNummer] = useState('');
+  const [postnummer, setPostnummer] = useState('');
+  const [kontaktNavn, setKontaktNavn] = useState('');
+  const [kontaktRolle, setKontaktRolle] = useState('Formand');
+  const [kontaktTlf, setKontaktTlf] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Step 3 consent-checkboxes (3 obligatoriske + 1 marketing UNCHECKED default)
+  const [consentTermsChecked, setConsentTermsChecked] = useState(false);
+  const [consentGdprChecked, setConsentGdprChecked] = useState(false);
+  const [consentPiiChecked, setConsentPiiChecked] = useState(false);
+  const [consentMarketingChecked, setConsentMarketingChecked] = useState(false);
+
+  // Step 3 submit state
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  // Modal state: hvilken consent-type er åben (null = ingen modal aktiv)
+  const [activeModalType, setActiveModalType] = useState(null);
+
+  // Fetch consent_versions ved mount, cancel ved unmount via AbortController
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    setConsentLoading(true);
+    setConsentError('');
+
+    fetchActiveConsents({ signal: abortController.signal })
+      .then((versions) => {
+        if (abortController.signal.aborted) return;
+        setConsentVersions(versions);
+        setConsentLoading(false);
+      })
+      .catch((err) => {
+        if (abortController.signal.aborted) return;
+        if (err instanceof ConsentFetchError && err.code === 'ABORTED') return;
+        setConsentError(mapConsentErrorToMessage(err));
+        setConsentLoading(false);
+      });
+
+    return () => {
+      abortController.abort();
+    };
+  }, []);
+
+  // Modal handlers
+  const openConsentModal = (consentType) => {
+    setActiveModalType(consentType);
   };
 
+  const closeConsentModal = () => {
+    setActiveModalType(null);
+  };
+
+  // ===========================================================================
+  // STEP 1: Send OTP-kode
+  // ===========================================================================
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    setEmailError('');
+
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setEmailError('Indtast en gyldig email-adresse.');
+      return;
+    }
+
+    setEmailLoading(true);
+    try {
+      const response = await fetch(`${SMH_API_URL}/api/auth/otp/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmed }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          setEmailError(data.message || 'For mange forsøg. Vent et øjeblik og prøv igen.');
+        } else {
+          setEmailError(data.message || 'Kunne ikke sende kode. Prøv igen.');
+        }
+        setEmailLoading(false);
+        return;
+      }
+
+      // Success: gå videre til Step 2
+      setEmail(trimmed);
+      setStep(2);
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);                  // start cooldown timer
+    } catch (err) {
+      console.error('OTP request failed:', err);
+      setEmailError('Netværksfejl. Tjek din forbindelse og prøv igen.');
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
+  // ===========================================================================
+  // STEP 2: OTP-indtastning + verify
+  // ===========================================================================
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (step !== 2 || resendCooldown <= 0) return;
+
+    const timer = setTimeout(() => {
+      setResendCooldown((s) => s - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [step, resendCooldown]);
+
+  // Auto-fokus paa foerste input naar vi entrerer Step 2
+  useEffect(() => {
+    if (step === 2 && otpInputRefs.current[0]) {
+      otpInputRefs.current[0].focus();
+    }
+  }, [step]);
+
+  /**
+   * Handle OTP-input change
+   * - Accepterer kun cifre
+   * - Auto-tab til naeste boks ved indtastning
+   * - Auto-submit naar alle 8 cifre er udfyldt
+   */
+  const handleOtpChange = (index, value) => {
+    // Only accept digits
+    const digit = value.replace(/\D/g, '').slice(-1);
+
+    const newDigits = [...otpDigits];
+    newDigits[index] = digit;
+    setOtpDigits(newDigits);
+
+    // Clear errors ved ny indtastning
+    if (otpError) setOtpError('');
+
+    // Auto-tab til naeste boks
+    if (digit && index < OTP_LENGTH - 1) {
+      otpInputRefs.current[index + 1]?.focus();
+    }
+
+    // Auto-submit naar alle cifre er udfyldt
+    if (newDigits.every((d) => d !== '') && newDigits.join('').length === OTP_LENGTH) {
+      handleVerifyOtp(newDigits.join(''));
+    }
+  };
+
+  /**
+   * Handle keyboard-events i OTP-input
+   * - Backspace: clear current og fokus til forrige boks
+   * - Arrow keys: naviger mellem bokse
+   */
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
+      // Tom boks + backspace -> ga tilbage til forrige
+      otpInputRefs.current[index - 1]?.focus();
+    } else if (e.key === 'ArrowLeft' && index > 0) {
+      otpInputRefs.current[index - 1]?.focus();
+    } else if (e.key === 'ArrowRight' && index < OTP_LENGTH - 1) {
+      otpInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  /**
+   * Handle paste-event
+   * - Hvis bruger paster en 8-cifret kode, fordel ud paa alle bokse
+   */
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
+
+    if (pasted.length === 0) return;
+
+    const newDigits = Array(OTP_LENGTH).fill('');
+    for (let i = 0; i < pasted.length; i++) {
+      newDigits[i] = pasted[i];
+    }
+    setOtpDigits(newDigits);
+
+    // Fokus til sidste indsatte boks (eller sidste hvis fuld kode)
+    const focusIndex = Math.min(pasted.length, OTP_LENGTH - 1);
+    otpInputRefs.current[focusIndex]?.focus();
+
+    // Auto-submit hvis fuld kode
+    if (pasted.length === OTP_LENGTH) {
+      handleVerifyOtp(pasted);
+    }
+  };
+
+  /**
+   * Verify OTP-koden mod backend
+   */
+  const handleVerifyOtp = async (code) => {
+    setOtpError('');
+    setOtpLoading(true);
+
+    try {
+      const response = await fetch(`${SMH_API_URL}/api/auth/otp/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Auto-clear felter ved fejl + fokus til foerste boks
+        setOtpDigits(Array(OTP_LENGTH).fill(''));
+        otpInputRefs.current[0]?.focus();
+
+        if (response.status === 401 && data.remaining_attempts !== undefined) {
+          setOtpRemainingAttempts(data.remaining_attempts);
+          setOtpError(data.message || `Forkert kode. ${data.remaining_attempts} forsoeg tilbage.`);
+        } else if (response.status === 429) {
+          setOtpError(data.message || 'For mange forsøg. Start forfra med ny email.');
+          setOtpRemainingAttempts(0);
+        } else if (response.status === 404) {
+          setOtpError(data.message || 'Koden er udløbet. Klik "Send ny kode" for at få en ny.');
+        } else {
+          setOtpError(data.message || 'Verifikation fejlede. Prøv igen.');
+        }
+        setOtpLoading(false);
+        return;
+      }
+
+      // Success: ga til Step 3
+      setStep(3);
+    } catch (err) {
+      console.error('OTP verify failed:', err);
+      setOtpError('Netværksfejl. Tjek din forbindelse og prøv igen.');
+      setOtpDigits(Array(OTP_LENGTH).fill(''));
+      otpInputRefs.current[0]?.focus();
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  /**
+   * Resend OTP-kode (genbruger Step 1 logik)
+   */
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0) return;
+
+    setOtpError('');
+    setOtpDigits(Array(OTP_LENGTH).fill(''));
+    setEmailLoading(true);
+
+    try {
+      const response = await fetch(`${SMH_API_URL}/api/auth/otp/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setOtpError(data.message || 'Kunne ikke sende ny kode. Prøv igen.');
+      } else {
+        setResendCooldown(RESEND_COOLDOWN_SECONDS);
+        setOtpRemainingAttempts(null);
+        otpInputRefs.current[0]?.focus();
+      }
+    } catch {
+      setOtpError('Netværksfejl ved gensendelse.');
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+  // ===================================================
+  // Step 3 (Patch 4 - DEL B): canSubmit + submit handler
+  // ===================================================
+
+  const canSubmitStep3 = () => {
+    if (submitLoading) return false;
+    if (!consentVersions) return false;
+    if (validateStep3Field('foreningsnavn', foreningsnavn)) return false;
+    if (validateStep3Field('cvrNummer', cvrNummer)) return false;
+    if (validateStep3Field('postnummer', postnummer)) return false;
+    if (validateStep3Field('kontaktNavn', kontaktNavn)) return false;
+    if (validateStep3Field('kontaktRolle', kontaktRolle)) return false;
+    if (validateStep3Field('kontaktTlf', kontaktTlf)) return false;
+    if (validateStep3Password(password)) return false;
+    if (!consentTermsChecked) return false;
+    if (!consentGdprChecked) return false;
+    if (!consentPiiChecked) return false;
+    return true;
+  };
+
+  const handleStep3Submit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+
+    if (!canSubmitStep3()) return;
+
+    setSubmitLoading(true);
+    setSubmitError('');
+    setFieldErrors({});
+
+    const payload = {
+      email,
+      password,
+      foreningsnavn: foreningsnavn.trim(),
+      cvr_nummer: cvrNummer.trim(),
+      kontaktperson_navn: kontaktNavn.trim(),
+      kontaktperson_rolle: kontaktRolle,
+      kontaktperson_tlf: kontaktTlf.trim(),
+      postnummer: postnummer.trim(),
+      consent_terms_id: consentVersions.platform_terms?.id,
+      consent_gdpr_id: consentVersions.gdpr_terms?.id,
+      consent_pii_id: consentVersions.pii_consent?.id,
+      consent_marketing_id: consentMarketingChecked
+        ? consentVersions.marketing_consent?.id || null
+        : null,
+    };
+
+    try {
+      const response = await fetch(`${SMH_API_URL}/api/signup/forening`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        // Field-level errors fra backend Zod-validation
+        if (response.status === 400 && Array.isArray(data.field_errors)) {
+          const mapped = {};
+          for (const fe of data.field_errors) {
+            const fieldName = fe.field || fe.path;
+            if (fieldName === 'cvr_nummer') mapped.cvrNummer = fe.message || 'Ugyldigt CVR-nummer';
+            else if (fieldName === 'postnummer') mapped.postnummer = fe.message || 'Ugyldigt postnummer';
+            else if (fieldName === 'kontaktperson_navn') mapped.kontaktNavn = fe.message || 'Ugyldigt navn';
+            else if (fieldName === 'kontaktperson_rolle') mapped.kontaktRolle = fe.message || 'Ugyldig rolle';
+            else if (fieldName === 'kontaktperson_tlf') mapped.kontaktTlf = fe.message || 'Ugyldigt telefonnummer';
+            else if (fieldName === 'foreningsnavn') mapped.foreningsnavn = fe.message || 'Ugyldigt foreningsnavn';
+            else if (fieldName === 'password') mapped.password = fe.message || 'Ugyldig adgangskode';
+          }
+          setFieldErrors(mapped);
+          if (Object.keys(mapped).length === 0) {
+            setSubmitError(data.message || 'Nogle felter er ugyldige - tjek formularen og prøv igen.');
+          }
+          setSubmitLoading(false);
+          return;
+        }
+
+        // Status-specifikke fejl (matcher strategy v1.3 sektion 3.4)
+        if (response.status === 401) {
+          setSubmitError(data.message || 'Din email-bekræftelse er udløbet. Bekræft venligst din email igen.');
+        } else if (response.status === 403) {
+          setSubmitError(data.message || 'Du er allerede registreret som tegningsberettiget i en anden forening. Kontakt support hvis du har behov for at oprette en yderligere forening.');
+        } else if (response.status === 409) {
+          if (data.error_code === 'EMAIL_ALREADY_REGISTERED') {
+            setSubmitError(data.message || 'Denne email er allerede registreret. Log ind i stedet.');
+          } else if (data.error_code === 'CVR_DUPLICATE') {
+            setFieldErrors({ cvrNummer: 'Denne forening er allerede oprettet hos StøtMedHjerte. Kontakt support hvis du mener det er en fejl.' });
+          } else {
+            setSubmitError(data.message || 'Konflikt med eksisterende data. Tjek formularen.');
+          }
+        } else if (response.status === 429) {
+          setSubmitError(data.message || 'For mange forsøg. Vent et øjeblik og prøv igen.');
+        } else {
+          setSubmitError(data.message || 'Noget gik galt. Prøv igen om et øjeblik.');
+        }
+        setSubmitLoading(false);
+        return;
+      }
+
+      // Success - handoff_failed fallback eller cross-domain redirect
+      if (data.handoff_failed && data.fallback_redirect) {
+        window.location.href = data.fallback_redirect;
+        return;
+      }
+
+      if (!data.redirect_url) {
+        setSubmitError('Foreningen er oprettet, men overgangen til app fejlede. Prøv at logge ind manuelt.');
+        setSubmitLoading(false);
+        return;
+      }
+
+      // Step 4 success-skærm vises (implementeres i Patch 7)
+      // Indtil videre - direkte redirect efter kort delay
+      setSubmitLoading(false);
+      setStep(4);
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      window.location.href = data.redirect_url;
+    } catch (err) {
+      setSubmitError('Netværksfejl - tjek din internetforbindelse og prøv igen.');
+      setSubmitLoading(false);
+    }
+  };
+
+
+  // ===========================================================================
+  // Render
+  // ===========================================================================
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      position: 'relative', overflow: 'hidden',
-      fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-      padding: '40px 0',
-    }}>
-      <style>{`
-        @keyframes login-orb-1 { 0%{transform:translate(0,0) scale(1)} 33%{transform:translate(60px,-40px) scale(1.15)} 66%{transform:translate(-30px,30px) scale(0.95)} 100%{transform:translate(0,0) scale(1)} }
-        @keyframes login-orb-2 { 0%{transform:translate(0,0) scale(1)} 33%{transform:translate(-50px,50px) scale(1.1)} 66%{transform:translate(40px,-20px) scale(0.9)} 100%{transform:translate(0,0) scale(1)} }
-        @keyframes login-orb-3 { 0%{transform:translate(0,0) scale(1);opacity:.6} 50%{transform:translate(30px,40px) scale(1.2);opacity:1} 100%{transform:translate(0,0) scale(1);opacity:.6} }
-        @keyframes login-grid-drift { 0%{transform:translate(0,0)} 100%{transform:translate(60px,60px)} }
-        @keyframes login-particles { 0%{transform:translateY(0) scale(1);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(-100vh) scale(0.5);opacity:0} }
-        @keyframes login-fade-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        .login-card { animation: login-fade-up 0.6s cubic-bezier(0.16,1,0.3,1) both; }
-        .signup-input { width:100%;height:48px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 14px;font-size:14px;color:#fff;outline:none;transition:all 0.2s;font-family:inherit;box-sizing:border-box; }
-        .signup-input:focus { border-color:rgba(59,130,246,0.4);background:rgba(255,255,255,0.08); }
-        .signup-input::placeholder { color:rgba(255,255,255,0.2); }
-        .social-btn:hover { background:rgba(255,255,255,0.1)!important;border-color:rgba(255,255,255,0.2)!important;transform:translateY(-1px); }
-      `}</style>
+    <div style={pageStyle}>
+      <style>{ANIMATIONS_AND_INPUTS}</style>
 
-      {/* Grid */}
-      <div style={{ position:'absolute',inset:-60,opacity:0.04,backgroundImage:'linear-gradient(rgba(255,255,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.5) 1px,transparent 1px)',backgroundSize:'60px 60px',animation:'login-grid-drift 20s linear infinite' }} />
+      {/* Background grid */}
+      <div style={gridStyle} />
 
-      {/* Blue orbs */}
-      <div style={{ position:'absolute',top:'10%',right:'15%',width:350,height:350,borderRadius:'50%',background:'radial-gradient(circle,rgba(59,130,246,0.18) 0%,transparent 70%)',filter:'blur(60px)',animation:'login-orb-1 12s ease-in-out infinite' }} />
-      <div style={{ position:'absolute',bottom:'10%',left:'10%',width:300,height:300,borderRadius:'50%',background:'radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 70%)',filter:'blur(60px)',animation:'login-orb-2 15s ease-in-out infinite' }} />
-      <div style={{ position:'absolute',top:'40%',left:'50%',width:200,height:200,borderRadius:'50%',background:'radial-gradient(circle,rgba(96,165,250,0.1) 0%,transparent 70%)',filter:'blur(40px)',animation:'login-orb-3 10s ease-in-out infinite' }} />
+      {/* Animated orbs (Pulse signature) */}
+      <div style={orb1Style} />
+      <div style={orb2Style} />
+      <div style={orb3Style} />
 
       {/* Particles */}
-      {[...Array(6)].map((_,i)=>(
-        <div key={i} style={{ position:'absolute',left:`${15+i*14}%`,bottom:'-5%',width:3+(i%3),height:3+(i%3),borderRadius:'50%',background:`rgba(59,130,246,${0.15+(i%3)*0.1})`,animation:`login-particles ${8+i*2}s linear infinite`,animationDelay:`${i*1.5}s` }} />
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: `${15 + i * 14}%`,
+            bottom: '-5%',
+            width: 3 + (i % 3),
+            height: 3 + (i % 3),
+            borderRadius: '50%',
+            background: `rgba(59,130,246,${0.15 + (i % 3) * 0.1})`,
+            animation: `login-particles ${8 + i * 2}s linear infinite`,
+            animationDelay: `${i * 1.5}s`,
+            zIndex: 1,
+          }}
+        />
       ))}
 
-      {/* Back */}
-      <button onClick={() => step === 2 ? setStep(1) : navigate('/')} style={{
-        position:'absolute',top:28,left:28,display:'flex',alignItems:'center',gap:6,
-        background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',
-        borderRadius:10,padding:'8px 14px',color:'rgba(255,255,255,0.5)',fontSize:13,
-        fontWeight:500,cursor:'pointer',transition:'all 0.2s',fontFamily:'inherit',zIndex:10,
-      }}
-        onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.1)';e.currentTarget.style.color='#fff';}}
-        onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.5)';}}
+      {/* Top nav: wordmark + system status */}
+      <nav style={navStyle}>
+        <div style={wordmarkStyle} onClick={() => navigate('/')}>
+          <span style={wordmarkDotStyle} />
+          <span>StøtMedHjerte</span>
+        </div>
+        <div style={statusBadgeStyle}>
+          <span
+            style={{
+              ...statusDotStyle,
+              background: status.color,
+              boxShadow: `0 0 8px ${status.color}`,
+            }}
+          />
+          {status.label}
+        </div>
+      </nav>
+
+      {/* Back button */}
+      <button
+        onClick={() => (step === 1 ? navigate('/') : setStep(step - 1))}
+        style={backButtonStyle}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+          e.currentTarget.style.color = '#fff';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+          e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
+        }}
       >
-        <ArrowLeft size={14} /> {step === 2 ? 'Tilbage' : 'Til forsiden'}
+        <ArrowLeft size={14} /> {step === 1 ? 'Til forsiden' : 'Tilbage'}
       </button>
 
-      {/* Card */}
-      <div className="login-card" key={step} style={{ position:'relative',zIndex:2,width:'100%',maxWidth:420,padding:'0 20px' }}>
-        <div style={{
-          background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',
-          borderRadius:24,padding:'44px 36px 36px',backdropFilter:'blur(20px)',
-        }}>
-          {/* Icon */}
-          <div style={{ textAlign:'center',marginBottom:20 }}>
-            <div style={{
-              width:56,height:56,borderRadius:16,background:'rgba(59,130,246,0.12)',
-              display:'inline-flex',alignItems:'center',justifyContent:'center',
-            }}>
-              <Users size={26} color="#3B82F6" />
+      {/* Card container */}
+      <main style={mainStyle}>
+        <div className="login-card" style={cardWrapperStyle}>
+          <div style={cardStyle}>
+            {/* Step indicator */}
+            <div style={stepIndicatorStyle}>
+              <span style={stepDotStyle(step >= 1)} />
+              <span style={stepLineStyle(step >= 2)} />
+              <span style={stepDotStyle(step >= 2)} />
+              <span style={stepLineStyle(step >= 3)} />
+              <span style={stepDotStyle(step >= 3)} />
+              <span style={stepCounterStyle}>STEP {step} / 3</span>
             </div>
-          </div>
 
-          <div style={{ textAlign:'center',marginBottom:28 }}>
-            <div style={{ fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.12em',color:'#60a5fa',marginBottom:8 }}>Forening</div>
-            <h1 style={{ fontSize:22,fontWeight:800,color:'#fff',letterSpacing:'-0.03em',margin:'0 0 6px' }}>
-              {step === 1 ? 'Kom i gang gratis' : 'Fortæl os om din forening'}
-            </h1>
-            <p style={{ fontSize:13,color:'rgba(255,255,255,0.45)',margin:0 }}>
-              {step === 1 ? 'Vælg hvordan du vil komme i gang' : 'Vi kontakter dig inden for 24 timer'}
-            </p>
-          </div>
-
-          {/* STEP 1: Choose method */}
-          {step === 1 && (
-            <div style={{ display:'flex',flexDirection:'column',gap:10 }}>
-              <button className="social-btn" onClick={() => navigate('/book-moede')} style={{
-                ...socialBtnStyle,
-                background: 'rgba(59,130,246,0.08)',
-                border: '1px solid rgba(59,130,246,0.15)',
-                color: '#60a5fa',
-              }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                Book et gratis møde (15 min.)
-              </button>
-
-              {/* Divider */}
-              <div style={{ display:'flex',alignItems:'center',gap:12,margin:'8px 0' }}>
-                <div style={{ flex:1,height:1,background:'rgba(255,255,255,0.06)' }} />
-                <span style={{ fontSize:11,color:'rgba(255,255,255,0.2)' }}>eller</span>
-                <div style={{ flex:1,height:1,background:'rgba(255,255,255,0.06)' }} />
-              </div>
-
-              <button className="social-btn" onClick={() => setStep(2)} style={socialBtnStyle}>
-                <Mail size={18} color="rgba(255,255,255,0.5)" />
-                Udfyld formular
-              </button>
-
-              {/* Info box */}
-              <div style={{
-                marginTop: 12, padding: '14px 16px', borderRadius: 12,
-                background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.1)',
-              }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#60a5fa', marginBottom: 4 }}>Helt gratis at starte</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
-                  Ingen opstartsomkostninger. 80% af alle donationer og abonnementer går direkte til din forening.
-                </div>
+            {/* Icon */}
+            <div style={iconWrapperStyle}>
+              <div style={iconCircleStyle}>
+                {step === 2 ? (
+                  <Mail size={26} color="#3B82F6" />
+                ) : (
+                  <Users size={26} color="#3B82F6" />
+                )}
               </div>
             </div>
-          )}
 
-          {/* STEP 2: Forenings-formular */}
-          {step === 2 && (
-            <div>
-              {/* Foreningsnavn */}
-              <div style={{ marginBottom:12 }}>
-                <label style={{ display:'block',fontSize:11,fontWeight:600,color:'rgba(255,255,255,0.4)',marginBottom:6 }}>Foreningsnavn *</label>
-                <input className="signup-input" value={form.foreningsnavn} onChange={e=>update('foreningsnavn',e.target.value)} placeholder="Fx Hillerød Svømmeklub" autoFocus />
-              </div>
+            {/* Heading section */}
+            <div style={headerStyle}>
+              <div style={eyebrowStyle}>OPRET FORENING</div>
+              <h1 style={headingStyle}>
+                {step === 1 && 'Bekræft din email-adresse'}
+                {step === 2 && 'Indtast bekræftelseskode'}
+                {step === 3 && 'Fortæl os om foreningen'}
+              </h1>
+              <p style={subheadStyle}>
+                {step === 1 && 'Vi sender en 8-cifret kode til din email for at verificere at du ejer adressen.'}
+                {step === 2 && (
+                  <>
+                    Vi har sendt en kode til <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{email}</strong>. Indtast koden nedenfor for at fortsætte.
+                  </>
+                )}
+                {step === 3 && 'Udfyld foreningens oplysninger for at færdiggøre opretelsen.'}
+              </p>
+            </div>
 
-              {/* CVR */}
-              <div style={{ marginBottom:12 }}>
-                <label style={{ display:'block',fontSize:11,fontWeight:600,color:'rgba(255,255,255,0.4)',marginBottom:6 }}>CVR-nummer (valgfrit)</label>
-                <input className="signup-input" value={form.cvr} onChange={e=>update('cvr',e.target.value.replace(/\D/g,'').slice(0,8))} placeholder="12345678" inputMode="numeric" />
-              </div>
-
-              {/* Kontaktperson */}
-              <div style={{ marginBottom:12 }}>
-                <label style={{ display:'block',fontSize:11,fontWeight:600,color:'rgba(255,255,255,0.4)',marginBottom:6 }}>Kontaktperson *</label>
-                <input className="signup-input" value={form.kontaktperson} onChange={e=>update('kontaktperson',e.target.value)} placeholder="Fulde navn" />
-              </div>
-
-              {/* Email + Telefon */}
-              <div style={{ display:'flex',gap:10,marginBottom:16 }}>
-                <div style={{ flex:1 }}>
-                  <label style={{ display:'block',fontSize:11,fontWeight:600,color:'rgba(255,255,255,0.4)',marginBottom:6 }}>Email *</label>
-                  <input className="signup-input" type="email" value={form.email} onChange={e=>update('email',e.target.value)} placeholder="kontakt@forening.dk" />
+            {/* ====================================================== */}
+            {/* STEP 1: Email + send OTP */}
+            {/* ====================================================== */}
+            {step === 1 && (
+              <form onSubmit={handleSendOtp}>
+                <div style={fieldStyle}>
+                  <label style={labelStyle} htmlFor="email">Email</label>
+                  <input
+                    id="email"
+                    type="email"
+                    className="signup-input"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="navn@forening.dk"
+                    autoComplete="email"
+                    autoFocus
+                    disabled={emailLoading}
+                    required
+                  />
                 </div>
-                <div style={{ flex:1 }}>
-                  <label style={{ display:'block',fontSize:11,fontWeight:600,color:'rgba(255,255,255,0.4)',marginBottom:6 }}>Telefon</label>
-                  <input className="signup-input" type="tel" value={form.telefon} onChange={e=>update('telefon',e.target.value)} placeholder="12 34 56 78" />
-                </div>
-              </div>
 
-              {/* What happens next */}
-              <div style={{
-                padding: '14px 16px', borderRadius: 12, marginBottom: 20,
-                background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.1)',
-              }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#60a5fa', marginBottom: 6 }}>Hvad sker der nu?</div>
-                <div style={{ display:'flex',flexDirection:'column',gap:6 }}>
-                  {[
-                    'Vi ringer dig op inden 24 timer',
-                    'Vi gennemgår platformen sammen (15 min.)',
-                    'Du er klar til at modtage støtte',
-                  ].map((t,i) => (
-                    <div key={i} style={{ display:'flex',alignItems:'center',gap:8,fontSize:11,color:'rgba(255,255,255,0.35)' }}>
-                      <div style={{ width:18,height:18,borderRadius:'50%',background:'rgba(59,130,246,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:9,fontWeight:700,color:'#60a5fa' }}>{i+1}</div>
-                      {t}
-                    </div>
+                {emailError && (
+                  <div style={errorStyle}>
+                    <span style={errorDotStyle} />
+                    {emailError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={emailLoading || !email}
+                  style={primaryButtonStyle(!emailLoading && !!email)}
+                  onMouseEnter={(e) => {
+                    if (!emailLoading && email) {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 8px 32px rgba(8,145,178,0.45)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow =
+                      !emailLoading && email ? '0 4px 24px rgba(8,145,178,0.35)' : 'none';
+                  }}
+                >
+                  {emailLoading ? (
+                    <>
+                      <Loader size={16} className="spin" /> Sender kode...
+                    </>
+                  ) : (
+                    <>
+                      Send bekræftelseskode <ArrowRight size={15} />
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            {/* ====================================================== */}
+            {/* STEP 2: OTP-indtastning */}
+            {/* ====================================================== */}
+            {step === 2 && (
+              <div>
+                {/* OTP input grid */}
+                <div style={otpGridStyle}>
+                  {otpDigits.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(el) => (otpInputRefs.current[index] = el)}
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(index, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                      onPaste={index === 0 ? handleOtpPaste : undefined}
+                      disabled={otpLoading}
+                      style={otpInputStyle(otpError !== '')}
+                    />
                   ))}
                 </div>
+
+                {/* Error besked */}
+                {otpError && (
+                  <div style={{ ...errorStyle, marginTop: 0 }}>
+                    <span style={errorDotStyle} />
+                    {otpError}
+                  </div>
+                )}
+
+                {/* Loading-indikator */}
+                {otpLoading && (
+                  <div style={otpVerifyingStyle}>
+                    <Loader size={14} className="spin" />
+                    <span>Verificerer kode...</span>
+                  </div>
+                )}
+
+                {/* Resend-knap */}
+                <div style={resendRowStyle}>
+                  {resendCooldown > 0 ? (
+                    <span style={resendCooldownTextStyle}>
+                      Send ny kode om {resendCooldown}s
+                    </span>
+                  ) : (
+                    <button
+                      onClick={handleResendOtp}
+                      disabled={emailLoading}
+                      style={resendButtonStyle}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#60a5fa')}
+                    >
+                      {emailLoading ? 'Sender...' : 'Send ny kode'}
+                    </button>
+                  )}
+                </div>
               </div>
+            )}
 
-              {/* Submit */}
-              <button disabled={!canSubmit} style={{
-                width:'100%',height:52,borderRadius:14,border:'none',
-                background:canSubmit?'linear-gradient(135deg,#E0193F,#c8112e)':'rgba(255,255,255,0.06)',
-                color:canSubmit?'#fff':'rgba(255,255,255,0.2)',
-                fontSize:16,fontWeight:700,cursor:canSubmit?'pointer':'not-allowed',
-                display:'flex',alignItems:'center',justifyContent:'center',gap:8,
-                boxShadow:canSubmit?'0 4px 24px rgba(224,25,63,0.35)':'none',
-                transition:'all 0.2s',fontFamily:'inherit',
-              }}
-                onMouseEnter={e=>{if(canSubmit){e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 8px 32px rgba(224,25,63,0.45)';}}}
-                onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow=canSubmit?'0 4px 24px rgba(224,25,63,0.35)':'none';}}
+            {/* ====================================================== */}
+            {/* STEP 3: Forening-data (smoke-test - formular kommer naeste patch) */}
+            {/* ====================================================== */}
+            {step === 3 && (
+              <div style={{ padding: '20px 0' }}>
+                {consentLoading && (
+                  <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.5)' }}>
+                    <Loader size={20} className="spin" style={{ marginBottom: 12 }} />
+                    <div style={{ fontSize: 14 }}>Indlæser samtykke-tekster...</div>
+                  </div>
+                )}
+
+                {consentError && !consentLoading && (
+                  <div style={{ padding: '24px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 12, marginBottom: 16 }}>
+                    <div style={{ fontSize: 14, color: '#fca5a5', marginBottom: 12 }}>{consentError}</div>
+                    <button
+                      type="button"
+                      onClick={() => window.location.reload()}
+                      style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff', fontSize: 13, cursor: 'pointer' }}
+                    >
+                      Genindlæs siden
+                    </button>
+                  </div>
+                )}
+
+                {!consentLoading && !consentError && consentVersions && (
+                  <div>
+                    <div style={{ marginBottom: 16, fontSize: 13, color: '#10b981' }}>
+                      OK: {Object.keys(consentVersions).length} samtykke-tekster indlæst (smoke-test)
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                      <button type="button" onClick={() => openConsentModal('platform_terms')} style={consentTestButtonStyle}>
+                        Vis Platform-vilkår
+                      </button>
+                      <button type="button" onClick={() => openConsentModal('gdpr_terms')} style={consentTestButtonStyle}>
+                        Vis GDPR-vilkår
+                      </button>
+                      <button type="button" onClick={() => openConsentModal('pii_consent')} style={consentTestButtonStyle}>
+                        Vis Persondata
+                      </button>
+                      <button type="button" onClick={() => openConsentModal('marketing_consent')} style={consentTestButtonStyle}>
+                        Vis Marketing
+                      </button>
+                    </div>
+                    <div style={{ marginTop: 24, padding: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+                      Step 3 formular (8 felter + 4 checkboxes) bygges i næste patch.
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Modal til konsent-tekster (portal til document.body) */}
+            <ConsentModal
+              isOpen={activeModalType !== null}
+              onClose={closeConsentModal}
+              version={activeModalType && consentVersions ? consentVersions[activeModalType] : null}
+              onAccept={(consentType) => console.log('Smoke-test: accepted', consentType)}
+            />
+
+            {/* Login link */}
+            <div style={loginLinkRowStyle}>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
+                Allerede oprettet?{' '}
+              </span>
+              <span
+                onClick={() => navigate('/login-forening')}
+                style={loginLinkStyle}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#60a5fa')}
               >
-                Send henvendelse <ArrowRight size={15} />
-              </button>
+                Log ind
+              </span>
             </div>
-          )}
+          </div>
 
-          {/* Login link */}
-          <div style={{ textAlign:'center',marginTop:20 }}>
-            <span style={{ fontSize:13,color:'rgba(255,255,255,0.3)' }}>Allerede oprettet? </span>
-            <span onClick={()=>navigate('/login-forening')} style={{ fontSize:13,color:'#60a5fa',fontWeight:600,cursor:'pointer' }}>Log ind</span>
+          {/* Trust badge under card */}
+          <div style={trustBadgeRowStyle}>
+            <ShieldCheck size={12} color="rgba(255,255,255,0.3)" />
+            <span style={trustBadgeTextStyle}>Sikker krypteret forbindelse</span>
           </div>
         </div>
+      </main>
 
-        {/* Trust */}
-        <div style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:6,marginTop:20 }}>
-          <ShieldCheck size={12} color="rgba(255,255,255,0.2)" />
-          <span style={{ fontSize:11,color:'rgba(255,255,255,0.2)' }}>Sikker krypteret forbindelse</span>
+      {/* Footer */}
+      <footer style={footerStyle}>
+        <div style={footerLeftStyle}>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          KRYPTERET FORBINDELSE · TLS 1.3
         </div>
-      </div>
+        <div style={footerRightStyle}>BYGGET I DANMARK · © 2026</div>
+      </footer>
     </div>
   );
 }
+
+// ===========================================================================
+// CSS animations + input-styling (inline <style> tag)
+// ===========================================================================
+const ANIMATIONS_AND_INPUTS = `
+  @keyframes login-orb-1 { 0%{transform:translate(0,0) scale(1)} 33%{transform:translate(60px,-40px) scale(1.15)} 66%{transform:translate(-30px,30px) scale(0.95)} 100%{transform:translate(0,0) scale(1)} }
+  @keyframes login-orb-2 { 0%{transform:translate(0,0) scale(1)} 33%{transform:translate(-50px,50px) scale(1.1)} 66%{transform:translate(40px,-20px) scale(0.9)} 100%{transform:translate(0,0) scale(1)} }
+  @keyframes login-orb-3 { 0%{transform:translate(0,0) scale(1);opacity:.6} 50%{transform:translate(30px,40px) scale(1.2);opacity:1} 100%{transform:translate(0,0) scale(1);opacity:.6} }
+  @keyframes login-grid-drift { 0%{transform:translate(0,0)} 100%{transform:translate(60px,60px)} }
+  @keyframes login-particles { 0%{transform:translateY(0) scale(1);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(-100vh) scale(0.5);opacity:0} }
+  @keyframes login-fade-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes status-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  .login-card { animation: login-fade-up 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+  .signup-input { width:100%;height:48px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 14px;font-size:14px;color:#fff;outline:none;transition:all 0.2s;font-family:inherit;box-sizing:border-box; }
+  .signup-input:focus { border-color:rgba(59,130,246,0.4);background:rgba(255,255,255,0.08); }
+  .signup-input::placeholder { color:rgba(255,255,255,0.2); }
+  .signup-input:disabled { opacity:0.5;cursor:not-allowed; }
+  .spin { animation: spin 0.8s linear infinite; }
+`;
+
+// ===========================================================================
+// Inline styles
+// ===========================================================================
+const pageStyle = {
+  minHeight: '100vh',
+  background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'relative',
+  overflow: 'hidden',
+  fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+};
+
+const gridStyle = {
+  position: 'absolute',
+  inset: -60,
+  opacity: 0.04,
+  backgroundImage:
+    'linear-gradient(rgba(255,255,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.5) 1px,transparent 1px)',
+  backgroundSize: '60px 60px',
+  animation: 'login-grid-drift 20s linear infinite',
+  zIndex: 0,
+};
+
+const orb1Style = {
+  position: 'absolute',
+  top: '10%',
+  right: '15%',
+  width: 350,
+  height: 350,
+  borderRadius: '50%',
+  background: 'radial-gradient(circle,rgba(59,130,246,0.18) 0%,transparent 70%)',
+  filter: 'blur(60px)',
+  animation: 'login-orb-1 12s ease-in-out infinite',
+  zIndex: 0,
+};
+
+const orb2Style = {
+  position: 'absolute',
+  bottom: '10%',
+  left: '10%',
+  width: 300,
+  height: 300,
+  borderRadius: '50%',
+  background: 'radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 70%)',
+  filter: 'blur(60px)',
+  animation: 'login-orb-2 15s ease-in-out infinite',
+  zIndex: 0,
+};
+
+const orb3Style = {
+  position: 'absolute',
+  top: '40%',
+  left: '50%',
+  width: 200,
+  height: 200,
+  borderRadius: '50%',
+  background: 'radial-gradient(circle,rgba(96,165,250,0.1) 0%,transparent 70%)',
+  filter: 'blur(40px)',
+  animation: 'login-orb-3 10s ease-in-out infinite',
+  zIndex: 0,
+};
+
+const navStyle = {
+  position: 'relative',
+  zIndex: 10,
+  padding: '20px 28px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+};
+
+const wordmarkStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  cursor: 'pointer',
+  color: '#fff',
+  fontSize: 15,
+  fontWeight: 600,
+  letterSpacing: '-0.02em',
+};
+
+const wordmarkDotStyle = {
+  width: 8,
+  height: 8,
+  background: BRAND_TEAL,
+  borderRadius: 2,
+  boxShadow: `0 0 12px rgba(8,145,178,0.4)`,
+};
+
+const statusBadgeStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  fontSize: 11,
+  fontFamily: "ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace",
+  color: 'rgba(255,255,255,0.4)',
+  letterSpacing: '0.05em',
+  textTransform: 'uppercase',
+};
+
+const statusDotStyle = {
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  animation: 'status-pulse 2s ease-in-out infinite',
+};
+
+const backButtonStyle = {
+  position: 'absolute',
+  top: 80,
+  left: 28,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 6,
+  background: 'rgba(255,255,255,0.06)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 10,
+  padding: '8px 14px',
+  color: 'rgba(255,255,255,0.5)',
+  fontSize: 13,
+  fontWeight: 500,
+  cursor: 'pointer',
+  transition: 'all 0.2s',
+  fontFamily: 'inherit',
+  zIndex: 10,
+};
+
+const mainStyle = {
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '40px 20px',
+  position: 'relative',
+  zIndex: 2,
+};
+
+const cardWrapperStyle = {
+  width: '100%',
+  maxWidth: 440,
+};
+
+const cardStyle = {
+  background: 'rgba(255,255,255,0.03)',
+  border: '1px solid rgba(255,255,255,0.06)',
+  borderRadius: 24,
+  padding: '40px 36px 32px',
+  backdropFilter: 'blur(20px)',
+  WebkitBackdropFilter: 'blur(20px)',
+};
+
+const stepIndicatorStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 6,
+  marginBottom: 28,
+  fontSize: 10,
+  fontFamily: "ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace",
+  color: 'rgba(255,255,255,0.3)',
+  letterSpacing: '0.1em',
+  textTransform: 'uppercase',
+};
+
+const stepDotStyle = (active) => ({
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  background: active ? BRAND_TEAL : 'rgba(255,255,255,0.12)',
+  boxShadow: active ? '0 0 8px rgba(8,145,178,0.4)' : 'none',
+  transition: 'all 0.3s ease',
+});
+
+const stepLineStyle = (active) => ({
+  width: 24,
+  height: 1,
+  background: active ? BRAND_TEAL : 'rgba(255,255,255,0.12)',
+  transition: 'all 0.3s ease',
+});
+
+const stepCounterStyle = {
+  marginLeft: 'auto',
+};
+
+const iconWrapperStyle = {
+  textAlign: 'center',
+  marginBottom: 20,
+};
+
+const iconCircleStyle = {
+  width: 56,
+  height: 56,
+  borderRadius: 16,
+  background: 'rgba(59,130,246,0.12)',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+const headerStyle = {
+  textAlign: 'center',
+  marginBottom: 28,
+};
+
+const eyebrowStyle = {
+  fontSize: 10,
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '0.12em',
+  color: '#60a5fa',
+  marginBottom: 8,
+  fontFamily: "ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace",
+};
+
+const headingStyle = {
+  fontSize: 22,
+  fontWeight: 800,
+  color: '#fff',
+  letterSpacing: '-0.03em',
+  margin: '0 0 8px',
+  lineHeight: 1.25,
+};
+
+const subheadStyle = {
+  fontSize: 13,
+  color: 'rgba(255,255,255,0.45)',
+  margin: 0,
+  lineHeight: 1.5,
+};
+
+const fieldStyle = {
+  marginBottom: 16,
+};
+
+const labelStyle = {
+  display: 'block',
+  fontSize: 11,
+  fontWeight: 600,
+  color: 'rgba(255,255,255,0.4)',
+  marginBottom: 6,
+  letterSpacing: '0.02em',
+};
+
+const errorStyle = {
+  marginBottom: 16,
+  marginTop: 16,
+  padding: '10px 14px',
+  background: 'rgba(239,68,68,0.08)',
+  border: '1px solid rgba(239,68,68,0.25)',
+  borderRadius: 10,
+  color: '#FCA5A5',
+  fontSize: 13,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+};
+
+const errorDotStyle = {
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  background: '#EF4444',
+  flexShrink: 0,
+  boxShadow: '0 0 8px rgba(239,68,68,0.6)',
+};
+
+const primaryButtonStyle = (active) => ({
+  width: '100%',
+  height: 52,
+  borderRadius: 14,
+  border: 'none',
+  background: active
+    ? `linear-gradient(135deg, ${BRAND_TEAL}, ${BRAND_TEAL_DARK})`
+    : 'rgba(255,255,255,0.06)',
+  color: active ? '#fff' : 'rgba(255,255,255,0.2)',
+  fontSize: 15,
+  fontWeight: 700,
+  cursor: active ? 'pointer' : 'not-allowed',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  boxShadow: active ? '0 4px 24px rgba(8,145,178,0.35)' : 'none',
+  transition: 'all 0.2s',
+  fontFamily: 'inherit',
+  marginTop: 4,
+});
+
+// OTP-specific styles
+const otpGridStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(8, 1fr)',
+  gap: 8,
+  marginBottom: 20,
+};
+
+const otpInputStyle = (hasError) => ({
+  width: '100%',
+  height: 52,
+  textAlign: 'center',
+  fontSize: 20,
+  fontWeight: 600,
+  borderRadius: 10,
+  background: 'rgba(255,255,255,0.05)',
+  border: hasError
+    ? '1px solid rgba(239,68,68,0.4)'
+    : '1px solid rgba(255,255,255,0.08)',
+  color: '#fff',
+  outline: 'none',
+  fontFamily: "ui-monospace, 'SF Mono', monospace",
+  transition: 'all 0.15s ease',
+  padding: 0,
+});
+
+const otpVerifyingStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  fontSize: 13,
+  color: 'rgba(255,255,255,0.5)',
+  marginTop: 16,
+  marginBottom: 16,
+};
+
+const resendRowStyle = {
+  textAlign: 'center',
+  marginTop: 16,
+  fontSize: 13,
+};
+
+const resendCooldownTextStyle = {
+  color: 'rgba(255,255,255,0.3)',
+  fontFamily: "ui-monospace, 'SF Mono', monospace",
+  fontSize: 12,
+};
+
+const resendButtonStyle = {
+  background: 'transparent',
+  border: 'none',
+  color: '#60a5fa',
+  fontSize: 13,
+  fontWeight: 600,
+  cursor: 'pointer',
+  transition: 'color 0.2s',
+  fontFamily: 'inherit',
+  padding: 0,
+};
+
+const loginLinkRowStyle = {
+  textAlign: 'center',
+  marginTop: 24,
+};
+
+const loginLinkStyle = {
+  fontSize: 13,
+  color: '#60a5fa',
+  fontWeight: 600,
+  cursor: 'pointer',
+  transition: 'color 0.2s',
+};
+
+const trustBadgeRowStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 6,
+  marginTop: 20,
+};
+
+const trustBadgeTextStyle = {
+  fontSize: 11,
+  color: 'rgba(255,255,255,0.3)',
+};
+
+const footerStyle = {
+  position: 'relative',
+  zIndex: 10,
+  padding: '20px 28px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  fontSize: 10,
+  fontFamily: "ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace",
+  color: 'rgba(255,255,255,0.3)',
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+};
+
+const footerLeftStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+};
+
+const footerRightStyle = {};
+
+// === Step 3 smoke-test button-style (genbruges i Step 3 formular) ===
+const consentTestButtonStyle = {
+  padding: '10px 14px',
+  background: 'rgba(8,145,178,0.08)',
+  border: '1px solid rgba(8,145,178,0.25)',
+  borderRadius: 8,
+  color: '#0891B2',
+  fontSize: 13,
+  fontWeight: 500,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  transition: 'all 150ms ease',
+};
+
+
+// =====================================================
+// Step 3 (Patch 3): Password helpers + form styling
+// Tilføjet 1. maj 2026 - Handoff Bridge Phase 3
+// =====================================================
+
+const computePasswordScore = (password) => {
+  if (!password || password.length === 0) return -1;
+  if (password.length < 4) return 0;
+  try {
+    const result = zxcvbn(password);
+    return result.score;
+  } catch {
+    return 0;
+  }
+};
+
+const passwordMeterColor = (score) => {
+  if (score === 0) return '#EF4444';
+  if (score === 1) return '#F97316';
+  if (score === 2) return '#EAB308';
+  if (score === 3) return '#14B8A6';
+  if (score === 4) return '#0891B2';
+  return 'rgba(255,255,255,0.08)';
+};
+
+const passwordMeterLabel = (score) => {
+  if (score === 0) return 'Meget svag';
+  if (score === 1) return 'Svag';
+  if (score === 2) return 'Mellem';
+  if (score === 3) return 'God';
+  if (score === 4) return 'Stærk';
+  return '';
+};
+
+// --- Section header ---
+const sectionLabelStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  marginBottom: 18,
+};
+
+const sectionIconBoxStyle = {
+  width: 24,
+  height: 24,
+  borderRadius: 7,
+  background: 'rgba(8,145,178,0.18)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+};
+
+const sectionLabelTextStyle = {
+  fontSize: 11,
+  fontWeight: 600,
+  color: '#0891B2',
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+};
+
+// --- Field label + required asterisk ---
+const fieldLabelStyle = {
+  display: 'flex',
+  alignItems: 'baseline',
+  gap: 4,
+  marginBottom: 8,
+};
+
+const fieldLabelTextStyle = {
+  fontSize: 13,
+  fontWeight: 500,
+  color: 'rgba(255,255,255,0.9)',
+};
+
+const fieldRequiredStyle = {
+  color: '#EF4444',
+  fontSize: 13,
+};
+
+// --- Field error ---
+const fieldErrorStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 6,
+  marginTop: 8,
+  fontSize: 13,
+  color: '#FCA5A5',
+};
+
+const fieldErrorDotStyle = {
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  background: '#EF4444',
+  flexShrink: 0,
+};
+
+// --- Password input + toggle ---
+const passwordWrapperStyle = {
+  position: 'relative',
+};
+
+const passwordToggleStyle = {
+  position: 'absolute',
+  right: 12,
+  top: '50%',
+  transform: 'translateY(-50%)',
+  width: 24,
+  height: 24,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  background: 'transparent',
+  border: 'none',
+  padding: 0,
+  opacity: 0.5,
+  transition: 'opacity 0.2s',
+};
+
+// --- Password strength meter ---
+const passwordMeterWrapperStyle = {
+  marginTop: 12,
+};
+
+const passwordMeterBarsStyle = {
+  display: 'flex',
+  gap: 4,
+  marginBottom: 8,
+};
+
+const passwordMeterSegmentStyle = (active, color) => ({
+  flex: 1,
+  height: 4,
+  borderRadius: 2,
+  background: active ? color : 'rgba(255,255,255,0.08)',
+  transition: 'background 0.3s',
+});
+
+const passwordMeterRowStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+};
+
+const passwordMeterLabelStyle = (color) => ({
+  fontSize: 12,
+  fontWeight: 500,
+  color: color,
+});
+
+const passwordHintStyle = {
+  fontSize: 12,
+  color: 'rgba(255,255,255,0.4)',
+};
+
+// --- Consent block (required + optional) ---
+const consentBlockBaseStyle = {
+  background: 'rgba(255,255,255,0.04)',
+  borderRadius: 12,
+  padding: '14px 16px',
+  marginBottom: 10,
+};
+
+const consentBlockRequiredStyle = {
+  ...consentBlockBaseStyle,
+  border: '1px solid rgba(239,68,68,0.22)',
+};
+
+const consentBlockOptionalStyle = {
+  ...consentBlockBaseStyle,
+  border: '1px solid rgba(8,145,178,0.22)',
+  marginBottom: 0,
+};
+
+const consentBlockTitleRowStyle = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  gap: 12,
+  marginBottom: 10,
+};
+
+const consentBlockTitleStyle = {
+  fontSize: 14,
+  fontWeight: 500,
+  color: 'rgba(255,255,255,0.95)',
+};
+
+const consentBadgeBaseStyle = {
+  fontSize: 10,
+  fontWeight: 600,
+  padding: '3px 8px',
+  borderRadius: 4,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  whiteSpace: 'nowrap',
+};
+
+const consentBadgeRequiredStyle = {
+  ...consentBadgeBaseStyle,
+  color: '#FCA5A5',
+  background: 'rgba(239,68,68,0.12)',
+};
+
+const consentBadgeOptionalStyle = {
+  ...consentBadgeBaseStyle,
+  color: '#06B6D4',
+  background: 'rgba(8,145,178,0.18)',
+};
+
+const consentRowStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+};
+
+const consentCheckboxStyle = (checked) => ({
+  width: 18,
+  height: 18,
+  borderRadius: 5,
+  background: checked ? '#0891B2' : 'rgba(255,255,255,0.05)',
+  border: checked ? '1.5px solid #0891B2' : '1.5px solid rgba(255,255,255,0.2)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+  cursor: 'pointer',
+  transition: 'all 0.2s',
+  padding: 0,
+});
+
+const consentLabelStyle = {
+  fontSize: 13,
+  color: 'rgba(255,255,255,0.85)',
+  lineHeight: 1.5,
+};
+
+const consentLinkStyle = {
+  color: '#60a5fa',
+  textDecoration: 'underline',
+  cursor: 'pointer',
+  background: 'transparent',
+  border: 'none',
+  padding: 0,
+  font: 'inherit',
+};
+
+// --- Security note (info-block under samtykker) ---
+const securityNoteStyle = {
+  background: 'rgba(8,145,178,0.08)',
+  border: '1px solid rgba(8,145,178,0.25)',
+  borderRadius: 12,
+  padding: '14px 16px',
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: 12,
+};
+
+const securityNoteIconStyle = {
+  width: 18,
+  height: 18,
+  flexShrink: 0,
+  marginTop: 1,
+  color: '#0891B2',
+};
+
+const securityNoteTitleStyle = {
+  fontSize: 13,
+  fontWeight: 500,
+  color: '#0891B2',
+  marginBottom: 3,
+};
+
+const securityNoteDetailStyle = {
+  fontSize: 12,
+  color: 'rgba(255,255,255,0.55)',
+  lineHeight: 1.5,
+};
+
+// =====================================================
+// Step 3 (Patch 4 - DEL A): Validation helpers
+// Tilføjet 1. maj 2026 - Handoff Bridge Phase 3
+// =====================================================
+
+const CVR_REGEX = /^\d{8}$/;
+const POSTNUMMER_REGEX = /^\d{4}$/;
+const TLF_REGEX = /^\d{8}$/;
+const MIN_PASSWORD_LENGTH = 10;
+const MIN_PASSWORD_SCORE = 3;
+
+const validateStep3Field = (name, value) => {
+  const trimmed = (value || '').trim();
+
+  if (name === 'foreningsnavn') {
+    if (trimmed.length < 2) return 'Foreningsnavnet skal være mindst 2 tegn';
+    if (trimmed.length > 200) return 'Foreningsnavnet må højst være 200 tegn';
+    return null;
+  }
+
+  if (name === 'cvrNummer') {
+    if (!CVR_REGEX.test(trimmed)) return 'CVR-nummer skal være præcis 8 cifre';
+    return null;
+  }
+
+  if (name === 'postnummer') {
+    if (!POSTNUMMER_REGEX.test(trimmed)) return 'Postnummer skal være præcis 4 cifre';
+    return null;
+  }
+
+  if (name === 'kontaktNavn') {
+    if (trimmed.length < 2) return 'Navn skal være mindst 2 tegn';
+    if (trimmed.length > 200) return 'Navn må højst være 200 tegn';
+    return null;
+  }
+
+  if (name === 'kontaktRolle') {
+    if (trimmed !== 'Formand' && trimmed !== 'Kasserer') {
+      return 'Vælg enten Formand eller Kasserer';
+    }
+    return null;
+  }
+
+  if (name === 'kontaktTlf') {
+    if (!TLF_REGEX.test(trimmed)) return 'Telefonnummer skal være præcis 8 cifre';
+    return null;
+  }
+
+  return null;
+};
+
+const validateStep3Password = (password) => {
+  if (!password || password.length < MIN_PASSWORD_LENGTH) {
+    return `Adgangskode skal være mindst ${MIN_PASSWORD_LENGTH} tegn`;
+  }
+  if (password.length > 128) {
+    return 'Adgangskode må højst være 128 tegn';
+  }
+  try {
+    const result = zxcvbn(password);
+    if (result.score < MIN_PASSWORD_SCORE) {
+      return 'Adgangskoden er for svag - tilføj flere tegn eller gør den mindre forudsigelig';
+    }
+  } catch {
+    return 'Adgangskoden kunne ikke valideres';
+  }
+  return null;
+};
+

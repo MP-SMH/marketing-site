@@ -102,7 +102,6 @@ function App() {
             <Route path="/login-forening" element={<ForeningAuthPage />} />
             <Route path="/opret-stoetter" element={<OpretStoetterPage />} />
             <Route path="/opret-forening" element={<OpretForeningPage />} />
-
             {/* 404 fallback */}
             <Route path="*" element={<PageNotFound />} />
           </Routes>
