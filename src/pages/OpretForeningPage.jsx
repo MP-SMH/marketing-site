@@ -1119,6 +1119,81 @@ export default function OpretForeningPage() {
               </div>
             )}
 
+            {/* ====================================================== */}
+            {/* STEP 4: Success-skærm (1.2s transition før redirect)  */}
+            {/* ====================================================== */}
+            {step === 4 && (
+              <div style={{ position: 'relative', minHeight: 480, padding: '40px 0', overflow: 'hidden' }}>
+
+                <div style={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)', animation: 'p7-float-glow 6s ease-in-out infinite', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: -80, left: -80, width: 250, height: 250, borderRadius: '50%', background: 'radial-gradient(circle, rgba(8,145,178,0.1) 0%, transparent 70%)', animation: 'p7-float-glow 7s ease-in-out infinite reverse', pointerEvents: 'none' }} />
+
+                <div style={{ maxWidth: 440, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+
+                  <div style={{ position: 'relative', display: 'inline-block', marginBottom: 24 }}>
+                    <div style={{ position: 'absolute', inset: -16, borderRadius: '50%', border: '2px solid rgba(16,185,129,0.2)', animation: 'p7-ring1 2s ease-out infinite' }} />
+                    <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', border: '2px solid rgba(16,185,129,0.4)', animation: 'p7-ring2 2s ease-out infinite 0.4s' }} />
+
+                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(16,185,129,0.25) 0%, rgba(16,185,129,0.1) 100%)', border: '2px solid rgba(16,185,129,0.5)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', position: 'relative', boxShadow: '0 0 40px rgba(16,185,129,0.3)', animation: 'p7-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" style={{ strokeDasharray: 30, strokeDashoffset: 30, animation: 'p7-draw-line 0.4s ease-out 0.3s forwards' }} />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', marginBottom: 8, opacity: 0, animation: 'p7-fade-up 0.5s ease-out 0.4s forwards' }}>Foreningen er oprettet</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 32, lineHeight: 1.5, opacity: 0, animation: 'p7-fade-up 0.5s ease-out 0.5s forwards' }}>Vi gør klar til onboarding nu — det tager et øjeblik.</div>
+
+                  <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: 20, opacity: 0, animation: 'p7-fade-up 0.5s ease-out 0.6s forwards' }}>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, animation: 'p7-step-pop 0.4s ease-out 0.7s both' }}>
+                        <Check size={14} color="#10B981" strokeWidth={3} />
+                      </div>
+                      <div style={{ flex: 1, textAlign: 'left', fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>Konto oprettet</div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, animation: 'p7-step-pop 0.4s ease-out 0.9s both' }}>
+                        <Check size={14} color="#10B981" strokeWidth={3} />
+                      </div>
+                      <div style={{ flex: 1, textAlign: 'left', fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>Samtykker registreret</div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(8,145,178,0.2)', border: '2px solid rgba(8,145,178,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', animation: 'p7-step-pop 0.4s ease-out 1.1s both' }}>
+                        <div style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid rgba(8,145,178,0.4)', animation: 'p7-ring-expand 1.4s ease-out infinite 1.1s' }} />
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#0891B2', animation: 'p7-core-pulse 1.2s ease-in-out infinite 1.1s' }} />
+                      </div>
+                      <div style={{ flex: 1, textAlign: 'left', fontSize: 13, color: '#fff', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        Klargør sikker overførsel
+                        <span style={{ display: 'inline-flex', gap: 2 }}>
+                          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', animation: 'p7-dot-jump 1.4s infinite 0s' }} />
+                          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', animation: 'p7-dot-jump 1.4s infinite 0.2s' }} />
+                          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', animation: 'p7-dot-jump 1.4s infinite 0.4s' }} />
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', opacity: 0.4, animation: 'p7-step-fade 0.4s ease-out 1.3s both' }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', flexShrink: 0 }} />
+                      <div style={{ flex: 1, textAlign: 'left', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Åbner onboarding</div>
+                    </div>
+
+                    <div style={{ marginTop: 16, height: 2, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden', position: 'relative' }}>
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent 0%, rgba(8,145,178,0.6) 50%, transparent 100%)', animation: 'p7-shimmer 2s linear infinite' }} />
+                    </div>
+
+                  </div>
+
+                  <div style={{ marginTop: 24, fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: 'ui-monospace, monospace', opacity: 0, animation: 'p7-fade-up 0.5s ease-out 1.4s forwards' }}>
+                    beta.stotmedhjerte.dk <span style={{ color: 'rgba(8,145,178,0.6)', animation: 'p7-arrow-pulse 1.2s ease-in-out infinite', display: 'inline-block' }}>→</span> app.stotmedhjerte.dk
+                  </div>
+
+                </div>
+              </div>
+            )}
+
             {/* Modal til konsent-tekster (portal til document.body) */}
             <ConsentModal
               isOpen={activeModalType !== null}
@@ -1178,6 +1253,21 @@ const ANIMATIONS_AND_INPUTS = `
   @keyframes login-fade-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
   @keyframes status-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
   @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* Patch 7: Step 4 success-screen animations */
+  @keyframes p7-pop { 0%{transform:scale(0.7);opacity:0} 60%{transform:scale(1.08);opacity:1} 100%{transform:scale(1);opacity:1} }
+  @keyframes p7-draw-line { to{stroke-dashoffset:0} }
+  @keyframes p7-ring1 { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.4);opacity:0} }
+  @keyframes p7-ring2 { 0%{transform:scale(1);opacity:0.5} 100%{transform:scale(1.5);opacity:0} }
+  @keyframes p7-fade-up { 0%{opacity:0;transform:translateY(8px)} 100%{opacity:1;transform:translateY(0)} }
+  @keyframes p7-step-pop { 0%{transform:scale(0.6);opacity:0} 100%{transform:scale(1);opacity:1} }
+  @keyframes p7-step-fade { 0%{opacity:0} 100%{opacity:0.4} }
+  @keyframes p7-core-pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.6} }
+  @keyframes p7-ring-expand { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.6);opacity:0} }
+  @keyframes p7-dot-jump { 0%,60%,100%{transform:translateY(0);opacity:0.5} 30%{transform:translateY(-3px);opacity:1} }
+  @keyframes p7-shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+  @keyframes p7-arrow-pulse { 0%,100%{opacity:0.6;transform:translateX(0)} 50%{opacity:1;transform:translateX(2px)} }
+  @keyframes p7-float-glow { 0%,100%{transform:translate(0,0);opacity:1} 50%{transform:translate(20px,-20px);opacity:0.7} }
 
   .login-card { animation: login-fade-up 0.6s cubic-bezier(0.16,1,0.3,1) both; }
   .signup-input { width:100%;height:48px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 14px;font-size:14px;color:#fff;outline:none;transition:all 0.2s;font-family:inherit;box-sizing:border-box; }
