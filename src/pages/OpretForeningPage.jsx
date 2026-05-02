@@ -12,8 +12,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-// eslint-disable-next-line unused-imports/no-unused-imports
-import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Lock, Building2, Check } from 'lucide-react';
+import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Check, Eye, EyeOff, ChevronDown } from 'lucide-react';
 import zxcvbn from 'zxcvbn';
 import { useNavigate } from 'react-router-dom';
 import { SMH_API_URL } from '@/lib/supabaseClient';
@@ -90,6 +89,7 @@ export default function OpretForeningPage() {
   const [kontaktNavn, setKontaktNavn] = useState('');
   const [kontaktRolle, setKontaktRolle] = useState('Formand');
   const [kontaktTlf, setKontaktTlf] = useState('');
+  const [roleOpen, setRoleOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -137,7 +137,16 @@ export default function OpretForeningPage() {
     setActiveModalType(consentType);
   };
 
-  const closeConsentModal = () => {
+  // Patch 6: Real onAccept handler - tikker checkbox baseret på consent_type
+  const handleConsentAccept = (consentType) => {
+    if (consentType === 'platform_terms') setConsentTermsChecked(true);
+    else if (consentType === 'gdpr_terms') setConsentGdprChecked(true);
+    else if (consentType === 'pii_consent') setConsentPiiChecked(true);
+    else if (consentType === 'marketing_consent') setConsentMarketingChecked(true);
+    closeConsentModal();
+  };
+
+    const closeConsentModal = () => {
     setActiveModalType(null);
   };
 
@@ -508,7 +517,7 @@ export default function OpretForeningPage() {
             width: 3 + (i % 3),
             height: 3 + (i % 3),
             borderRadius: '50%',
-            background: `rgba(59,130,246,${0.15 + (i % 3) * 0.1})`,
+            background: `rgba(8,145,178,${0.15 + (i % 3) * 0.1})`,
             animation: `login-particles ${8 + i * 2}s linear infinite`,
             animationDelay: `${i * 1.5}s`,
             zIndex: 1,
@@ -704,7 +713,7 @@ export default function OpretForeningPage() {
                       disabled={emailLoading}
                       style={resendButtonStyle}
                       onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = '#60a5fa')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#22d3ee')}
                     >
                       {emailLoading ? 'Sender...' : 'Send ny kode'}
                     </button>
@@ -714,7 +723,7 @@ export default function OpretForeningPage() {
             )}
 
             {/* ====================================================== */}
-            {/* STEP 3: Forening-data (smoke-test - formular kommer naeste patch) */}
+            {/* STEP 3: Forening-data formular (Patch 5a + 5b + 5c)    */}
             {/* ====================================================== */}
             {step === 3 && (
               <div style={{ padding: '20px 0' }}>
@@ -738,30 +747,375 @@ export default function OpretForeningPage() {
                   </div>
                 )}
 
-                {!consentLoading && !consentError && consentVersions && (
-                  <div>
-                    <div style={{ marginBottom: 16, fontSize: 13, color: '#10b981' }}>
-                      OK: {Object.keys(consentVersions).length} samtykke-tekster indlæst (smoke-test)
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-                      <button type="button" onClick={() => openConsentModal('platform_terms')} style={consentTestButtonStyle}>
-                        Vis Platform-vilkår
-                      </button>
-                      <button type="button" onClick={() => openConsentModal('gdpr_terms')} style={consentTestButtonStyle}>
-                        Vis GDPR-vilkår
-                      </button>
-                      <button type="button" onClick={() => openConsentModal('pii_consent')} style={consentTestButtonStyle}>
-                        Vis Persondata
-                      </button>
-                      <button type="button" onClick={() => openConsentModal('marketing_consent')} style={consentTestButtonStyle}>
-                        Vis Marketing
-                      </button>
-                    </div>
-                    <div style={{ marginTop: 24, padding: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
-                      Step 3 formular (8 felter + 4 checkboxes) bygges i næste patch.
-                    </div>
-                  </div>
-                )}
+                {!consentLoading && !consentError && consentVersions && (() => {
+                  const fieldsCount = 7;
+                  const filled = [
+                    foreningsnavn.trim().length >= 2,
+                    /^\d{8}$/.test(cvrNummer),
+                    /^\d{4}$/.test(postnummer),
+                    kontaktNavn.trim().length >= 2,
+                    /^\d{8}$/.test(kontaktTlf),
+                    kontaktRolle === 'Formand' || kontaktRolle === 'Kasserer',
+                    password.length >= MIN_PASSWORD_LENGTH && computePasswordScore(password) >= MIN_PASSWORD_SCORE,
+                  ].filter(Boolean).length;
+                  const percent = Math.round((filled / fieldsCount) * 100);
+                  const allFilled = filled === fieldsCount;
+                  const allConsents = consentTermsChecked && consentGdprChecked && consentPiiChecked;
+                  return (
+                    <form onSubmit={handleStep3Submit} noValidate>
+
+                      {submitError && (
+                        <div style={{ padding: '12px 16px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 10, marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#EF4444', marginTop: 7, flexShrink: 0 }} />
+                          <div style={{ fontSize: 13, color: '#FCA5A5', lineHeight: 1.5 }}>{submitError}</div>
+                        </div>
+                      )}
+
+
+                        <div style={{ marginBottom: 6 }}>
+                          <div style={stepCardTitleStyle}>Foreningsoplysninger</div>
+                          <div style={stepCardSubtitleStyle}>Stamdata og kontaktinfo</div>
+                        </div>
+
+                        <div style={{ margin: '16px 0 18px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{filled} af {fieldsCount} felter</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: allFilled ? '#10B981' : '#0891B2' }}>{percent}%</span>
+                          </div>
+                          <div style={progressBarTrackStyle}>
+                            <div style={progressBarFillStyle(percent, allFilled)} />
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 4 }}>
+
+                          <div style={{ gridColumn: 'span 2' }}>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Foreningsnavn *</label>
+                            <input
+                              type="text"
+                              className="signup-input"
+                              value={foreningsnavn}
+                              onChange={(e) => setForeningsnavn(e.target.value)}
+                              disabled={submitLoading}
+                              placeholder="F.eks. Hillerød Fodboldklub"
+                              maxLength={200}
+                              style={{ height: 42, ...(fieldErrors.foreningsnavn ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
+                            />
+                            {fieldErrors.foreningsnavn && (
+                              <div style={fieldErrorStyle}>
+                                <div style={fieldErrorDotStyle} />
+                                <div>{fieldErrors.foreningsnavn}</div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>CVR-nummer *</label>
+                            <input
+                              type="text"
+                              className="signup-input"
+                              value={cvrNummer}
+                              onChange={(e) => setCvrNummer(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                              disabled={submitLoading}
+                              placeholder="12345678"
+                              inputMode="numeric"
+                              maxLength={8}
+                              style={{ height: 42, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.cvrNummer ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
+                            />
+                            {fieldErrors.cvrNummer && (
+                              <div style={fieldErrorStyle}>
+                                <div style={fieldErrorDotStyle} />
+                                <div>{fieldErrors.cvrNummer}</div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Postnummer *</label>
+                            <input
+                              type="text"
+                              className="signup-input"
+                              value={postnummer}
+                              onChange={(e) => setPostnummer(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                              disabled={submitLoading}
+                              placeholder="3400"
+                              inputMode="numeric"
+                              maxLength={4}
+                              style={{ height: 42, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.postnummer ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
+                            />
+                            {fieldErrors.postnummer && (
+                              <div style={fieldErrorStyle}>
+                                <div style={fieldErrorDotStyle} />
+                                <div>{fieldErrors.postnummer}</div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ gridColumn: 'span 2' }}>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Kontaktperson *</label>
+                            <input
+                              type="text"
+                              className="signup-input"
+                              value={kontaktNavn}
+                              onChange={(e) => setKontaktNavn(e.target.value)}
+                              disabled={submitLoading}
+                              placeholder="F.eks. Anders Hansen"
+                              maxLength={200}
+                              autoComplete="name"
+                              style={{ height: 42, ...(fieldErrors.kontaktNavn ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
+                            />
+                            {fieldErrors.kontaktNavn && (
+                              <div style={fieldErrorStyle}>
+                                <div style={fieldErrorDotStyle} />
+                                <div>{fieldErrors.kontaktNavn}</div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Telefon *</label>
+                            <input
+                              type="tel"
+                              className="signup-input"
+                              value={kontaktTlf}
+                              onChange={(e) => setKontaktTlf(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                              disabled={submitLoading}
+                              placeholder="12345678"
+                              inputMode="numeric"
+                              maxLength={8}
+                              autoComplete="tel"
+                              style={{ height: 42, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.kontaktTlf ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
+                            />
+                            {fieldErrors.kontaktTlf && (
+                              <div style={fieldErrorStyle}>
+                                <div style={fieldErrorDotStyle} />
+                                <div>{fieldErrors.kontaktTlf}</div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ position: 'relative' }}>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Rolle i foreningen *</label>
+                            <button
+                              type="button"
+                              onClick={() => !submitLoading && setRoleOpen(!roleOpen)}
+                              disabled={submitLoading}
+                              style={customDropdownButtonStyle(!!kontaktRolle, roleOpen, !!fieldErrors.kontaktRolle)}
+                            >
+                              <span>{kontaktRolle || 'Vælg rolle...'}</span>
+                              <ChevronDown size={14} color="rgba(255,255,255,0.5)" style={{ transform: roleOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                            </button>
+                            {roleOpen && (
+                              <>
+                                <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onMouseDown={() => setRoleOpen(false)} />
+                                <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 20, background: '#1E293B', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: 4, boxShadow: '0 8px 30px rgba(0,0,0,0.3)' }}>
+                                  {ROLES.map((r) => (
+                                    <button
+                                      key={r}
+                                      type="button"
+                                      onMouseDown={() => { setKontaktRolle(r); setRoleOpen(false); }}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        width: '100%',
+                                        padding: '9px 12px',
+                                        fontSize: 13,
+                                        color: kontaktRolle === r ? '#0891B2' : 'rgba(255,255,255,0.7)',
+                                        background: kontaktRolle === r ? 'rgba(8,145,178,0.08)' : 'transparent',
+                                        border: 'none',
+                                        borderRadius: 7,
+                                        cursor: 'pointer',
+                                        fontFamily: 'inherit',
+                                        textAlign: 'left',
+                                        fontWeight: kontaktRolle === r ? 600 : 400,
+                                      }}
+                                    >
+                                      {kontaktRolle === r && <Check size={12} color="#0891B2" strokeWidth={3} />}
+                                      {r}
+                                    </button>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                            {fieldErrors.kontaktRolle && (
+                              <div style={fieldErrorStyle}>
+                                <div style={fieldErrorDotStyle} />
+                                <div>{fieldErrors.kontaktRolle}</div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ gridColumn: 'span 2' }}>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Adgangskode *</label>
+                            <div style={{ position: 'relative' }}>
+                              <input
+                                type={showPassword ? 'text' : 'password'}
+                                className="signup-input"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                disabled={submitLoading}
+                                placeholder="Mindst 10 tegn"
+                                autoComplete="new-password"
+                                maxLength={128}
+                                style={{ height: 42, paddingRight: 44, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.password ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'transparent', border: 'none', padding: 0, opacity: 0.5 }}
+                                tabIndex={-1}
+                                aria-label={showPassword ? 'Skjul adgangskode' : 'Vis adgangskode'}
+                              >
+                                {showPassword ? <EyeOff size={16} color="rgba(255,255,255,0.7)" /> : <Eye size={16} color="rgba(255,255,255,0.7)" />}
+                              </button>
+                            </div>
+
+                            {(() => {
+                              const score = password.length === 0 ? -1 : computePasswordScore(password);
+                              const meterStates = [
+                                { color: '#EF4444', label: 'Meget svag' },
+                                { color: '#F97316', label: 'Svag' },
+                                { color: '#EAB308', label: 'Mellem' },
+                                { color: '#14B8A6', label: 'God' },
+                                { color: '#0891B2', label: 'Stærk' },
+                              ];
+                              return (
+                                <div style={{ marginTop: 10 }}>
+                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, marginBottom: 6 }}>
+                                    {meterStates.map((s, i) => (
+                                      <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <div style={{ height: 4, borderRadius: 2, background: s.color, opacity: i === score ? 1 : 0.18, transition: 'opacity 0.2s' }} />
+                                        <div style={{ fontSize: 10, textAlign: 'center', color: i === score ? s.color : 'rgba(255,255,255,0.35)', fontWeight: i === score ? 600 : 400, transition: 'color 0.2s' }}>{s.label}</div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                    {(() => {
+                                      if (score === -1) {
+                                        return <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Min. 10 tegn, niveau "God" eller bedre</div>;
+                                      }
+                                      const messages = [
+                                        { color: '#FCA5A5', text: 'Tilføj flere tegn' },
+                                        { color: '#FDBA74', text: 'Brug forskellige tegn' },
+                                        { color: '#FDE047', text: 'Næsten - tilføj 1-2 tegn' },
+                                        { color: '#14B8A6', text: 'Din kode er stærk nok', showCheck: true },
+                                        { color: '#67E8F9', text: 'Perfekt sikkerhedsniveau', showCheck: true },
+                                      ];
+                                      const m = messages[score];
+                                      return (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                          {m.showCheck && <Check size={13} color={m.color} strokeWidth={2.5} />}
+                                          <div style={{ fontSize: 12, color: m.color, fontWeight: 500 }}>{m.text}</div>
+                                        </div>
+                                      );
+                                    })()}
+                                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{password.length}/128</div>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+
+                            {fieldErrors.password && (
+                              <div style={fieldErrorStyle}>
+                                <div style={fieldErrorDotStyle} />
+                                <div>{fieldErrors.password}</div>
+                              </div>
+                            )}
+                          </div>
+
+                        </div>
+
+                        <div style={{ marginTop: 24, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>Samtykker</div>
+
+                          {[
+                            { key: 'terms', type: 'platform_terms', title: 'Vilkår og betingelser', accepted: consentTermsChecked },
+                            { key: 'gdpr',  type: 'gdpr_terms',     title: 'GDPR databehandling',  accepted: consentGdprChecked },
+                            { key: 'pii',   type: 'pii_consent',    title: 'Persondata-behandling', accepted: consentPiiChecked },
+                          ].map((c) => (
+                            <div key={c.key} style={agreementCardStyle(c.accepted)}>
+                              {c.accepted ? (
+                                <Check size={18} color="#10B981" strokeWidth={2.5} />
+                              ) : (
+                                <ShieldCheck size={18} color="#0891B2" strokeWidth={2} />
+                              )}
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{c.title}</div>
+                                <div style={{ fontSize: 11, color: c.accepted ? '#10B981' : 'rgba(255,255,255,0.4)' }}>
+                                  {c.accepted ? 'Accepteret' : 'Læs og accepter for at fortsætte'}
+                                </div>
+                              </div>
+                              {c.accepted ? (
+                                <button
+                                  type="button"
+                                  onClick={() => openConsentModal(c.type)}
+                                  style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 8px', fontFamily: 'inherit' }}
+                                >
+                                  Vis igen
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => openConsentModal(c.type)}
+                                  style={{ padding: '6px 12px', background: 'rgba(8,145,178,0.1)', border: '1px solid rgba(8,145,178,0.3)', borderRadius: 8, color: '#0891B2', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}
+                                >
+                                  Læs <ArrowRight size={11} />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+
+                          <button
+                            type="button"
+                            onClick={() => !submitLoading && setConsentMarketingChecked(!consentMarketingChecked)}
+                            disabled={submitLoading}
+                            style={{ ...agreementCardStyle(false), width: '100%', textAlign: 'left', cursor: submitLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
+                          >
+                            <div style={consentCheckboxStyle(consentMarketingChecked)}>
+                              {consentMarketingChecked && <Check size={11} color="#fff" strokeWidth={3.5} />}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                Marketing-emails
+                                <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.06)', padding: '2px 6px', borderRadius: 3, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Frivilligt</span>
+                              </div>
+                              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Tilmeld nyhedsbrev og tips</div>
+                            </div>
+                          </button>
+                        </div>
+
+                        <div style={{ marginTop: 24, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                          <button
+                            type="submit"
+                            disabled={!canSubmitStep3()}
+                            style={primaryButtonStyle(canSubmitStep3())}
+                          >
+                            {submitLoading ? (
+                              <>
+                                <Loader size={18} className="spin" />
+                                <span style={{ marginLeft: 8 }}>Opretter foreningen...</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>Opret foreningen</span>
+                                <ArrowRight size={18} style={{ marginLeft: 8 }} />
+                              </>
+                            )}
+                          </button>
+
+                          <div style={{ marginTop: 14, padding: '12px 14px', background: 'rgba(8,145,178,0.06)', border: '1px solid rgba(8,145,178,0.18)', borderRadius: 10, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                            <ShieldCheck size={16} color="#0891B2" style={{ marginTop: 1, flexShrink: 0 }} />
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: '#0891B2', marginBottom: 2 }}>Dine data er beskyttet</div>
+                              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>Vi krypterer dine oplysninger og deler dem aldrig. Du kan altid trække dit samtykke tilbage.</div>
+                            </div>
+                          </div>
+                        </div>
+
+                    </form>
+                  );
+                })()}
               </div>
             )}
 
@@ -770,7 +1124,7 @@ export default function OpretForeningPage() {
               isOpen={activeModalType !== null}
               onClose={closeConsentModal}
               version={activeModalType && consentVersions ? consentVersions[activeModalType] : null}
-              onAccept={(consentType) => console.log('Smoke-test: accepted', consentType)}
+              onAccept={handleConsentAccept}
             />
 
             {/* Login link */}
@@ -782,7 +1136,7 @@ export default function OpretForeningPage() {
                 onClick={() => navigate('/login-forening')}
                 style={loginLinkStyle}
                 onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = '#60a5fa')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#22d3ee')}
               >
                 Log ind
               </span>
@@ -827,7 +1181,7 @@ const ANIMATIONS_AND_INPUTS = `
 
   .login-card { animation: login-fade-up 0.6s cubic-bezier(0.16,1,0.3,1) both; }
   .signup-input { width:100%;height:48px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 14px;font-size:14px;color:#fff;outline:none;transition:all 0.2s;font-family:inherit;box-sizing:border-box; }
-  .signup-input:focus { border-color:rgba(59,130,246,0.4);background:rgba(255,255,255,0.08); }
+  .signup-input:focus { border-color:rgba(8,145,178,0.4);background:rgba(255,255,255,0.08); }
   .signup-input::placeholder { color:rgba(255,255,255,0.2); }
   .signup-input:disabled { opacity:0.5;cursor:not-allowed; }
   .spin { animation: spin 0.8s linear infinite; }
@@ -864,7 +1218,7 @@ const orb1Style = {
   width: 350,
   height: 350,
   borderRadius: '50%',
-  background: 'radial-gradient(circle,rgba(59,130,246,0.18) 0%,transparent 70%)',
+  background: 'radial-gradient(circle,rgba(8,145,178,0.18) 0%,transparent 70%)',
   filter: 'blur(60px)',
   animation: 'login-orb-1 12s ease-in-out infinite',
   zIndex: 0,
@@ -877,7 +1231,7 @@ const orb2Style = {
   width: 300,
   height: 300,
   borderRadius: '50%',
-  background: 'radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 70%)',
+  background: 'radial-gradient(circle,rgba(8,145,178,0.12) 0%,transparent 70%)',
   filter: 'blur(60px)',
   animation: 'login-orb-2 15s ease-in-out infinite',
   zIndex: 0,
@@ -1027,7 +1381,7 @@ const iconCircleStyle = {
   width: 56,
   height: 56,
   borderRadius: 16,
-  background: 'rgba(59,130,246,0.12)',
+  background: 'rgba(8,145,178,0.18)',
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -1043,7 +1397,7 @@ const eyebrowStyle = {
   fontWeight: 700,
   textTransform: 'uppercase',
   letterSpacing: '0.12em',
-  color: '#60a5fa',
+  color: '#22d3ee',
   marginBottom: 8,
   fontFamily: "ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace",
 };
@@ -1174,7 +1528,7 @@ const resendCooldownTextStyle = {
 const resendButtonStyle = {
   background: 'transparent',
   border: 'none',
-  color: '#60a5fa',
+  color: '#22d3ee',
   fontSize: 13,
   fontWeight: 600,
   cursor: 'pointer',
@@ -1190,7 +1544,7 @@ const loginLinkRowStyle = {
 
 const loginLinkStyle = {
   fontSize: 13,
-  color: '#60a5fa',
+  color: '#22d3ee',
   fontWeight: 600,
   cursor: 'pointer',
   transition: 'color 0.2s',
@@ -1486,7 +1840,7 @@ const consentLabelStyle = {
 };
 
 const consentLinkStyle = {
-  color: '#60a5fa',
+  color: '#22d3ee',
   textDecoration: 'underline',
   cursor: 'pointer',
   background: 'transparent',
@@ -1595,4 +1949,82 @@ const validateStep3Password = (password) => {
   }
   return null;
 };
+
+// =====================================================
+// Step 3 (Patch 5c-1): StepCard pattern + dropdown styles
+// Tilføjet 2. maj 2026 - matcher smh-app onboarding-design
+// =====================================================
+
+const ROLES = ['Formand', 'Kasserer'];
+
+const stepCardStyle = {
+  background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 16,
+  padding: 24,
+};
+
+const stepCardTitleStyle = {
+  fontSize: 16,
+  fontWeight: 600,
+  color: '#fff',
+  marginBottom: 2,
+};
+
+const stepCardSubtitleStyle = {
+  fontSize: 13,
+  color: 'rgba(255,255,255,0.5)',
+};
+
+const progressBarTrackStyle = {
+  height: 6,
+  borderRadius: 99,
+  background: 'rgba(255,255,255,0.06)',
+  overflow: 'hidden',
+};
+
+const progressBarFillStyle = (percent, complete) => ({
+  height: '100%',
+  borderRadius: 99,
+  background: complete ? '#10B981' : '#0891B2',
+  width: `${percent}%`,
+  transition: 'width 0.4s ease',
+});
+
+const customDropdownButtonStyle = (hasValue, isOpen, hasError) => ({
+  width: '100%',
+  height: 42,
+  padding: '0 14px',
+  background: 'rgba(255,255,255,0.05)',
+  border: hasError
+    ? '1px solid rgba(239,68,68,0.4)'
+    : isOpen
+      ? '1px solid rgba(8,145,178,0.4)'
+      : '1px solid rgba(255,255,255,0.1)',
+  borderRadius: 10,
+  color: hasValue ? '#fff' : 'rgba(255,255,255,0.3)',
+  fontSize: 13,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  outline: 'none',
+  transition: 'border-color 0.2s',
+});
+
+const agreementCardStyle = (accepted) => ({
+  background: accepted ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.03)',
+  border: accepted
+    ? '1px solid rgba(16,185,129,0.18)'
+    : '1px solid rgba(255,255,255,0.06)',
+  borderRadius: 12,
+  padding: '14px 16px',
+  marginBottom: 8,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  transition: 'all 0.25s ease',
+});
+
 
