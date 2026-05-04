@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Check, Eye, EyeOff, ChevronDown } from 'lucide-react';
+import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Check, CheckCircle2, AlertCircle, AlertTriangle, Eye, EyeOff, ChevronDown } from 'lucide-react';
 import zxcvbn from 'zxcvbn';
 import { useNavigate } from 'react-router-dom';
 import { SMH_API_URL } from '@/lib/supabaseClient';
@@ -85,6 +85,9 @@ export default function OpretForeningPage() {
   // Step 3 form-state: 8 felter
   const [foreningsnavn, setForeningsnavn] = useState('');
   const [cvrNummer, setCvrNummer] = useState('');
+  // P1-CVR-001: CVR lookup state
+  // status: 'idle' | 'loading' | 'active' | 'inactive' | 'not_found' | 'error'
+  const [cvrLookupState, setCvrLookupState] = useState({ status: 'idle' });
   const [postnummer, setPostnummer] = useState('');
   const [kontaktNavn, setKontaktNavn] = useState('');
   const [kontaktRolle, setKontaktRolle] = useState('Formand');
@@ -376,6 +379,10 @@ export default function OpretForeningPage() {
     if (!consentVersions) return false;
     if (validateStep3Field('foreningsnavn', foreningsnavn)) return false;
     if (validateStep3Field('cvrNummer', cvrNummer)) return false;
+    // P1-CVR-001: Bloker submit hvis CVR-lookup endnu ikke faerdig eller ugyldig
+    if (cvrLookupState.status === 'loading' ||
+        cvrLookupState.status === 'inactive' ||
+        cvrLookupState.status === 'not_found') return false;
     if (validateStep3Field('postnummer', postnummer)) return false;
     if (validateStep3Field('kontaktNavn', kontaktNavn)) return false;
     if (validateStep3Field('kontaktRolle', kontaktRolle)) return false;
@@ -385,6 +392,51 @@ export default function OpretForeningPage() {
     if (!consentGdprChecked) return false;
     if (!consentPiiChecked) return false;
     return true;
+  };
+
+  // P1-CVR-001: CVR lookup via /cvr/lookup endpoint
+  // Trigger: onBlur (kun naar CVR er 8 cifre)
+  const handleCvrBlur = async () => {
+    // Reset hvis ikke 8 cifre
+    if (!/^\d{8}$/.test(cvrNummer)) {
+      setCvrLookupState({ status: 'idle' });
+      return;
+    }
+
+    setCvrLookupState({ status: 'loading' });
+
+    try {
+      const res = await fetch(`${SMH_API_URL}/cvr/lookup?cvr=${cvrNummer}`);
+
+      if (!res.ok) {
+        // 5xx = backend/cvrapi nede - tillad signup, vis warning
+        setCvrLookupState({ status: 'error' });
+        return;
+      }
+
+      const data = await res.json();
+
+      if (data.valid && data.active) {
+        // Aktiv forening - auto-fill foreningsnavn HVIS tomt
+        setCvrLookupState({
+          status: 'active',
+          foreningsnavn: data.foreningsnavn,
+        });
+        // Per beslutning B: kun auto-fill hvis tomt (respekter brugerens input)
+        if (!foreningsnavn.trim()) {
+          setForeningsnavn(data.foreningsnavn);
+        }
+      } else if (data.valid && !data.active) {
+        // Ophoert/inaktiv forening - bloker signup (compliance)
+        setCvrLookupState({ status: 'inactive' });
+      } else {
+        // Ikke fundet i CVR-registret
+        setCvrLookupState({ status: 'not_found' });
+      }
+    } catch (err) {
+      // Network error / timeout
+      setCvrLookupState({ status: 'error' });
+    }
   };
 
   const handleStep3Submit = async (e) => {
@@ -816,7 +868,7 @@ export default function OpretForeningPage() {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 4 }}>
 
                           <div style={{ gridColumn: 'span 2' }}>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Foreningsnavn *</label>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Foreningsnavn *{foreningsnavn.trim().length > 0 && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
                             <input
                               type="text"
                               className="signup-input"
@@ -836,12 +888,19 @@ export default function OpretForeningPage() {
                           </div>
 
                           <div>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>CVR-nummer *</label>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>CVR-nummer *{cvrLookupState.status === 'loading' && <Loader size={12} style={{ color: 'rgba(255,255,255,0.6)', flexShrink: 0, animation: 'spin 1s linear infinite' }} />}{cvrLookupState.status === 'active' && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}{(cvrLookupState.status === 'inactive' || cvrLookupState.status === 'not_found') && <AlertCircle size={12} style={{ color: '#E0193F', flexShrink: 0 }} />}{cvrLookupState.status === 'error' && <AlertTriangle size={12} style={{ color: '#EAB308', flexShrink: 0 }} />}</label>
                             <input
                               type="text"
                               className="signup-input"
                               value={cvrNummer}
-                              onChange={(e) => setCvrNummer(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                              onChange={(e) => {
+                                setCvrNummer(e.target.value.replace(/\D/g, '').slice(0, 8));
+                                // Reset lookup-state ved aendring
+                                if (cvrLookupState.status !== 'idle') {
+                                  setCvrLookupState({ status: 'idle' });
+                                }
+                              }}
+                              onBlur={handleCvrBlur}
                               disabled={submitLoading}
                               placeholder="12345678"
                               inputMode="numeric"
@@ -854,10 +913,32 @@ export default function OpretForeningPage() {
                                 <div>{fieldErrors.cvrNummer}</div>
                               </div>
                             )}
+                            {/* P1-CVR-001: CVR lookup status tekst (ikon er i input) */}
+                            {!fieldErrors.cvrNummer && cvrLookupState.status === 'active' && (
+                              <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.4, color: '#22C55E' }}>
+                                <strong style={{ whiteSpace: 'nowrap' }}>Godkendt:</strong>{' '}
+                                <span style={{ color: 'rgba(255,255,255,0.85)' }}>{cvrLookupState.foreningsnavn}</span>
+                              </div>
+                            )}
+                            {!fieldErrors.cvrNummer && cvrLookupState.status === 'inactive' && (
+                              <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.4, color: '#E0193F' }}>
+                                Inaktiv eller CVR ophoert
+                              </div>
+                            )}
+                            {!fieldErrors.cvrNummer && cvrLookupState.status === 'not_found' && (
+                              <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.4, color: '#E0193F' }}>
+                                CVR ikke registreret
+                              </div>
+                            )}
+                            {!fieldErrors.cvrNummer && cvrLookupState.status === 'error' && (
+                              <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.4, color: '#EAB308' }}>
+                                Kunne ikke verificere CVR lige nu
+                              </div>
+                            )}
                           </div>
 
                           <div>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Postnummer *</label>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Postnummer *{/^\d{4}$/.test(postnummer) && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
                             <input
                               type="text"
                               className="signup-input"
@@ -877,8 +958,11 @@ export default function OpretForeningPage() {
                             )}
                           </div>
 
+                          {/* Divider mellem forenings-info og kontaktperson */}
+                          <div style={{ gridColumn: 'span 2', height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0' }} />
+
                           <div style={{ gridColumn: 'span 2' }}>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Kontaktperson *</label>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Kontaktperson *{kontaktNavn.trim().length > 0 && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
                             <input
                               type="text"
                               className="signup-input"
@@ -899,19 +983,36 @@ export default function OpretForeningPage() {
                           </div>
 
                           <div>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Telefon *</label>
-                            <input
-                              type="tel"
-                              className="signup-input"
-                              value={kontaktTlf}
-                              onChange={(e) => setKontaktTlf(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                              disabled={submitLoading}
-                              placeholder="12345678"
-                              inputMode="numeric"
-                              maxLength={8}
-                              autoComplete="tel"
-                              style={{ height: 42, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.kontaktTlf ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
-                            />
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Telefon *{/^\d{8}$/.test(kontaktTlf) && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
+                            {/* P1-CVR-001 Step 5: +45 prefix matcher smh-app design */}
+                            <div style={{ display: 'flex', gap: 6 }}>
+                              <div style={{
+                                height: 42,
+                                width: 52,
+                                flexShrink: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 14,
+                                color: 'rgba(255,255,255,0.4)',
+                                background: 'rgba(255,255,255,0.03)',
+                                border: '1px solid rgba(255,255,255,0.08)',
+                                borderRadius: 8,
+                                fontFamily: 'ui-monospace, monospace',
+                              }}>+45</div>
+                              <input
+                                type="tel"
+                                className="signup-input"
+                                value={kontaktTlf}
+                                onChange={(e) => setKontaktTlf(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                                disabled={submitLoading}
+                                placeholder="12345678"
+                                inputMode="numeric"
+                                maxLength={8}
+                                autoComplete="tel"
+                                style={{ height: 42, flex: 1, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.kontaktTlf ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
+                              />
+                            </div>
                             {fieldErrors.kontaktTlf && (
                               <div style={fieldErrorStyle}>
                                 <div style={fieldErrorDotStyle} />
@@ -921,7 +1022,7 @@ export default function OpretForeningPage() {
                           </div>
 
                           <div style={{ position: 'relative' }}>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Rolle i foreningen *</label>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Rolle i foreningen *{kontaktRolle && kontaktRolle.trim().length > 0 && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
                             <button
                               type="button"
                               onClick={() => !submitLoading && setRoleOpen(!roleOpen)}
@@ -973,7 +1074,7 @@ export default function OpretForeningPage() {
                           </div>
 
                           <div style={{ gridColumn: 'span 2' }}>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'block' }}>Adgangskode *</label>
+                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Adgangskode *{!validateStep3Password(password) && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
                             <div style={{ position: 'relative' }}>
                               <input
                                 type={showPassword ? 'text' : 'password'}
