@@ -466,24 +466,50 @@ export default function OpretForeningPage() {
         return;
       }
 
-      // Success - handoff_failed fallback eller cross-domain redirect
-      if (data.handoff_failed && data.fallback_redirect) {
+      // ----------------------------------------------------------------
+      // 3-TIER REDIRECT CASCADE (BUG-002 fix, 4/5-2026)
+      //
+      // PRIORITY 1: Cross-domain handoff (happy path)
+      //   handoff_redirect_url = full URL til app.stotmedhjerte.dk/handoff?token=...
+      //   Bruger redirectes til smh-app HandoffPage som exchanger token.
+      //
+      // PRIORITY 2: Same-domain fallback (handoff_failed=true)
+      //   Signup lykkedes men handoff-token kunne ikke oprettes.
+      //   Bruger sendes til manual login.
+      //
+      // PRIORITY 3: Error state (intet redirect target)
+      //   Server-respons mangler både handoff_redirect_url og fallback_redirect.
+      //   Vis eksplicit fejl til bruger i stedet for silent failure.
+      // ----------------------------------------------------------------
+
+      // PRIORITY 1: Cross-domain handoff (happy path)
+      const isValidUrl = (url) =>
+        typeof url === 'string' && url.length > 0 && /^https?:\/\//.test(url);
+
+      if (isValidUrl(data.handoff_redirect_url)) {
+        console.info('[signup] Cross-domain handoff initiated');
+        setSubmitLoading(false);
+        setStep(4);
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        window.location.href = data.handoff_redirect_url;
+        return;
+      }
+
+      // PRIORITY 2: Same-domain fallback (handoff_failed=true)
+      if (data.handoff_failed && isValidUrl(data.fallback_redirect)) {
+        console.warn('[signup] Handoff failed - using fallback redirect to manual login');
         window.location.href = data.fallback_redirect;
         return;
       }
 
-      if (!data.redirect_url) {
-        setSubmitError('Foreningen er oprettet, men overgangen til app fejlede. Prøv at logge ind manuelt.');
-        setSubmitLoading(false);
-        return;
-      }
-
-      // Step 4 success-skærm vises (implementeres i Patch 7)
-      // Indtil videre - direkte redirect efter kort delay
+      // PRIORITY 3: Error state - no valid redirect target
+      console.error('[signup] No valid redirect target in response', {
+        has_handoff_url: Boolean(data.handoff_redirect_url),
+        has_fallback: Boolean(data.fallback_redirect),
+        handoff_failed: data.handoff_failed,
+      });
+      setSubmitError('Foreningen er oprettet, men overgangen til app fejlede. Prøv at logge ind manuelt.');
       setSubmitLoading(false);
-      setStep(4);
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      window.location.href = data.redirect_url;
     } catch (err) {
       setSubmitError('Netværksfejl - tjek din internetforbindelse og prøv igen.');
       setSubmitLoading(false);
