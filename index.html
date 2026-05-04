@@ -1,13 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="da" style="background: #0F172A;">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.json" />
-    <title>Base44 APP</title>
+    <meta name="theme-color" content="#0F172A" />
+    <meta name="color-scheme" content="dark" />
+    <title>StøtMedHjerte</title>
+    <style>
+      /* Anti-flicker: vises foer Tailwind/index.css er parsed */
+      html, body { background: #0F172A; margin: 0; }
+    </style>
   </head>
-  <body>
+  <body style="background: #0F172A;">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
