@@ -1,154 +1,242 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { appParams } from '@/lib/app-params';
-import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
+/**
+ * AuthContext - StoetMedHjerte marketing-site
+ *
+ * Letvægts global auth-state for:
+ *  - Header personalisering (vis "Login" vs "Min profil" vs "Gaa til forening")
+ *  - Auth-pages (signup/login forms)
+ *  - Stoetter-portal pages (/min-profil/*)
+ *
+ * KRITISK: Denne context BLOKERER IKKE rendering. Public pages renderer
+ * instant. Auth-state loades async i baggrunden.
+ *
+ * Tre brugertilstande:
+ *  1. Anonymous (ikke logget ind)
+ *     - Kan browse alt public-content
+ *     - Header viser "Login" + "Opret konto"
+ *
+ *  2. Stoetter (logget ind som B2C)
+ *     - Adgang til /min-profil/* sider
+ *     - Header viser "Hej {navn}" + "Min profil"
+ *
+ *  3. Forening-admin (logget ind som B2B)
+ *     - Header viser "Hej {navn}" + "Gaa til forening"
+ *     - "Gaa til forening" -> redirect til app.stotmedhjerte.dk
+ *     - Kan ogsaa stoette andre foreninger som B2C (multi-rolle)
+ *
+ * Enterprise-grade features:
+ *  - SSR-safe: initial state = null, ikke undefined (forhindrer hydration mismatch)
+ *  - Token refresh: lytter til Supabase onAuthStateChange
+ *  - Cross-tab sync: Supabase BroadcastChannel inkluderet
+ *  - Graceful degradation: errors logges, crasher ikke siden
+ *  - GDPR: ingen 3rd party tracking i auth-state
+ *  - Performance: profile-data fetched kun naar bruger er logget ind
+ *
+ * Reference: docs/strategy/auth-strategy.md Model D
+ */
 
-const AuthContext = createContext();
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
-  const [authError, setAuthError] = useState(null);
-  const [appPublicSettings, setAppPublicSettings] = useState(null); // Contains only { id, public_settings }
+import { supabase } from './supabaseClient';
 
-  useEffect(() => {
-    checkAppState();
+const AuthContext = createContext(null);
+
+// ===========================================================================
+// AuthProvider
+// ===========================================================================
+
+export function AuthProvider({ children }) {
+  // Core state
+  const [session, setSession] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // ---------------------------------------------------------------
+  // Helper: fetch profile-data fra public.profiles
+  // ---------------------------------------------------------------
+  const fetchProfile = useCallback(async (userId) => {
+    if (!userId) {
+      setProfile(null);
+      return null;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, role, organization_uuid, full_name, supporter_uuid')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        // Graceful degradation - log men crash ikke
+        console.error('[AuthContext] fetchProfile failed:', error.message);
+        setProfile(null);
+        return null;
+      }
+
+      setProfile(data);
+      return data;
+    } catch (err) {
+      console.error('[AuthContext] fetchProfile threw:', err.message);
+      setProfile(null);
+      return null;
+    }
   }, []);
 
-  const checkAppState = async () => {
-    try {
-      setIsLoadingPublicSettings(true);
-      setAuthError(null);
-      
-      // First, check app public settings (with token if available)
-      // This will tell us if auth is required, user not registered, etc.
-      const appClient = createAxiosClient({
-        baseURL: `/api/apps/public`,
-        headers: {
-          'X-App-Id': appParams.appId
-        },
-        token: appParams.token, // Include token if available
-        interceptResponses: true
-      });
-      
+  // ---------------------------------------------------------------
+  // Initial session-load + onAuthStateChange listener
+  // ---------------------------------------------------------------
+  useEffect(() => {
+    let mounted = true;
+
+    // Step 1: Hent initial session fra localStorage (synchronously hvor muligt)
+    const initSession = async () => {
       try {
-        const publicSettings = await appClient.get(`/prod/public-settings/by-id/${appParams.appId}`);
-        setAppPublicSettings(publicSettings);
-        
-        // If we got the app public settings successfully, check if user is authenticated
-        if (appParams.token) {
-          await checkUserAuth();
+        const { data: { session: initialSession }, error } =
+          await supabase.auth.getSession();
+
+        if (!mounted) return;
+
+        if (error) {
+          console.error('[AuthContext] getSession failed:', error.message);
+          setSession(null);
+          setProfile(null);
         } else {
-          setIsLoadingAuth(false);
-          setIsAuthenticated(false);
-        }
-        setIsLoadingPublicSettings(false);
-      } catch (appError) {
-        console.error('App state check failed:', appError);
-        
-        // Handle app-level errors
-        if (appError.status === 403 && appError.data?.extra_data?.reason) {
-          const reason = appError.data.extra_data.reason;
-          if (reason === 'auth_required') {
-            setAuthError({
-              type: 'auth_required',
-              message: 'Authentication required'
-            });
-          } else if (reason === 'user_not_registered') {
-            setAuthError({
-              type: 'user_not_registered',
-              message: 'User not registered for this app'
-            });
-          } else {
-            setAuthError({
-              type: reason,
-              message: appError.message
-            });
+          setSession(initialSession);
+          if (initialSession?.user?.id) {
+            await fetchProfile(initialSession.user.id);
           }
-        } else {
-          setAuthError({
-            type: 'unknown',
-            message: appError.message || 'Failed to load app'
-          });
         }
-        setIsLoadingPublicSettings(false);
-        setIsLoadingAuth(false);
+      } catch (err) {
+        console.error('[AuthContext] initSession threw:', err.message);
+      } finally {
+        if (mounted) setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      setAuthError({
-        type: 'unknown',
-        message: error.message || 'An unexpected error occurred'
-      });
-      setIsLoadingPublicSettings(false);
-      setIsLoadingAuth(false);
-    }
-  };
+    };
 
-  const checkUserAuth = async () => {
+    initSession();
+
+    // Step 2: Lyt til auth-state changes (login, logout, token-refresh)
+    // Dette haandterer cross-tab sync via Supabase BroadcastChannel
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, newSession) => {
+        if (!mounted) return;
+
+        // Events: SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED, USER_UPDATED, PASSWORD_RECOVERY
+        setSession(newSession);
+
+        if (event === 'SIGNED_OUT') {
+          setProfile(null);
+        } else if (newSession?.user?.id) {
+          // Re-fetch profile efter login eller user-update
+          if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+            await fetchProfile(newSession.user.id);
+          }
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchProfile]);
+
+  // ---------------------------------------------------------------
+  // Logout (med graceful fallback)
+  // ---------------------------------------------------------------
+  const logout = useCallback(async () => {
     try {
-      // Now check if the user is authenticated
-      setIsLoadingAuth(true);
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-      setIsAuthenticated(true);
-      setIsLoadingAuth(false);
-    } catch (error) {
-      console.error('User auth check failed:', error);
-      setIsLoadingAuth(false);
-      setIsAuthenticated(false);
-      
-      // If user auth fails, it might be an expired token
-      if (error.status === 401 || error.status === 403) {
-        setAuthError({
-          type: 'auth_required',
-          message: 'Authentication required'
-        });
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('[AuthContext] logout failed:', error.message);
       }
+      setSession(null);
+      setProfile(null);
+    } catch (err) {
+      console.error('[AuthContext] logout threw:', err.message);
+      // Force state reset selv om Supabase-call fejlede
+      setSession(null);
+      setProfile(null);
     }
-  };
+  }, []);
 
-  const logout = (shouldRedirect = true) => {
-    setUser(null);
-    setIsAuthenticated(false);
-    
-    if (shouldRedirect) {
-      // Use the SDK's logout method which handles token cleanup and redirect
-      base44.auth.logout(window.location.href);
-    } else {
-      // Just remove the token without redirect
-      base44.auth.logout();
-    }
-  };
+  // ---------------------------------------------------------------
+  // Computed state (derived from session + profile)
+  // ---------------------------------------------------------------
+  const value = useMemo(() => {
+    const isAuthenticated = !!session?.user;
 
-  const navigateToLogin = () => {
-    // Use the SDK's redirectToLogin method
-    base44.auth.redirectToLogin(window.location.href);
-  };
+    // Rolle-aware helpers
+    const isSupporter = isAuthenticated && profile?.role === 'supporter';
+    const isForeningAdmin = isAuthenticated && profile?.role === 'admin';
 
-  return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
-      isLoadingAuth,
-      isLoadingPublicSettings,
-      authError,
-      appPublicSettings,
+    // Multi-rolle: bruger har baade organization_uuid OG supporter_uuid
+    const hasMultipleRoles =
+      isAuthenticated &&
+      !!profile?.organization_uuid &&
+      !!profile?.supporter_uuid;
+
+    /**
+     * Beregn korrekt redirect-URL efter login.
+     * - Forening-admin -> app.stotmedhjerte.dk/onboarding (eller dashboard)
+     * - Stoetter -> /min-profil
+     * - Multi-rolle -> /vaelg-rolle (fremtidig P3+)
+     */
+    const getRedirectUrl = () => {
+      if (!isAuthenticated || !profile) return '/';
+
+      if (isForeningAdmin) {
+        // External redirect til smh-app
+        return 'https://app.stotmedhjerte.dk';
+      }
+
+      if (isSupporter) {
+        return '/min-profil';
+      }
+
+      return '/';
+    };
+
+    return {
+      // Raw state
+      session,
+      user: session?.user || null,
+      profile,
+      isLoading,
+
+      // Boolean helpers
+      isAuthenticated,
+      isSupporter,
+      isForeningAdmin,
+      hasMultipleRoles,
+
+      // Actions
       logout,
-      navigateToLogin,
-      checkAppState
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+      refetchProfile: () => fetchProfile(session?.user?.id),
 
-export const useAuth = () => {
+      // Navigation helpers
+      getRedirectUrl,
+    };
+  }, [session, profile, isLoading, logout, fetchProfile]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+// ===========================================================================
+// useAuth hook
+// ===========================================================================
+
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === null) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}
