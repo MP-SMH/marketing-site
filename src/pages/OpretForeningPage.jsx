@@ -540,9 +540,12 @@ export default function OpretForeningPage() {
 
       if (isValidUrl(data.handoff_redirect_url)) {
         console.info('[signup] Cross-domain handoff initiated');
-        setSubmitLoading(false);
-        // P1-UX-001: Direct redirect — Step 4 success-skærm fjernet.
-        // HandoffPage er nu det eneste opsætnings-vindue (11s trust window).
+        // P1-UX-001 + flicker fix: BEHOLD loading-state under redirect.
+        // setSubmitLoading(false) FJERNET her - det triggerer re-render af
+        // Step 3 form i et split-second UDEN loading, hvilket viser hvidt
+        // flimmer foer browser navigerer. Loading-state forbliver indtil
+        // HandoffPage rendrer paa app-domain.
+        // HandoffPage er det eneste opsætnings-vindue (11s trust window).
         window.location.href = data.handoff_redirect_url;
         return;
       }
