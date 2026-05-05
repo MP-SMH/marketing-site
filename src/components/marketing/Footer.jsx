@@ -1,5 +1,5 @@
-import { Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Logo from '../Logo';
 
 const cols = [
   {
@@ -66,8 +66,7 @@ export default function Footer() {
             onClick={() => { navigate('/'); window.scrollTo(0, 0); }}
             style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, cursor: 'pointer' }}
           >
-            <Heart size={20} color="#E0193F" fill="#E0193F" />
-            <span style={{ fontSize: 17, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>StøtMedHjerte</span>
+            <Logo size={17} color="rgba(255,255,255,0.9)" />
           </div>
           <p style={{
             fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, margin: '0 0 20px 0', maxWidth: 240,

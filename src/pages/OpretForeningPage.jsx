@@ -19,6 +19,7 @@ import { SMH_API_URL } from '@/lib/supabaseClient';
 import { useSystemStatus } from '@/hooks/useSystemStatus';
 import { fetchActiveConsents, ConsentFetchError } from '@/lib/consents';
 import ConsentModal from '@/components/ConsentModal';
+import Logo from '@/components/Logo';
 
 // Brand color tokens
 const BRAND_TEAL = '#0891B2';
@@ -610,7 +611,7 @@ export default function OpretForeningPage() {
       <nav style={navStyle}>
         <div style={wordmarkStyle} onClick={() => navigate('/')}>
           <span style={wordmarkDotStyle} />
-          <span>StøtMedHjerte</span>
+          <Logo size={18} />
         </div>
         <div style={statusBadgeStyle}>
           <span

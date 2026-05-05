@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Menu, X, Search, ChevronDown, ArrowRight, ShieldCheck, Gift, Users, ShoppingBag, Calendar, HelpCircle, BookOpen, Mail, Eye, CreditCard, Repeat, Target, FileText } from 'lucide-react';
+import Logo from '../Logo';
 
 const DROPDOWN_DATA = {
   stoet: {
@@ -194,10 +195,7 @@ export default function Navbar() {
         }}>
           {/* Logo */}
           <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <Heart size={24} color="#E0193F" fill="#E0193F" style={{ animation: 'mkt-heartbeat 2s ease infinite' }} />
-            <span style={{ fontSize: 18, fontWeight: 700, color: textColor, letterSpacing: '-0.02em', transition: 'color 0.3s' }}>
-              StøtMedHjerte
-            </span>
+            <Logo size={18} color={textColor} style={{ transition: 'color 0.3s' }} />
           </div>
 
           {/* Desktop Links with Dropdowns */}
