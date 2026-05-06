@@ -1,0 +1,190 @@
+/**
+ * StoetMedHjerte Marketing Site - Design Tokens
+ * ============================================================
+ *
+ * Master sandheds-kilde: docs/marketing/BRAND-TOKENS.md (smh-app repo)
+ * Version: 1.0
+ * Sidst opdateret: 6. maj 2026
+ *
+ * Anvendelse: stotmedhjerte.dk (marketing-site)
+ * Theme: Light (white default backgrounds, brand-red CTAs)
+ *
+ * Refereres via:
+ *   1. CSS direkte:    var(--brand-red)
+ *   2. Tailwind class: bg-brand, text-mk-heading (mappet i tailwind.config.js)
+ *
+ * Ikke til brug paa app.stotmedhjerte.dk - der bruges Platform palette.
+ * ============================================================
+ */
+
+:root {
+  /* ============================================================
+     BRAND COLORS
+     ============================================================ */
+  --brand-red:           #E0193F;                    /* Primary brand - CTAs, hearts, accents */
+  --brand-red-light:     #FF4D6A;                    /* Gradient end, soft highlights */
+  --brand-red-tint:      #FEF2F2;                    /* Hover backgrounds, soft fills */
+  --brand-red-shadow:    rgba(224, 25, 63, 0.08);    /* Focus rings */
+  --brand-red-shadow-30: rgba(224, 25, 63, 0.30);    /* Strong CTA shadows */
+
+  /* ============================================================
+     NEUTRAL PALETTE - Text
+     ============================================================ */
+  --text-heading:    #0F172A;   /* H1, H2, large display */
+  --text-body:       #111827;   /* Body text, dark UI */
+  --text-secondary:  #6B7280;   /* Subheadlines, descriptions */
+  --text-muted:      #9CA3AF;   /* Captions, labels, icon-muted */
+  --text-inverse:    #F1F5F9;   /* Light text on dark backgrounds */
+
+  /* ============================================================
+     NEUTRAL PALETTE - Borders
+     ============================================================ */
+  --border-strong:   #E5E7EB;   /* Form fields, dividers */
+  --border-subtle:   #EBEBEB;   /* Cards, soft separators */
+
+  /* ============================================================
+     NEUTRAL PALETTE - Backgrounds
+     ============================================================ */
+  --bg-base:         #FFFFFF;   /* Default page background */
+  --bg-soft:         #F9FAFB;   /* Alternating sections */
+  --bg-elevated:     #F3F4F6;   /* Hover states, chips */
+  --bg-disabled:     #D1D5DB;   /* Disabled buttons, muted progress */
+  --bg-dark:         #0F172A;   /* Dark hero/footer/CTA variants */
+
+  /* ============================================================
+     SECTOR COLORS (KUN til hjertesager-cards + filtrering)
+     ============================================================ */
+  --sektor-fodbold:      #16A34A;   /* Groen */
+  --sektor-gymnastik:    #7C3AED;   /* Lilla */
+  --sektor-haandbold:    #EA580C;   /* Orange */
+  --sektor-svoemmning:   #0284C7;   /* Blaa */
+  --sektor-kampsport:    #DC2626;   /* Roed (moerk) */
+  --sektor-handicap:     #0891B2;   /* Cyan */
+  --sektor-kultur:       #7C3AED;   /* Lilla (samme som gymnastik) */
+  --sektor-velgoerenhed: #16A34A;   /* Groen (samme som fodbold) */
+
+  /* ============================================================
+     FUNCTIONAL COLORS
+     ============================================================ */
+  --success:        #16A34A;
+  --success-light:  #ECFDF5;
+  --warning:        #EA580C;
+  --warning-light:  #FFF7ED;
+  --error:          #DC2626;
+  --error-light:    #FEF2F2;
+  --info:           #0284C7;
+  --info-light:     #EFF6FF;
+
+  /* ============================================================
+     TYPOGRAPHY - Font stacks
+     ============================================================ */
+  --font-logo:    "Elza Round Variable", system-ui, sans-serif;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono:    "SF Mono", Menlo, Monaco, monospace;
+
+  /* ============================================================
+     TYPOGRAPHY - Type scale (marketing-site)
+     ============================================================ */
+  --text-display:        56px;   /* Hero H1 desktop */
+  --text-display-mobile: 36px;   /* Hero H1 mobile */
+  --text-h1:             40px;   /* Section headlines */
+  --text-h2:             28px;   /* Subsection headlines */
+  --text-h3:             20px;   /* Card titles */
+  --text-body-lg:        18px;   /* Hero subheadlines */
+  --text-body-base:      16px;   /* Default body */
+  --text-body-sm:        14px;   /* Captions, labels */
+  --text-xs:             12px;   /* Tiny labels, badges */
+
+  /* ============================================================
+     TYPOGRAPHY - Letter-spacing
+     ============================================================ */
+  --tracking-tight:    -0.05em;  /* Logo, large display */
+  --tracking-display:  -0.03em;  /* H1, H2 */
+  --tracking-default:  -0.01em;  /* Body */
+  --tracking-loose:     0.08em;  /* Uppercase labels */
+
+  /* ============================================================
+     SPACING SCALE
+     ============================================================ */
+  --space-1:    4px;
+  --space-2:    8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+  --space-32: 128px;
+
+  /* ============================================================
+     MOTION - Easing curves
+     ============================================================ */
+  --ease-out-expo:     cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart:    cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-cubic: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ============================================================
+     MOTION - Durations
+     ============================================================ */
+  --dur-instant:   100ms;   /* Mikro-feedback */
+  --dur-fast:      200ms;   /* Hover transitions */
+  --dur-base:      300ms;   /* Default */
+  --dur-medium:    500ms;   /* Section reveals */
+  --dur-slow:      800ms;   /* Hero animations */
+  --dur-extended: 1200ms;   /* Storytelling */
+
+  /* ============================================================
+     SHADOWS - Neutral
+     ============================================================ */
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm:  0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.10);
+  --shadow-xl:  0 16px 48px rgba(0, 0, 0, 0.12);
+  --shadow-2xl: 0 24px 64px rgba(0, 0, 0, 0.16);
+
+  /* ============================================================
+     SHADOWS - Brand-colored (red glow for CTAs)
+     ============================================================ */
+  --shadow-brand-sm: 0 2px 8px  rgba(224, 25, 63, 0.20);
+  --shadow-brand-md: 0 4px 16px rgba(224, 25, 63, 0.25);
+  --shadow-brand-lg: 0 8px 24px rgba(224, 25, 63, 0.30);
+
+  /* ============================================================
+     BORDER RADIUS
+     ============================================================ */
+  --radius-sm:    8px;
+  --radius-md:   10px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  20px;
+  --radius-full: 999px;
+
+  /* ============================================================
+     LAYOUT (marketing-specific)
+     ============================================================ */
+  --container-max:             1200px;   /* Max content width */
+  --container-padding-mobile:    16px;
+  --container-padding-desktop:   24px;
+  --section-padding-y-mobile:    64px;   /* Vertical section padding */
+  --section-padding-y-desktop:   96px;
+}
+
+/* ============================================================
+   ACCESSIBILITY: respect reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

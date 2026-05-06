@@ -1,0 +1,123 @@
+/**
+ * Marketing-site Global Base Styles
+ * ============================================================
+ *
+ * Importerer tokens.css og setter marketing-context base styles:
+ *   - Body bg/color (light theme)
+ *   - Default font-family pa html/body
+ *   - Heading defaults
+ *   - Selection color (brand-red)
+ *   - Focus-visible defaults
+ *
+ * Importeres FOER ./index.css i src/main.jsx for at tokens er
+ * tilgaengelige inden shadcn/Tailwind layer @base parses.
+ *
+ * Bemaerk: Holder sig vaek fra shadcn-tokens (--background, etc.).
+ *          Marketing-tokens er rent additivt.
+ * ============================================================ */
+
+@import "./tokens.css";
+
+/* ============================================================
+   HTML / BODY base
+   ============================================================ */
+html {
+  font-family: var(--font-body);
+  color: var(--text-body);
+  background-color: var(--bg-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-base);
+  color: var(--text-body);
+  font-family: var(--font-body);
+  font-size: var(--text-body-base);
+  line-height: 1.6;
+  letter-spacing: var(--tracking-default);
+}
+
+/* ============================================================
+   HEADINGS (default marketing-context)
+   Komponenter kan override som behov.
+   ============================================================ */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-heading);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+}
+
+/* ============================================================
+   LINKS
+   Komponenter overrider for CTA-buttons og custom links.
+   ============================================================ */
+a {
+  color: var(--brand-red);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out-quart);
+}
+
+a:hover {
+  color: var(--brand-red-light);
+}
+
+/* ============================================================
+   SELECTION
+   ============================================================ */
+::selection {
+  background-color: var(--brand-red-tint);
+  color: var(--brand-red);
+}
+
+/* ============================================================
+   FOCUS VISIBLE (a11y)
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--brand-red);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Remove default outline kun naar :focus-visible er supportet */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================================
+   IMG defaults
+   ============================================================ */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* ============================================================
+   FORM elements: arve font-stack
+   ============================================================ */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* ============================================================
+   LOGO class (Elza Round Variable, weight 500, tight tracking)
+   Brug: <span className="logo">StoetMedHjerte</span>
+   ============================================================ */
+.logo {
+  font-family: var(--font-logo);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+}
