@@ -1,72 +1,109 @@
 import { forwardRef } from 'react';
 
 /**
- * Card - styled wrapper med 3 varianter (BRAND-TOKENS card-system).
+ * Card - styled wrapper med 3 variants × 2 tones (BRAND-TOKENS + premium-Pulse).
  *
  * Card er en simpel wrapper - content composeres frit indeni.
- * Slot-pattern undgaaet for at give max fleksibilitet (icon + headline +
- * body + key-points + CTAs i forskellige rakkefolger paa forskellige sider).
  *
- * Variants (per BRAND-TOKENS Visual Hierarchy Rules):
- *   - primary:   white bg + brand-red border 1.5px + shadow-md
- *                Brug: KEY-feature highlight, hjertesager-cards i sektion 5,
- *                Hero CTA-zone, "anbefalet" pricing tier
- *   - secondary: white bg + neutral border 1px + shadow-sm
- *                Brug: regular feature cards, audience-split cards,
- *                differentiator cards, trust-cards
- *   - soft:      bg-mk-bg-soft + ingen border + ingen shadow
- *                Brug: insight-boxes, mini-tips, informational sections
+ * Variant × Tone matrix:
  *
- * Hover (BRAND-TOKENS motion):
- *   - Hover translate-y-[-8px] + shadow-mk-xl
- *   - Disabled paa soft (kun informational)
+ *   primary + light:    bg-mk-bg + brand-red border 1.5px + shadow-md
+ *                       Standard primary (KEY-feature highlight, hjertesager)
+ *   primary + dark:     glassmorphism bg-white/5 + backdrop-blur-xl
+ *                       + border-white/15 + shadow-2xl + hint af brand-glow
+ *                       PREMIUM-PULSE: hero-cards paa moerk bg
+ *
+ *   secondary + light:  bg-mk-bg + neutral border 1px + shadow-sm
+ *                       Standard secondary (audience-split, differentiator)
+ *   secondary + dark:   glassmorphism bg-white/5 + backdrop-blur-md
+ *                       + border-white/10 (subtle Pulse-card)
+ *
+ *   soft + light:       bg-mk-bg-soft + ingen border + ingen shadow
+ *                       Informational (insight-boxes, mini-tips)
+ *   soft + dark:        bg-white/3 + ingen border + ingen shadow
+ *                       Lavprofil paa moerk bg
+ *
+ * Hover (BRAND-TOKENS motion - 250ms ease-out):
+ *   - Hover translate-y-[-8px] + shadow-loft (light tones)
+ *   - Hover bg-white/10 + scale-up subtle (dark tones)
+ *   - Auto-disabled paa soft (informational)
  *   - Pass hover={false} for at slukke
  *
- * Padding:
- *   - sm:       p-4 (16px)
- *   - md:       p-6 (24px) - default
- *   - lg:       p-8 (32px) - hero zones, prominent cards
+ * Padding (sm 16px / md 24px / lg 32px).
  *
  * Props:
  *   - variant: 'primary' | 'secondary' | 'soft' (default 'secondary')
+ *   - tone: 'light' | 'dark' (default 'light')
  *   - padding: 'sm' | 'md' | 'lg' (default 'md')
  *   - hover: boolean (default true, undtagen for soft)
  *   - as: HTML element tag (default 'div')
  *   - className: ekstra Tailwind classes
  *   - children: indhold (frit composeret)
  *
- * Eksempel (audience-split B2B card):
- *   <Card variant="secondary" padding="lg" className="flex flex-col gap-6">
+ * Eksempel (audience-split B2B card paa light bg):
+ *   <Card variant="secondary" padding="lg">
  *     <Users className="text-brand" size={32} />
- *     <h3 className="text-mk-h3 text-mk-heading">For foreninger</h3>
- *     <p className="text-mk-body text-mk-secondary">Body text</p>
- *     <ul>...key-points...</ul>
- *     <CTA variant="primary">Laes mere</CTA>
+ *     <h3>For foreninger</h3>
+ *     ...
  *   </Card>
  *
- * Eksempel (KEY-feature primary):
- *   <Card variant="primary" padding="lg">
- *     {prominentContent}
+ * Eksempel (PREMIUM-PULSE primary paa dark hero-zone):
+ *   <Card variant="primary" tone="dark" padding="lg">
+ *     <Heart className="text-brand-light" size={32} />
+ *     <h3 className="text-white">Anbefalet hjertesag</h3>
+ *     ...
  *   </Card>
  */
 
-const VARIANT_CLASSES = {
-  primary:
-    'bg-mk-bg border-[1.5px] border-brand shadow-mk-md',
-  secondary:
-    'bg-mk-bg border border-mk-border-subtle shadow-mk-sm',
-  soft:
-    'bg-mk-bg-soft border-0 shadow-none',
+// Variant × tone matrix
+const VARIANT_TONE_CLASSES = {
+  primary: {
+    light:
+      'bg-mk-bg border-[1.5px] border-brand shadow-mk-md',
+    dark:
+      // Glassmorphism Pulse-style med subtle brand-glow
+      'bg-white/5 backdrop-blur-xl border border-white/15 shadow-2xl ' +
+      'shadow-[0_8px_32px_rgba(224,25,63,0.15)]',
+  },
+  secondary: {
+    light:
+      'bg-mk-bg border border-mk-border-subtle shadow-mk-sm',
+    dark:
+      'bg-white/5 backdrop-blur-md border border-white/10',
+  },
+  soft: {
+    light:
+      'bg-mk-bg-soft border-0 shadow-none',
+    dark:
+      'bg-white/[0.03] border-0 shadow-none',
+  },
 };
 
+// Hover-states per variant × tone
+// Duration 250ms (BRAND-TOKENS mikro-interaktion standard)
 const HOVER_CLASSES = {
-  primary:
-    'transition-all duration-medium ease-quart ' +
-    'hover:-translate-y-2 hover:shadow-mk-xl',
-  secondary:
-    'transition-all duration-medium ease-quart ' +
-    'hover:-translate-y-2 hover:shadow-mk-lg',
-  soft: '', // soft cards har ikke hover-state (informational)
+  primary: {
+    light:
+      'transition-all duration-[250ms] ease-quart ' +
+      'hover:-translate-y-2 hover:shadow-mk-xl',
+    dark:
+      'transition-all duration-[250ms] ease-quart ' +
+      'hover:-translate-y-2 hover:bg-white/[0.07] ' +
+      'hover:border-white/20 hover:shadow-[0_16px_48px_rgba(224,25,63,0.25)]',
+  },
+  secondary: {
+    light:
+      'transition-all duration-[250ms] ease-quart ' +
+      'hover:-translate-y-2 hover:shadow-mk-lg',
+    dark:
+      'transition-all duration-[250ms] ease-quart ' +
+      'hover:-translate-y-2 hover:bg-white/[0.07] hover:border-white/15',
+  },
+  // Soft har ingen hover - informational
+  soft: {
+    light: '',
+    dark:  '',
+  },
 };
 
 const PADDING_CLASSES = {
@@ -78,6 +115,7 @@ const PADDING_CLASSES = {
 const Card = forwardRef(function Card(
   {
     variant = 'secondary',
+    tone = 'light',
     padding = 'md',
     hover = true,
     as: Component = 'div',
@@ -87,13 +125,15 @@ const Card = forwardRef(function Card(
   },
   ref,
 ) {
-  const variantClass = VARIANT_CLASSES[variant] || VARIANT_CLASSES.secondary;
+  const variantToneMap = VARIANT_TONE_CLASSES[variant] || VARIANT_TONE_CLASSES.secondary;
+  const variantClass = variantToneMap[tone] || variantToneMap.light;
+
   const paddingClass = PADDING_CLASSES[padding] || PADDING_CLASSES.md;
 
   // Hover kun hvis hover=true OG variant ikke er soft
-  const hoverClass = (hover && variant !== 'soft') ? HOVER_CLASSES[variant] : '';
+  const hoverMap = HOVER_CLASSES[variant] || HOVER_CLASSES.secondary;
+  const hoverClass = (hover && variant !== 'soft') ? (hoverMap[tone] || hoverMap.light) : '';
 
-  // Base: rounded corners
   const baseClass = 'rounded-mk-xl';
 
   return (

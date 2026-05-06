@@ -9,16 +9,18 @@ import Container from './Container';
  * outermost element, derefter normale Sections til resten.
  *
  * Slots (alle optional, men title forventes altid):
- *   - eyebrow:   lille pre-headline (pre-launch note, flag-pill, badge)
- *   - title:     H1 - rendered automatisk som <h1> hvis string,
- *                ellers respekteres React-element
- *   - subtitle:  subheadline under H1 (forklarende tekst)
- *   - actions:   CTAs (typisk 1-2 knapper, evt. ogsaa text-link)
- *   - trustRow:  TrustRow component med trust-badges
- *   - mockup:    illustration / mockup / image (kun synlig i split layout)
+ *   - eyebrow:    pre-headline (Eyebrow-component eller custom node)
+ *   - title:      H1 - rendered automatisk som <h1> hvis string,
+ *                 ellers respekteres React-element
+ *   - subtitle:   subheadline under H1 (forklarende tekst)
+ *   - actions:    CTAs (typisk 1-2 knapper, evt. ogsaa text-link)
+ *   - trustRow:   TrustRow component med trust-badges
+ *   - mockup:     illustration / mockup / image (kun synlig i split layout)
+ *   - decoration: ReactNode renderet absolute (HeroOrbs eller custom)
+ *                 default null (ren hero uden orbs)
  *
  * Layouts:
- *   - centered: single-column, center-aligned (matcher /home v1.1)
+ *   - centered: single-column, center-aligned, max-w-4xl (matcher /home v1.1)
  *   - split:    left-text + right-mockup (matcher /foreninger pattern)
  *
  * Variants (Section bg):
@@ -28,50 +30,31 @@ import Container from './Container';
  *
  * Padding:
  *   - default:  Section padding="generous" (py-20 / py-32)
- *   - tight:    Section padding="default" (mindre brug-cases)
+ *   - tight:    Section padding="default" (py-16 / py-24)
  *
- * Decoration:
- *   - decoration prop: ReactNode renderet absolute inde i Section
- *     for orbs, gradients, blobs (relative + overflow-hidden saettes auto)
+ * Premium-Pulse note:
+ *   For premium-Pulse hero paa moerk bg, pass <HeroOrbs /> som decoration.
+ *   Decoration renderes absolute med pointer-events-none + aria-hidden.
  *
- * Props:
- *   - layout: 'centered' | 'split' (default 'centered')
- *   - variant: 'dark' | 'light' | 'soft' (default 'dark')
- *   - padding: 'default' | 'tight' (default 'default')
- *   - eyebrow, title, subtitle, actions, trustRow, mockup: ReactNode slots
- *   - decoration: ReactNode for absolute-positioned background elementer
- *   - className: ekstra Tailwind classes paa Section
- *   - id: anchor id (default 'hero')
- *
- * Eksempel (Home hero, centered, dark):
+ * Eksempel (Home hero, premium-Pulse):
  *   <Hero
  *     variant="dark"
  *     layout="centered"
- *     eyebrow={<Pill icon={Flag}>Bygget til danske foreninger</Pill>}
- *     title="Bygget til danske foreninger og dem, der stoetter dem"
- *     subtitle="StoetMedHjerte goer det nemmere..."
+ *     decoration={<HeroOrbs />}
+ *     eyebrow={<Eyebrow tone="dark">Bygget til danske foreninger</Eyebrow>}
+ *     title="Bygget til danske foreninger og dem, der støtter dem"
+ *     subtitle="StøtMedHjerte gør det nemmere..."
  *     actions={
  *       <>
- *         <CTA variant="primary" size="lg" href="/foreninger">
- *           Laes mere for foreninger
+ *         <CTA variant="primary" tone="dark" size="lg" href="/foreninger">
+ *           Læs mere for foreninger
  *         </CTA>
- *         <CTA variant="secondary" size="lg" href="/hjertesager">
- *           Find en forening at stoette
+ *         <CTA variant="secondary" tone="dark" size="lg" href="/hjertesager">
+ *           Find en forening at støtte
  *         </CTA>
  *       </>
  *     }
  *     trustRow={<TrustRow variant="dark" items={trustItems} />}
- *     decoration={<HeroOrbs />}
- *   />
- *
- * Eksempel (Foreninger hero, split):
- *   <Hero
- *     layout="split"
- *     variant="dark"
- *     title="..."
- *     subtitle="..."
- *     actions={...}
- *     mockup={<DashboardMockup />}
  *   />
  */
 
@@ -100,35 +83,36 @@ const Hero = forwardRef(function Hero(
 ) {
   const sectionPadding = PADDING_MAP[padding] || 'generous';
 
-  // Rendering helpers - hvis title er en string, wrap i <h1>
+  // Title: hvis string, wrap i <h1> med responsive sizing.
+  // leading-[1.1] (ikke 1.05) for bedre multi-line headlines
   const renderedTitle =
     typeof title === 'string' ? (
-      <h1 className="text-mk-display-mobile md:text-mk-display tracking-mk-tight font-semibold leading-[1.05]">
+      <h1 className="text-mk-display-mobile md:text-mk-display tracking-mk-tight font-semibold leading-[1.1]">
         {title}
       </h1>
     ) : (
       title
     );
 
+  // Subtitle: hvis string, wrap i <p>
   const renderedSubtitle =
     typeof subtitle === 'string' ? (
-      <p className="text-mk-body md:text-mk-body-lg leading-relaxed max-w-2xl">
+      <p className={`text-mk-body md:text-mk-body-lg leading-relaxed max-w-2xl ${variant === "dark" ? "text-white/80" : "text-mk-secondary"}`}>
         {subtitle}
       </p>
     ) : (
       subtitle
     );
 
-  // Tekstfarver per variant (subtitle skal vaere lidt daempet)
+  // Tekstfarver per variant
   const subtitleColorClass =
     variant === 'dark'
-      ? 'text-mk-inverse opacity-80'
+      ? 'text-white/80'  // 80% white = bedre kontrast end opacity-80
       : 'text-mk-secondary';
 
   const titleColorClass =
-    variant === 'dark' ? 'text-mk-inverse' : 'text-mk-heading';
+    variant === 'dark' ? 'text-white' : 'text-mk-heading';
 
-  // Layout-specifikke containers
   const isSplit = layout === 'split';
 
   return (
@@ -141,18 +125,15 @@ const Hero = forwardRef(function Hero(
       {...rest}
     >
       {/* Decoration layer (orbs, gradients) - absolute, ikke interaktivt */}
-      {decoration && (
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          {decoration}
-        </div>
-      )}
+      {decoration}
 
       <Container>
         <div
           className={
             isSplit
               ? 'grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10'
-              : 'flex flex-col items-center text-center gap-6 md:gap-8 relative z-10 max-w-3xl mx-auto'
+              // Centered: max-w-4xl (896px) for plads til 2 CTAs side-om-side + trust-row
+              : 'flex flex-col items-center text-center gap-6 md:gap-8 relative z-10 max-w-4xl mx-auto'
           }
         >
           {/* Text-column (i split: left, i centered: full-width) */}

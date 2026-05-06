@@ -8,7 +8,7 @@ import { forwardRef } from 'react';
  *
  * Variants (matcher Hero-baggrund):
  *   - light:  Til light bg sections - tekst mk-secondary, icon brand-red
- *   - dark:   Til dark hero/CTA sections - tekst lys, icon brand-red-light
+ *   - dark:   Til dark hero/CTA sections - tekst mk-inverse, icon brand-light
  *
  * Sizes:
  *   - sm:  text-mk-xs, icon 14px (kompakte sektioner)
@@ -16,15 +16,20 @@ import { forwardRef } from 'react';
  *   - lg:  text-mk-body, icon 20px (prominent hero placement)
  *
  * Layout:
- *   - Flex-wrap som default (mobile-friendly)
- *   - Centreret horisontalt
+ *   - Flex-wrap default (mobile-friendly)
+ *   - Centreret horisontalt (default), align-prop til start/end
  *   - Gap mellem items justerer per size
+ *
+ * A11y:
+ *   - <ul role="list"> sikrer screen readers viser som liste
+ *     (Webkit fjerner list-role naar list-style: none = bug fix)
+ *   - Icons har aria-hidden (label kommunikerer betydningen)
  *
  * Items-spec:
  *   Array af { icon, label, key? } objekter.
- *   icon = lucide-react component (eks. ShieldCheck, Heart, Eye)
- *   label = string vist ved ikonet
- *   key = optional - default er icon-displayName eller index
+ *     icon  = lucide-react component (eks. ShieldCheck, Heart, Eye)
+ *     label = string vist ved ikonet
+ *     key   = optional - default: stable hash af label+idx (ikke kun idx)
  *
  * Eksempel (Home hero, dark bg):
  *   <TrustRow
@@ -34,15 +39,6 @@ import { forwardRef } from 'react';
  *       { icon: ShieldCheck, label: 'Verificerede foreninger' },
  *       { icon: Heart, label: '80% til foreningen' },
  *       { icon: Eye, label: 'Gratis at oprette, ingen binding' },
- *     ]}
- *   />
- *
- * Eksempel (light section):
- *   <TrustRow
- *     variant="light"
- *     items={[
- *       { icon: Lock, label: 'GDPR-compliant' },
- *       { icon: Check, label: 'Sporbar dokumentation' },
  *     ]}
  *   />
  */
@@ -79,6 +75,12 @@ const SIZE_CLASSES = {
   },
 };
 
+const ALIGN_CLASSES = {
+  start: 'justify-start',
+  center: 'justify-center',
+  end: 'justify-end',
+};
+
 const TrustRow = forwardRef(function TrustRow(
   {
     variant = 'light',
@@ -96,16 +98,12 @@ const TrustRow = forwardRef(function TrustRow(
 
   const variantStyle = VARIANT_CLASSES[variant] || VARIANT_CLASSES.light;
   const sizeStyle = SIZE_CLASSES[size] || SIZE_CLASSES.md;
-
-  const justifyClass = {
-    start: 'justify-start',
-    center: 'justify-center',
-    end: 'justify-end',
-  }[align] || 'justify-center';
+  const justifyClass = ALIGN_CLASSES[align] || ALIGN_CLASSES.center;
 
   return (
     <ul
       ref={ref}
+      role="list"
       className={
         `flex flex-wrap ${justifyClass} items-center ` +
         `${sizeStyle.gap} ${sizeStyle.text} ${variantStyle.container} ` +
@@ -115,7 +113,8 @@ const TrustRow = forwardRef(function TrustRow(
     >
       {items.map((item, idx) => {
         const Icon = item.icon;
-        const key = item.key ?? (Icon && Icon.displayName) ?? idx;
+        // Stable key: prefer explicit key, ellers label+idx hash
+        const key = item.key ?? `${item.label}-${idx}`;
         return (
           <li
             key={key}
