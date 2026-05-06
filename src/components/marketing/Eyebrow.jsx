@@ -9,7 +9,7 @@ import { forwardRef } from 'react';
  * Variants (tone):
  *   - light:  bg-mk-bg-elevated + border-mk-border-subtle + text-mk-secondary
  *             Til light hero (variant="light")
- *   - dark:   bg-white/10 + border-white/10 + backdrop-blur + text-mk-inverse
+ *   - dark:   bg-white/[0.07] + border-white/[0.12] + backdrop-blur-xl + text-mk-inverse
  *             Til dark hero (variant="dark") - PREMIUM-PULSE GLASSMORPHISM
  *
  * Optional icon (lucide-react component):
@@ -31,8 +31,8 @@ const TONE_CLASSES = {
   light:
     'bg-mk-bg-elevated border border-mk-border-subtle text-mk-secondary',
   dark:
-    // Glassmorphism: subtle white tint + backdrop-blur + soft border
-    'bg-white/10 border border-white/10 text-mk-inverse backdrop-blur-md',
+    // Premium glassmorphism: more refined opacity + xl backdrop-blur
+    'bg-white/[0.07] border border-white/[0.12] text-mk-inverse backdrop-blur-xl',
 };
 
 const Eyebrow = forwardRef(function Eyebrow(

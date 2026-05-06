@@ -85,19 +85,19 @@ const HOVER_CLASSES = {
   primary: {
     light:
       'transition-all duration-[250ms] ease-quart ' +
-      'hover:-translate-y-2 hover:shadow-mk-xl',
+      'hover:-translate-y-1 hover:shadow-mk-xl',
     dark:
       'transition-all duration-[250ms] ease-quart ' +
-      'hover:-translate-y-2 hover:bg-white/[0.07] ' +
-      'hover:border-white/20 hover:shadow-[0_16px_48px_rgba(224,25,63,0.25)]',
+      'hover:-translate-y-1 hover:bg-white/[0.07] ' +
+      'hover:border-white/20 hover:shadow-[0_16px_48px_rgba(224,25,63,0.20)]',
   },
   secondary: {
     light:
       'transition-all duration-[250ms] ease-quart ' +
-      'hover:-translate-y-2 hover:shadow-mk-lg',
+      'hover:-translate-y-1 hover:shadow-mk-lg',
     dark:
       'transition-all duration-[250ms] ease-quart ' +
-      'hover:-translate-y-2 hover:bg-white/[0.07] hover:border-white/15',
+      'hover:-translate-y-1 hover:bg-white/[0.07] hover:border-white/15',
   },
   // Soft har ingen hover - informational
   soft: {

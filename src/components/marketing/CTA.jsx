@@ -57,24 +57,24 @@ const VARIANT_TONE_CLASSES = {
     light:
       'bg-brand text-white shadow-brand-md ' +
       'hover:shadow-brand-lg hover:-translate-y-0.5 ' +
-      'active:scale-[0.97] ' +
+      'active:scale-[0.99] ' +
       'focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:outline-none',
     dark:
-      'bg-brand text-white shadow-brand-lg ' +
-      'hover:shadow-[0_12px_32px_rgba(224,25,63,0.45)] hover:-translate-y-0.5 ' +
-      'active:scale-[0.97] ' +
+      'bg-brand text-white shadow-[0_10px_28px_rgba(224,25,63,0.26)] ' +
+      'hover:shadow-[0_12px_32px_rgba(224,25,63,0.30)] hover:-translate-y-0.5 ' +
+      'active:scale-[0.99] ' +
       'focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-mk-bg-dark focus-visible:outline-none',
   },
   secondary: {
     light:
-      'bg-transparent text-brand border-2 border-brand ' +
-      'hover:bg-brand hover:text-white hover:-translate-y-0.5 ' +
-      'active:scale-[0.97] ' +
+      'bg-transparent text-brand border border-brand/35 ' +
+      'hover:border-brand hover:bg-brand-tint hover:-translate-y-0.5 ' +
+      'active:scale-[0.99] ' +
       'focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:outline-none',
     dark:
-      'bg-white/5 text-white border-2 border-white/40 backdrop-blur-sm ' +
-      'hover:border-white hover:bg-white/10 hover:-translate-y-0.5 ' +
-      'active:scale-[0.97] ' +
+      'bg-white/[0.04] text-white border border-white/[0.16] backdrop-blur-md ' +
+      'hover:bg-white/[0.08] hover:border-white/[0.28] hover:-translate-y-0.5 ' +
+      'active:scale-[0.99] ' +
       'focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-mk-bg-dark focus-visible:outline-none',
   },
   tertiary: {

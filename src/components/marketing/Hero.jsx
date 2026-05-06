@@ -85,35 +85,36 @@ const Hero = forwardRef(function Hero(
 
   // Title: hvis string, wrap i <h1> med responsive sizing.
   // leading-[1.1] (ikke 1.05) for bedre multi-line headlines
+  // H1 max-width afhænger af layout: bredere for centered, snævrere for split
+  const isSplitLayout = layout === 'split';
+  const titleMaxWidth = isSplitLayout ? 'max-w-[620px]' : 'max-w-[920px]';
+
   const renderedTitle =
     typeof title === 'string' ? (
-      <h1 className="text-mk-display-mobile md:text-mk-display tracking-mk-tight font-semibold leading-[1.1]">
+      <h1 className={`text-mk-display-mobile md:text-mk-display tracking-mk-tight font-semibold leading-[1.04] ${titleMaxWidth}`}>
         {title}
       </h1>
     ) : (
       title
     );
 
-  // Subtitle: hvis string, wrap i <p>
+  // Subtitle: hvis string, wrap i <p> med direkte color-class (cascade fix)
+  // Bruger text-slate-300 i stedet for text-white/80 for mere stabil og premium feel
+  const subtitleMaxWidth = isSplitLayout ? 'max-w-[560px]' : 'max-w-[720px]';
+  const subtitleColor = variant === 'dark' ? 'text-slate-300' : 'text-mk-secondary';
+
   const renderedSubtitle =
     typeof subtitle === 'string' ? (
-      <p className={`text-mk-body md:text-mk-body-lg leading-relaxed max-w-2xl ${variant === "dark" ? "text-white/80" : "text-mk-secondary"}`}>
+      <p className={`text-mk-body md:text-mk-body-lg leading-[1.55] ${subtitleMaxWidth} ${subtitleColor}`}>
         {subtitle}
       </p>
     ) : (
       subtitle
     );
 
-  // Tekstfarver per variant
-  const subtitleColorClass =
-    variant === 'dark'
-      ? 'text-white/80'  // 80% white = bedre kontrast end opacity-80
-      : 'text-mk-secondary';
-
   const titleColorClass =
     variant === 'dark' ? 'text-white' : 'text-mk-heading';
 
-  const isSplit = layout === 'split';
 
   return (
     <Section
@@ -130,7 +131,7 @@ const Hero = forwardRef(function Hero(
       <Container>
         <div
           className={
-            isSplit
+            isSplitLayout
               ? 'grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10'
               // Centered: max-w-4xl (896px) for plads til 2 CTAs side-om-side + trust-row
               : 'flex flex-col items-center text-center gap-6 md:gap-8 relative z-10 max-w-4xl mx-auto'
@@ -140,19 +141,17 @@ const Hero = forwardRef(function Hero(
           <div
             className={
               `flex flex-col gap-6 ${titleColorClass} ` +
-              (isSplit ? 'text-left items-start' : 'items-center text-center')
+              (isSplitLayout ? 'text-left items-start' : 'items-center text-center')
             }
           >
             {eyebrow && <div>{eyebrow}</div>}
             {renderedTitle && <div>{renderedTitle}</div>}
-            {renderedSubtitle && (
-              <div className={subtitleColorClass}>{renderedSubtitle}</div>
-            )}
+            {renderedSubtitle}
             {actions && (
               <div
                 className={
                   `flex flex-wrap gap-3 md:gap-4 mt-2 ` +
-                  (isSplit ? 'justify-start' : 'justify-center')
+                  (isSplitLayout ? 'justify-start' : 'justify-center')
                 }
               >
                 {actions}
@@ -162,7 +161,7 @@ const Hero = forwardRef(function Hero(
           </div>
 
           {/* Mockup-column (kun i split) */}
-          {isSplit && mockup && (
+          {isSplitLayout && mockup && (
             <div className="flex justify-center md:justify-end">{mockup}</div>
           )}
         </div>

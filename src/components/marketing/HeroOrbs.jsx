@@ -35,19 +35,19 @@ import { forwardRef } from 'react';
 
 const INTENSITY_CONFIG = {
   subtle: {
-    orb1Opacity: 0.15,
-    orb2Opacity: 0.10,
-    gridOpacity: 0.02,
+    orb1Opacity: 0.12,
+    orb2Opacity: 0.08,
+    gridOpacity: 0.018,
   },
   normal: {
-    orb1Opacity: 0.15,
-    orb2Opacity: 0.10,
-    gridOpacity: 0.03,
+    orb1Opacity: 0.20,
+    orb2Opacity: 0.12,
+    gridOpacity: 0.025,
   },
   strong: {
-    orb1Opacity: 0.45,
-    orb2Opacity: 0.30,
-    gridOpacity: 0.05,
+    orb1Opacity: 0.32,
+    orb2Opacity: 0.20,
+    gridOpacity: 0.035,
   },
 };
 
