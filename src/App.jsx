@@ -64,6 +64,9 @@ import ForeningAuthPage from './pages/ForeningAuthPage';
 import OpretForeningPage from './pages/OpretForeningPage';
 import OpretStoetterPage from './pages/OpretStoetterPage';
 
+// Dev-only storybook-route (P2-MARKETING-BUILD-001e)
+import DevComponents from './pages/DevComponents';
+
 // Scroll-to-top ved route-changes
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -102,6 +105,9 @@ function App() {
             <Route path="/login-forening" element={<ForeningAuthPage />} />
             <Route path="/opret-stoetter" element={<OpretStoetterPage />} />
             <Route path="/opret-forening" element={<OpretForeningPage />} />
+            {/* Dev-only storybook-route (P2-MARKETING-BUILD-001e) */}
+            <Route path="/dev/components" element={<DevComponents />} />
+
             {/* 404 fallback */}
             <Route path="*" element={<PageNotFound />} />
           </Routes>

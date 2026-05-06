@@ -86,10 +86,10 @@
   /* ============================================================
      TYPOGRAPHY - Type scale (marketing-site)
      ============================================================ */
-  --text-display:        56px;   /* Hero H1 desktop */
-  --text-display-mobile: 36px;   /* Hero H1 mobile */
-  --text-h1:             40px;   /* Section headlines */
-  --text-h2:             28px;   /* Subsection headlines */
+  --text-display:        60px;   /* Hero H1 desktop */
+  --text-display-mobile: 38px;   /* Hero H1 mobile */
+  --text-h1:             44px;   /* Section headlines */
+  --text-h2:             30px;   /* Subsection headlines */
   --text-h3:             20px;   /* Card titles */
   --text-body-lg:        18px;   /* Hero subheadlines */
   --text-body-base:      16px;   /* Default body */
@@ -99,9 +99,9 @@
   /* ============================================================
      TYPOGRAPHY - Letter-spacing
      ============================================================ */
-  --tracking-tight:    -0.05em;  /* Logo, large display */
-  --tracking-display:  -0.03em;  /* H1, H2 */
-  --tracking-default:  -0.01em;  /* Body */
+  --tracking-tight:    -0.035em;  /* Logo, large display */
+  --tracking-display:  -0.025em;  /* H1, H2 */
+  --tracking-default:  -0.005em;  /* Body */
   --tracking-loose:     0.08em;  /* Uppercase labels */
 
   /* ============================================================

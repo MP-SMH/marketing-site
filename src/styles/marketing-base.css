@@ -47,7 +47,6 @@ body {
    ============================================================ */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
-  color: var(--text-heading);
   font-weight: 600;
   letter-spacing: var(--tracking-display);
   margin: 0;
@@ -105,11 +104,18 @@ svg {
    FORM elements: arve font-stack
    ============================================================ */
 input,
-button,
 textarea,
 select {
   font: inherit;
   color: inherit;
+}
+
+/* Buttons: arve font men IKKE color.
+   color: inherit ville override Tailwind utilities (text-brand etc.)
+   fordi denne rule er unlayered = hoejere precedence end @layer utilities.
+   className styrer color (text-brand, text-white, etc.). */
+button {
+  font: inherit;
 }
 
 /* ============================================================
