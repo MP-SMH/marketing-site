@@ -35,3 +35,8 @@ dist-ssr
 
 # Backup files from atomic patch operations (P2 foundation rebuild)
 *.backup-*
+
+# Lokale arkiv- og skitse-filer (ikke i git)
+.backups/
+*.v[0-9]*.jsx
+*.backup

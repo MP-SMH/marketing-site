@@ -1,0 +1,399 @@
+/**
+ * Pulse Design Tokens — StøtMedHjerte
+ *
+ * Version:     v1.0
+ * Date:        6. maj 2026
+ * Source:      Extracted from auth/onboarding pages (OpretForeningPage,
+ *              OpretStoetterPage, ForeningAuthPage, StoetterAuthPage,
+ *              ConsentModal, Logo)
+ * Authority:   Single source of truth for Pulse design system
+ *
+ * Anvendelse:
+ *   1. Import i src/index.css:
+ *      @import './styles/design-tokens.css';
+ *
+ *   2. I komponenter bruges var(--token-name):
+ *      background: var(--surface-glass);
+ *      border-radius: var(--radius-card);
+ *      color: var(--text-primary);
+ *
+ *   3. Brand-farver er kontekst-baserede. Sæt --brand-* per sub-tree
+ *      hvis nødvendigt:
+ *      .marketing-context { --brand-primary: var(--brand-red); }
+ *      .forening-context  { --brand-primary: var(--brand-teal); }
+ */
+
+:root {
+  /* =========================================================================
+     SURFACE — backgrounds, cards, modals
+     ========================================================================= */
+
+  /* Page gradient stops */
+  --surface-page-1: #0F172A;
+  --surface-page-2: #1E293B;
+  --surface-navy-950: #070B16;
+  --surface-navy-900: #0F172A;
+  --surface-navy-850: #111C33;
+  --surface-navy-800: #17233D;
+
+  /* Standard page gradient */
+  --surface-page-gradient: linear-gradient(135deg, var(--surface-page-1) 0%, var(--surface-page-2) 100%);
+
+  /* Glass surfaces (transparent over dark page) */
+  --surface-glass: rgba(255, 255, 255, 0.03);
+  --surface-glass-elevated: rgba(255, 255, 255, 0.05);
+  --surface-glass-active: rgba(255, 255, 255, 0.08);
+  --surface-glass-hover: rgba(255, 255, 255, 0.10);
+
+  /* Ghost button surfaces */
+  --surface-ghost: rgba(255, 255, 255, 0.06);
+  --surface-ghost-hover: rgba(255, 255, 255, 0.10);
+
+  /* Modal */
+  --surface-modal-bg-1: rgba(15, 23, 42, 0.96);
+  --surface-modal-bg-2: rgba(30, 41, 59, 0.96);
+  --surface-modal-overlay: rgba(15, 23, 42, 0.85);
+  --surface-modal-inner: rgba(8, 15, 30, 0.65);
+
+  /* Soft / light surface (for occasional light sections) */
+  --surface-soft: #F8FAFC;
+  --surface-warm-white: #FFFDFB;
+  --surface-line: #E5E7EB;
+
+  /* =========================================================================
+     BORDER — outlines, dividers
+     ========================================================================= */
+
+  --border-glass: rgba(255, 255, 255, 0.06);
+  --border-glass-strong: rgba(255, 255, 255, 0.08);
+  --border-glass-hover: rgba(255, 255, 255, 0.10);
+  --border-glass-active: rgba(255, 255, 255, 0.15);
+  --border-divider: rgba(255, 255, 255, 0.08);
+  --border-divider-soft: rgba(255, 255, 255, 0.06);
+
+  /* =========================================================================
+     TEXT — colors per role
+     ========================================================================= */
+
+  --text-primary: #ffffff;
+  --text-body: rgba(255, 255, 255, 0.85);
+  --text-secondary: rgba(255, 255, 255, 0.70);
+  --text-muted: rgba(255, 255, 255, 0.45);
+  --text-label: rgba(255, 255, 255, 0.40);
+  --text-system: rgba(255, 255, 255, 0.30);
+  --text-placeholder: rgba(255, 255, 255, 0.20);
+
+  /* =========================================================================
+     BRAND — primary / light / dark per context
+     ========================================================================= */
+
+  /* Brand-rød: Støtter, Marketing context */
+  --brand-red: #E0193F;
+  --brand-red-light: #FF6B82;
+  --brand-red-dark: #C8112E;
+  --brand-red-rgb: 224, 25, 63;
+
+  /* Brand-teal: Forening / Admin context */
+  --brand-teal: #0891B2;
+  --brand-teal-light: #22D3EE;
+  --brand-teal-dark: #0E7490;
+  --brand-teal-rgb: 8, 145, 178;
+
+  /* Brand-blue: (note: ForeningAuth bruger denne — bør harmoniseres til teal) */
+  --brand-blue: #3B82F6;
+  --brand-blue-light: #60A5FA;
+  --brand-blue-rgb: 59, 130, 246;
+
+  /* Brand-purple: Backend / Internal context */
+  --brand-purple: #7C3AED;
+  --brand-purple-light: #A78BFA;
+  --brand-purple-rgb: 124, 58, 237;
+
+  /* Default brand context (kan overrides på sub-tree) */
+  --brand-primary: var(--brand-red);
+  --brand-primary-light: var(--brand-red-light);
+  --brand-primary-dark: var(--brand-red-dark);
+  --brand-primary-rgb: var(--brand-red-rgb);
+
+  /* Brand surface tints (gentages flere steder) */
+  --brand-tint-08: rgba(var(--brand-primary-rgb), 0.08);
+  --brand-tint-12: rgba(var(--brand-primary-rgb), 0.12);
+  --brand-tint-15: rgba(var(--brand-primary-rgb), 0.15);
+  --brand-tint-18: rgba(var(--brand-primary-rgb), 0.18);
+  --brand-tint-25: rgba(var(--brand-primary-rgb), 0.25);
+  --brand-tint-30: rgba(var(--brand-primary-rgb), 0.30);
+  --brand-tint-35: rgba(var(--brand-primary-rgb), 0.35);
+  --brand-tint-40: rgba(var(--brand-primary-rgb), 0.40);
+  --brand-tint-45: rgba(var(--brand-primary-rgb), 0.45);
+
+  /* =========================================================================
+     STATUS — feedback colors
+     ========================================================================= */
+
+  --status-success: #22C55E;
+  --status-success-strong: #10B981;
+  --status-success-bg: rgba(34, 197, 94, 0.10);
+  --status-success-border: rgba(34, 197, 94, 0.30);
+
+  --status-warning: #EAB308;
+  --status-warning-soft: #F97316;
+  --status-warning-bg: rgba(234, 179, 8, 0.10);
+
+  --status-error: #EF4444;
+  --status-error-text: #FCA5A5;
+  --status-error-bg: rgba(239, 68, 68, 0.08);
+  --status-error-border: rgba(239, 68, 68, 0.25);
+  --status-error-strong: rgba(239, 68, 68, 0.40);
+  --status-error-glow: rgba(239, 68, 68, 0.60);
+
+  --status-info: var(--brand-teal);
+  --status-info-bg: rgba(8, 145, 178, 0.06);
+  --status-info-border: rgba(8, 145, 178, 0.18);
+
+  /* =========================================================================
+     PASSWORD-STRENGTH — zxcvbn 0-4 scale
+     ========================================================================= */
+
+  --pwd-0: #EF4444;  /* Meget svag */
+  --pwd-1: #F97316;  /* Svag */
+  --pwd-2: #EAB308;  /* Mellem */
+  --pwd-3: #14B8A6;  /* God */
+  --pwd-4: #0891B2;  /* Stærk */
+
+  /* =========================================================================
+     TYPOGRAPHY
+     ========================================================================= */
+
+  --font-system: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'ui-monospace', 'SF Mono', 'Cascadia Code', Menlo, monospace;
+  --font-logo: 'elza-round-variable-light', sans-serif;
+
+  /* Font size scale */
+  --fs-h1-xl: 24px;   /* Login heading */
+  --fs-h1: 22px;      /* Wizard heading */
+  --fs-modal-h1: 20px;
+  --fs-md-h1: 18px;
+  --fs-md-h2: 16px;
+  --fs-button-lg: 16px;
+  --fs-button: 15px;
+  --fs-body-lg: 14.5px;
+  --fs-md: 14px;
+  --fs-md-sm: 13.5px;
+  --fs-sm: 13px;
+  --fs-xs: 12px;
+  --fs-label: 11px;
+  --fs-meta: 11px;
+  --fs-tiny: 10px;
+  --fs-system: 10px;
+
+  /* Letter-spacing tokens */
+  --tracking-h1: -0.03em;
+  --tracking-h1-xl: -0.035em;
+  --tracking-md-h: -0.01em;
+  --tracking-label: 0.02em;
+  --tracking-system: 0.05em;
+  --tracking-system-wide: 0.08em;
+  --tracking-system-wider: 0.10em;
+  --tracking-eyebrow: 0.12em;
+
+  /* =========================================================================
+     SPACING
+     ========================================================================= */
+
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 14px;
+  --space-7: 16px;
+  --space-8: 18px;
+  --space-9: 20px;
+  --space-10: 24px;
+  --space-11: 28px;
+  --space-12: 32px;
+  --space-13: 36px;
+  --space-14: 40px;
+  --space-15: 44px;
+  --space-16: 48px;
+
+  /* =========================================================================
+     RADIUS
+     ========================================================================= */
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-base: 6px;
+  --radius-base-lg: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
+  --radius-3xl: 18px;
+  --radius-card: 24px;
+
+  /* =========================================================================
+     SHADOWS — glow + lift
+     ========================================================================= */
+
+  /* Brand-glow shadows (use with --brand-primary-rgb) */
+  --shadow-glow-sm: 0 0 8px rgba(var(--brand-primary-rgb), 0.40);
+  --shadow-glow-md: 0 0 12px rgba(var(--brand-primary-rgb), 0.40);
+  --shadow-glow-cta-rest: 0 4px 24px rgba(var(--brand-primary-rgb), 0.35);
+  --shadow-glow-cta-hover: 0 8px 32px rgba(var(--brand-primary-rgb), 0.45);
+
+  /* Status glow */
+  --shadow-glow-error: 0 0 8px rgba(239, 68, 68, 0.60);
+  --shadow-glow-success: 0 0 8px rgba(34, 197, 94, 0.50);
+
+  /* Modal */
+  --shadow-modal: 0 8px 30px rgba(0, 0, 0, 0.30);
+
+  /* =========================================================================
+     BLUR
+     ========================================================================= */
+
+  --blur-card: blur(20px);    /* Glass card */
+  --blur-orb-lg: blur(60px);  /* Big orbs */
+  --blur-orb-sm: blur(40px);  /* Small orb */
+
+  /* =========================================================================
+     SIZING — components
+     ========================================================================= */
+
+  --size-input-h: 48px;
+  --size-input-h-compact: 42px;
+  --size-input-h-otp: 52px;
+  --size-cta-h: 52px;
+  --size-cta-h-compact: 48px;
+  --size-icon-container: 56px;
+  --size-back-btn-h: auto;
+  --size-card-max: 440px;
+  --size-card-max-login: 400px;
+
+  /* =========================================================================
+     Z-INDEX
+     ========================================================================= */
+
+  --z-bg: 0;
+  --z-content: 1;
+  --z-card: 2;
+  --z-nav: 10;
+  --z-modal-overlay: 11;
+  --z-modal: 12;
+  --z-dropdown: 20;
+
+  /* =========================================================================
+     TRANSITIONS
+     ========================================================================= */
+
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-medium: 0.3s ease;
+  --transition-card: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* =========================================================================
+     ANIMATION DURATIONS
+     ========================================================================= */
+
+  --anim-orb-1: 12s;
+  --anim-orb-2: 15s;
+  --anim-orb-3: 10s;
+  --anim-grid-drift: 20s;
+  --anim-particles-base: 8s;
+  --anim-heartbeat: 2s;
+  --anim-status-pulse: 2s;
+  --anim-spin: 0.8s;
+  --anim-card-entrance: 0.6s;
+}
+
+/* =========================================================================
+   GLOBAL ANIMATIONS — keyframes used across the platform
+   ========================================================================= */
+
+@keyframes pulse-orb-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(60px, -40px) scale(1.15); }
+  66%      { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+@keyframes pulse-orb-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(-50px, 50px) scale(1.1); }
+  66%      { transform: translate(40px, -20px) scale(0.9); }
+}
+
+@keyframes pulse-orb-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  50%      { transform: translate(30px, 40px) scale(1.2); opacity: 1; }
+}
+
+@keyframes pulse-grid-drift {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(60px, 60px); }
+}
+
+@keyframes pulse-particles {
+  0%       { transform: translateY(0) scale(1); opacity: 0; }
+  10%, 90% { opacity: 1; }
+  100%     { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+}
+
+@keyframes pulse-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-heartbeat {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}
+
+@keyframes pulse-status {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+@keyframes pulse-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================================
+   CONTEXT MIXINS — apply to root of section/page to set brand
+   ========================================================================= */
+
+.context-marketing,
+.context-stoetter {
+  --brand-primary: var(--brand-red);
+  --brand-primary-light: var(--brand-red-light);
+  --brand-primary-dark: var(--brand-red-dark);
+  --brand-primary-rgb: var(--brand-red-rgb);
+}
+
+.context-forening,
+.context-admin {
+  --brand-primary: var(--brand-teal);
+  --brand-primary-light: var(--brand-teal-light);
+  --brand-primary-dark: var(--brand-teal-dark);
+  --brand-primary-rgb: var(--brand-teal-rgb);
+}
+
+.context-backend {
+  --brand-primary: var(--brand-purple);
+  --brand-primary-light: var(--brand-purple-light);
+  --brand-primary-rgb: var(--brand-purple-rgb);
+}
+
+/* =========================================================================
+   ACCESSIBILITY — reduced motion
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
