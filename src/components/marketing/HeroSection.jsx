@@ -6,8 +6,8 @@
  *   - Dashboard MUCH BIGGER with admin-style detail:
  *     - Foreningsnavn header med org-logo + "159 dage tilbage" badge
  *     - 4 KPI cards row (TOTAL INDSAMLET / AKTIVE STØTTERE / DENNE MÅNED / NÆSTE AFREGNING)
- *     - "Indsamling over tid" mini-chart med 3 lines (Webshop/Fast/Donationer)
- *     - 3 income channel cards (Webshop / Fast Støtte / Donationer)
+ *     - "Indsamling over tid" mini-chart med 2 lines (Fast/Donationer)
+ *     - 2 income channel cards (Fast Støtte / Donationer)
  *   - Width: 600px (var 460px), height ~540px - matches Admin produkt
  *   - Floating cards distributed på begge sider preserved
  *   - All CMO content preserved fra v8
@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   ShieldCheck, ArrowRight, TrendingUp, Users, CreditCard,
   Bell, Settings, Home as HomeIcon, CheckCircle, Sparkles,
-  Heart, Eye, Calendar, Zap, ShoppingCart, ChevronDown,
+  Heart, Eye, Calendar, Zap, ChevronDown,
 } from 'lucide-react';
 
 function useIsDesktop() {
@@ -95,9 +95,6 @@ function ForeningDashboard() {
             <div className="mkt-hero-side-icon" title="Fast støtte">
               <Zap size={12} aria-hidden="true" />
             </div>
-            <div className="mkt-hero-side-icon" title="Webshop">
-              <ShoppingCart size={12} aria-hidden="true" />
-            </div>
             <div className="mkt-hero-side-icon" title="Indstillinger">
               <Settings size={12} aria-hidden="true" />
             </div>
@@ -169,7 +166,6 @@ function ForeningDashboard() {
                 <div className="mkt-hero-dash-chart-sub">Sidste 14 måneder</div>
               </div>
               <div className="mkt-hero-dash-chart-legend">
-                <span><i style={{ background: '#E0193F' }} /> Webshop</span>
                 <span><i style={{ background: '#7C3AED' }} /> Fast Støtte</span>
                 <span><i style={{ background: '#3B82F6' }} /> Donationer</span>
               </div>
@@ -204,12 +200,6 @@ function ForeningDashboard() {
                   d="M0,90 L40,86 L80,80 L120,72 L160,65 L200,58 L240,50 L280,42 L320,38 L360,30 L400,20 L440,18 L480,18"
                   stroke="#7C3AED"
                 />
-                {/* Webshop (red) - low and steady */}
-                <path
-                  className="mkt-hero-chart-line mkt-hero-chart-line-3"
-                  d="M0,95 L40,92 L80,88 L120,86 L160,84 L200,80 L240,82 L280,78 L320,80 L360,74 L400,76 L440,80 L480,82"
-                  stroke="#E0193F"
-                />
               </svg>
               <div className="mkt-hero-dash-chart-axis" aria-hidden="true">
                 <span>Mar 25</span>
@@ -222,13 +212,6 @@ function ForeningDashboard() {
 
           {/* 3 income channel cards */}
           <div className="mkt-hero-dash-channels">
-            <div className="mkt-hero-dash-channel">
-              <div className="mkt-hero-dash-channel-icon mkt-hero-dash-channel-icon-pink">
-                <ShoppingCart size={11} aria-hidden="true" />
-              </div>
-              <div className="mkt-hero-dash-channel-label">Webshop</div>
-              <div className="mkt-hero-dash-channel-val">6.247<span>,89 kr.</span></div>
-            </div>
             <div className="mkt-hero-dash-channel">
               <div className="mkt-hero-dash-channel-icon mkt-hero-dash-channel-icon-purple">
                 <Heart size={11} aria-hidden="true" />
@@ -1015,7 +998,7 @@ export default function HeroSection() {
         /* 3 income channel cards */
         .mkt-hero-dash-channels {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(2, 1fr);
           gap: 6px;
         }
 
