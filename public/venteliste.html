@@ -489,19 +489,56 @@
           <div class="field"><label>Foreningens navn</label><input type="text" id="f-forening" placeholder="Eksempel: Hillerød SK"></div>
           <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="Den email vi skal skrive til"></div>
           <div class="row-2">
-            <div class="field"><label>CVR <span class="opt">(valgfri)</span></label><input type="text" id="f-cvr" placeholder="8 cifre" maxlength="8" inputmode="numeric"><p class="hint">Kun hvis foreningen har et CVR-nummer.</p></div>
-            <div class="field"><label>Antal medlemmer <span class="opt">(valgfri)</span></label><input type="number" id="f-medlemmer" placeholder="F.eks. 120" min="0"></div>
+            <div class="field"><label>CVR</label><input type="text" id="f-cvr" placeholder="8 cifre" maxlength="8" inputmode="numeric"><p class="hint">Foreningens 8-cifrede CVR-nummer.</p></div>
+            <div class="field"><label>Antal medlemmer</label><input type="number" id="f-medlemmer" placeholder="F.eks. 120" min="0"></div>
           </div>
-          <div class="field"><label>Sportsgren <span class="opt">(valgfri)</span></label>
-            <select id="f-sportsgren">
-              <option value="">Vælg sportsgren</option>
-              <option value="fodbold">Fodbold</option>
-              <option value="haandbold">Håndbold</option>
-              <option value="gymnastik">Gymnastik</option>
-              <option value="svoemning">Svømning</option>
-              <option value="loeb">Løb</option>
-              <option value="andet">Andet</option>
+          <div class="field"><label>Foreningstype</label>
+            <select id="f-foreningstype">
+              <option value="">Vælg foreningstype</option>
+              <option value="Fodbold">Fodbold</option>
+              <option value="Håndbold">Håndbold</option>
+              <option value="Svømning">Svømning</option>
+              <option value="Gymnastik">Gymnastik</option>
+              <option value="Tennis">Tennis</option>
+              <option value="Badminton">Badminton</option>
+              <option value="Basketball">Basketball</option>
+              <option value="Volleyball">Volleyball</option>
+              <option value="Atletik">Atletik</option>
+              <option value="Løb / Motion">Løb / Motion</option>
+              <option value="Cykling">Cykling</option>
+              <option value="Natur / Friluft">Natur / Friluft</option>
+              <option value="E-sport / Gaming">E-sport / Gaming</option>
+              <option value="Musik">Musik</option>
+              <option value="Kor / Sang">Kor / Sang</option>
+              <option value="Orkester / Band">Orkester / Band</option>
+              <option value="Teater">Teater</option>
+              <option value="Kunst / Kreativ">Kunst / Kreativ</option>
+              <option value="Film / Medie">Film / Medie</option>
+              <option value="Kulturhus / Lokal kultur">Kulturhus / Lokal kultur</option>
+              <option value="Humanitær">Humanitær</option>
+              <option value="Indsamling">Indsamling</option>
+              <option value="Patient / Sundhed">Patient / Sundhed</option>
+              <option value="Social / Frivillig">Social / Frivillig</option>
+              <option value="Handicap / Special">Handicap / Special</option>
+              <option value="Dyrevelfærd">Dyrevelfærd</option>
+              <option value="Havelaug / Byhave">Havelaug / Byhave</option>
+              <option value="Jagt / Fiskeri">Jagt / Fiskeri</option>
+              <option value="Lokal / Borgerforening">Lokal / Borgerforening</option>
+              <option value="Medborgerhus / Forsamlingshus">Medborgerhus / Forsamlingshus</option>
+              <option value="Alumni / Netværk">Alumni / Netværk</option>
+              <option value="Politisk ungdom">Politisk ungdom</option>
+              <option value="Erhverv / Iværksætter">Erhverv / Iværksætter</option>
+              <option value="Dans / Dansehold">Dans / Dansehold</option>
+              <option value="Børn / Unge">Børn / Unge</option>
+              <option value="Kampsport">Kampsport</option>
+              <option value="Bueskytteforening">Bueskytteforening</option>
+              <option value="Padel">Padel</option>
+              <option value="Brætspil / Kortspil">Brætspil / Kortspil</option>
+              <option value="Organisation">Organisation</option>
+              <option value="NGO">NGO</option>
+              <option value="Andet">Andet</option>
             </select>
+            <input type="text" id="f-foreningstype-andet" placeholder="Skriv foreningstype" style="display:none;margin-top:10px">
           </div>
           <div class="consent"><input type="checkbox" id="f-consent"><label for="f-consent">Ja tak, StøtMedHjerte må sende mig nyheder om platformen. Det er frivilligt, og I kan altid framelde jer igen.</label></div>
           <button class="form-submit" id="form-submit">Skriv foreningen op</button>
@@ -555,28 +592,30 @@
       const email = $('f-email').value.trim();
       const cvrRaw = $('f-cvr').value.trim();
       const medlemmerRaw = $('f-medlemmer').value.trim();
-      const sportsgren = $('f-sportsgren').value || null;
+      let foreningstype = $('f-foreningstype').value;
+      const foreningstypeAndet = $('f-foreningstype-andet').value.trim();
+      if (foreningstype === 'Andet') foreningstype = foreningstypeAndet;
       const marketing_consent = $('f-consent').checked;
 
       // Klient-validering der matcher tabellens CHECK-constraints
       if (!kontaktperson) return visFejl('Skriv venligst en kontaktperson.');
       if (!forening_navn) return visFejl('Skriv venligst foreningens navn.');
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return visFejl('Skriv venligst en gyldig email.');
-      if (cvrRaw && !/^[0-9]{8}$/.test(cvrRaw)) return visFejl('CVR skal vaere praecis 8 cifre, eller lad feltet staa tomt.');
-      let antal_medlemmer = null;
-      if (medlemmerRaw) {
-        const n = parseInt(medlemmerRaw, 10);
-        if (isNaN(n) || n < 0) return visFejl('Antal medlemmer skal vaere et positivt tal.');
-        antal_medlemmer = n;
-      }
+      if (!/^[0-9]{8}$/.test(cvrRaw)) return visFejl('Skriv foreningens 8-cifrede CVR-nummer.');
+      if (!$('f-foreningstype').value) return visFejl('Vaelg venligst en foreningstype.');
+      if ($('f-foreningstype').value === 'Andet' && !foreningstypeAndet) return visFejl('Skriv venligst foreningstypen.');
+      if (!medlemmerRaw) return visFejl('Skriv venligst antal medlemmer.');
+      const n = parseInt(medlemmerRaw, 10);
+      if (isNaN(n) || n < 0) return visFejl('Antal medlemmer skal vaere et positivt tal.');
+      const antal_medlemmer = n;
 
-      // VIGTIGT: cvr sendes som null naar tomt (ikke tom streng), saa DB-constraint ikke afviser
+      // Alle felter er obligatoriske og valideret ovenfor; ingen null-vaerdier sendes
       const row = {
         kontaktperson,
         forening_navn,
         email,
-        cvr: cvrRaw || null,
-        sportsgren,
+        cvr: cvrRaw,
+        foreningstype,
         antal_medlemmer,
         marketing_consent
       };
@@ -602,6 +641,9 @@
     });
 
     // Nav scroll-effekt
+    $('f-foreningstype').addEventListener('change', () => {
+      $('f-foreningstype-andet').style.display = $('f-foreningstype').value === 'Andet' ? 'block' : 'none';
+    });
     const nav = $('nav');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 50) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
