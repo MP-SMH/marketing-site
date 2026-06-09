@@ -24,7 +24,7 @@
       --display: 'Inter Tight', 'Inter', sans-serif;
       --body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     }
-    html, body { width: 100%; min-height: 100vh; overflow-x: hidden; color: #fff; font-family: var(--body); line-height: 1.55; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: linear-gradient(160deg, #080E1A 0%, #0F172A 55%, #0A1628 100%); padding-bottom: 90px; }
+    html, body { width: 100%; min-height: 100vh; overflow-x: hidden; color: #fff; font-family: var(--body); line-height: 1.55; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: linear-gradient(160deg, #080E1A 0%, #0F172A 55%, #0A1628 100%); }
 
     .bg-orbs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .orb { position: absolute; border-radius: 50%; filter: blur(90px); will-change: transform; transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
@@ -254,8 +254,7 @@
       .row-2 { grid-template-columns: 1fr; }
       .form-card { padding: 28px 22px; }
       .nav-cta span { display: none; }
-      .sticky-cta-mobile { display: block; }
-      body { padding-bottom: 88px; }
+      body { padding-bottom: 0; }
       .hero-trust { gap: 14px 20px; }
     }
     @media (min-width: 769px) { .sticky-cta-mobile { display: none !important; } }
@@ -567,7 +566,6 @@
     </div>
   </footer>
 
-  <div class="sticky-cta-mobile"><a href="#venteliste">Skriv foreningen op</a></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
