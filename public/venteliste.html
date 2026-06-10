@@ -184,6 +184,15 @@
     .offer-bignum-label { position: relative; font-size: 14px; color: var(--text-2); margin-bottom: 22px; font-weight: 500; }
     .offer-h2 { position: relative; font-family: var(--display); font-weight: 600; font-size: clamp(26px, 3vw, 36px); color: var(--text); letter-spacing: -0.025em; line-height: 1.12; margin-bottom: 16px; }
     .offer-sub { position: relative; font-size: 16px; color: var(--text-2); line-height: 1.65; max-width: 560px; margin: 0 auto 24px; }
+    .offer-countdown { position: relative; display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; margin: 12px auto 0; padding: 20px 24px; background: rgba(34,197,94,0.05); border: 1px solid rgba(34,197,94,0.22); border-radius: 16px; }
+    .offer-countdown .cd-top { display: flex; align-items: baseline; justify-content: center; gap: 9px; }
+    .offer-countdown .cd-dot { align-self: center; flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: var(--green-light); box-shadow: 0 0 0 0 rgba(34,197,94,0.45); animation: cdPulse 2s ease-out infinite; transform: translateY(-2px); }
+    @keyframes cdPulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.40); } 70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+    .offer-countdown .cd-num { font-family: var(--display); font-size: 34px; font-weight: 700; color: var(--green-light); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1; }
+    .offer-countdown .cd-label { font-size: 15px; color: var(--text-2); font-weight: 500; }
+    .offer-progress { position: relative; width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 999px; overflow: hidden; }
+    .offer-progress .cd-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--green-light); border-radius: 999px; box-shadow: 0 0 12px rgba(34,197,94,0.5); transition: width 1.5s cubic-bezier(0.16,1,0.3,1); }
+    .offer-progress-empty { font-size: 12.5px; color: var(--text-3); font-weight: 500; letter-spacing: 0.01em; }
     .offer-trust { position: relative; font-size: 13px; color: var(--text-3); line-height: 1.55; margin-top: 16px; }
     .offer-cta { position: relative; display: inline-flex; align-items: center; gap: 9px; margin-top: 26px; background: var(--red); border: none; color: #fff; border-radius: 13px; height: 50px; padding: 0 26px; font-family: var(--display); font-size: 15px; font-weight: 600; text-decoration: none; transition: background 0.2s, transform 0.2s; box-shadow: 0 10px 28px rgba(224,25,63,0.18); }
     .offer-cta:hover { background: var(--red-dark); transform: translateY(-1px); }
@@ -454,6 +463,11 @@
         <div class="offer-bignum-label">foreninger og klubber på ventelisten</div>
         <h2 class="offer-h2">3 måneders gratis adgang ved opstart</h2>
         <p class="offer-sub">De første 1.000 foreninger og klubber på ventelisten får 3 måneders gratis adgang, når vi åbner for onboarding. Det giver jer tid til at oprette hjertesager og lære StøtMedHjerte at kende i roligt tempo.</p>
+        <div class="offer-countdown">
+          <div class="cd-top"><span class="cd-dot"></span><span class="cd-num" id="cd-num">1.000</span><span class="cd-label">pladser tilbage</span></div>
+          <div class="offer-progress" id="cd-progress"><span class="cd-fill" id="cd-fill"></span></div>
+          <div class="offer-progress-empty" id="cd-empty">Vær blandt de første</div>
+        </div>
         <a href="#venteliste" class="offer-cta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Skriv foreningen op</a>
         <div class="offer-trust">Det koster ikke noget at skrive sig op.</div>
       </div>
@@ -632,6 +646,51 @@
 
     function visFejl(besked){ errBox.textContent = besked; errBox.style.display = 'block'; }
     function skjulFejl(){ errBox.style.display = 'none'; }
+
+    // S38: nedtaelling "pladser tilbage" - animerer 1000 ned til faktisk tal
+    // S38: nedtaelling "pladser tilbage" + progress-bar + tom-tilstand
+    async function initNedtaelling() {
+      const el = $('cd-num');
+      if (!el) return;
+      const fill = $('cd-fill');
+      const empty = $('cd-empty');
+      const progress = $('cd-progress');
+      const KAMPAGNE_LOFT = 1000;
+      let antal = 0;
+      try {
+        const { data, error } = await sb.rpc('get_waitlist_count');
+        if (!error && typeof data === 'number') antal = data;
+      } catch (e) { /* fail-safe: behold 0 -> viser fuldt loft */ }
+      const pladser = Math.max(0, KAMPAGNE_LOFT - antal);
+      const procent = Math.min(100, Math.round((antal / KAMPAGNE_LOFT) * 100));
+      const fmt = (n) => n.toLocaleString('da-DK');
+
+      // Tom-tilstand: ingen tilmeldte endnu -> vis opmuntring, skjul bar-fyld
+      if (antal === 0) {
+        if (empty) empty.style.display = 'block';
+        if (progress) progress.style.display = 'none';
+      } else {
+        if (empty) empty.style.display = 'none';
+        if (progress) progress.style.display = 'block';
+        if (fill) requestAnimationFrame(() => { fill.style.width = procent + '%'; });
+      }
+
+      // Animer tallet 1000 -> pladser
+      const start = KAMPAGNE_LOFT;
+      const slut = pladser;
+      const varighed = 1500;
+      const t0 = performance.now();
+      function frame(now) {
+        const p = Math.min(1, (now - t0) / varighed);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const v = Math.round(start + (slut - start) * eased);
+        el.textContent = fmt(v);
+        if (p < 1) requestAnimationFrame(frame);
+        else el.textContent = fmt(slut);
+      }
+      requestAnimationFrame(frame);
+    }
+    initNedtaelling();
 
     submitBtn.addEventListener('click', async () => {
       skjulFejl();
