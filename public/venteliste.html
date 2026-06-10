@@ -643,6 +643,7 @@
 
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const sideLoadedAt = Date.now();
+    let cvrResultat = null;
     const $ = (id) => document.getElementById(id);
     const errBox = $('form-error');
     const submitBtn = $('form-submit');
@@ -732,41 +733,45 @@
       if (isNaN(n) || n < 0) return visFejl('Antal medlemmer skal vaere et positivt tal.');
       const antal_medlemmer = n;
 
-      // S38: CVR-aegthedstjek mod CVR-registret foer opskrivning (spam-vaern)
+      // S38: CVR-tjek - genbrug blur-resultat, ellers hent som fallback
       submitBtn.disabled = true;
       submitBtn.textContent = 'Tjekker CVR...';
-      try {
-        const cvrRes = await fetch('https://api.stotmedhjerte.dk/cvr/lookup?cvr=' + cvrRaw);
-        const cvrData = await cvrRes.json();
-        if (!cvrData || !cvrData.success) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Skriv foreningen op';
+      if (!cvrResultat || cvrResultat._cvr !== cvrRaw) {
+        try {
+          const cvrRes = await fetch('https://api.stotmedhjerte.dk/cvr/lookup?cvr=' + cvrRaw);
+          const cvrData = await cvrRes.json();
+          if (!cvrData || !cvrData.success) {
+            submitBtn.disabled = false; submitBtn.textContent = 'Skriv foreningen op';
+            return visFejl('Vi kunne ikke tjekke CVR-nummeret lige nu. Prøv igen om lidt.');
+          }
+          if (!cvrData.valid) {
+            submitBtn.disabled = false; submitBtn.textContent = 'Skriv foreningen op';
+            return visFejl('Vi kan ikke finde det CVR-nummer i registret. Tjek venligst tallet.');
+          }
+          if (!cvrData.active) {
+            submitBtn.disabled = false; submitBtn.textContent = 'Skriv foreningen op';
+            return visFejl('Foreningen står som ophørt i CVR-registret.');
+          }
+          cvrResultat = { _cvr: cvrRaw, navn: cvrData.foreningsnavn || '', adresse: cvrData.address || '', postnummer: cvrData.postnummer || '', by: cvrData.by || '' };
+        } catch (e) {
+          submitBtn.disabled = false; submitBtn.textContent = 'Skriv foreningen op';
           return visFejl('Vi kunne ikke tjekke CVR-nummeret lige nu. Prøv igen om lidt.');
         }
-        if (!cvrData.valid) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Skriv foreningen op';
-          return visFejl('Vi kan ikke finde det CVR-nummer i registret. Tjek venligst tallet.');
-        }
-        if (!cvrData.active) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Skriv foreningen op';
-          return visFejl('Foreningen står som ophørt i CVR-registret.');
-        }
-      } catch (e) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Skriv foreningen op';
-        return visFejl('Vi kunne ikke tjekke CVR-nummeret lige nu. Prøv igen om lidt.');
       }
+
 
       const row = {
         kontaktperson,
-        forening_navn,
+        forening_navn: cvrResultat ? cvrResultat.navn : forening_navn,
         email,
         cvr: cvrRaw || null,
         foreningstype,
         antal_medlemmer,
-        marketing_consent
+        marketing_consent,
+        cvr_navn: cvrResultat ? cvrResultat.navn : null,
+        adresse: cvrResultat ? cvrResultat.adresse : null,
+        postnummer: cvrResultat ? cvrResultat.postnummer : null,
+        by: cvrResultat ? cvrResultat.by : null
       };
 
       submitBtn.disabled = true;
@@ -801,6 +806,41 @@
       window.location.reload();
     });
 
+    // S38: CVR auto-udfyld - hent officielt navn + stamdata ved blur, laas navnefelt
+    const cvrInput = $('f-cvr');
+    const navnInput = $('f-forening');
+    if (cvrInput) {
+      cvrInput.addEventListener('blur', async () => {
+        const v = cvrInput.value.trim();
+        if (!/^[0-9]{8}$/.test(v)) return;
+        if (cvrResultat && cvrResultat._cvr === v) return;
+        try {
+          const r = await fetch('https://api.stotmedhjerte.dk/cvr/lookup?cvr=' + v);
+          const d = await r.json();
+          if (d && d.success && d.valid && d.active) {
+            cvrResultat = { _cvr: v, navn: d.foreningsnavn || '', adresse: d.address || '', postnummer: d.postnummer || '', by: d.by || '' };
+            if (navnInput) {
+              navnInput.value = d.foreningsnavn || '';
+              navnInput.readOnly = true;
+              navnInput.style.opacity = '0.7';
+            }
+            skjulFejl();
+          } else {
+            cvrResultat = null;
+            if (navnInput) { navnInput.readOnly = false; navnInput.style.opacity = ''; }
+          }
+        } catch (e) {
+          cvrResultat = null;
+          if (navnInput) { navnInput.readOnly = false; navnInput.style.opacity = ''; }
+        }
+      });
+      cvrInput.addEventListener('input', () => {
+        if (cvrResultat && cvrResultat._cvr !== cvrInput.value.trim()) {
+          cvrResultat = null;
+          if (navnInput) { navnInput.value = ''; navnInput.readOnly = false; navnInput.style.opacity = ''; }
+        }
+      });
+    }
     $('f-foreningstype').addEventListener('change', () => {
       $('f-foreningstype-andet').style.display = $('f-foreningstype').value === 'Andet' ? 'block' : 'none';
     });
