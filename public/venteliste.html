@@ -212,6 +212,31 @@
     .form-success .icn svg { width: 28px; height: 28px; color: var(--green-light); }
     .form-success h3 { font-family: var(--display); font-size: 21px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
     .form-success p { font-size: 14px; color: var(--text-2); max-width: 380px; margin: 0 auto; line-height: 1.6; }
+
+    /* S38 Takkeside - full-page overlay */
+    .takkeside { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px; background: radial-gradient(120% 120% at 50% 0%, #0d1b2e 0%, var(--base) 60%); }
+    .takkeside.vis { display: flex; overflow-y: auto; animation: takkeFade 0.5s ease; scrollbar-width: none; -ms-overflow-style: none; }
+    .takkeside.vis::-webkit-scrollbar { display: none; }
+    .takke-x { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: transparent; border: 1px solid var(--hairline); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+    .takke-x:hover { border-color: var(--text-2); color: var(--text); }
+    .takke-x svg { width: 18px; height: 18px; }
+    @keyframes takkeFade { from { opacity: 0; } to { opacity: 1; } }
+    .takke-inner { max-width: 560px; width: 100%; text-align: center; animation: takkeRise 0.6s cubic-bezier(0.16,1,0.3,1); }
+    @keyframes takkeRise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .takke-icn { width: 84px; height: 84px; border-radius: 50%; background: rgba(34,197,94,0.10); border: 2px solid var(--green); display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; box-shadow: 0 0 0 8px rgba(34,197,94,0.06); }
+    .takke-icn svg { width: 40px; height: 40px; color: var(--green-light); }
+    .takke-inner h1 { font-family: var(--display); font-size: 38px; font-weight: 700; color: var(--text); margin-bottom: 16px; letter-spacing: -0.02em; }
+    .takke-sub { font-size: 16px; color: var(--text-2); max-width: 440px; margin: 0 auto 36px; line-height: 1.65; }
+    .takke-steps { display: flex; flex-direction: column; gap: 14px; max-width: 360px; margin: 0 auto 36px; text-align: left; }
+    .takke-step { display: flex; align-items: center; gap: 14px; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 12px; padding: 16px 18px; }
+    .takke-step .dot { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; background: rgba(34,197,94,0.12); border: 1.5px solid var(--green); display: flex; align-items: center; justify-content: center; }
+    .takke-step .dot svg { width: 13px; height: 13px; color: var(--green-light); }
+    .takke-step span { font-size: 15px; color: var(--text); font-weight: 500; }
+    .takke-trust { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; color: var(--text-2); margin: 0 auto 32px; text-align: center; max-width: 360px; }
+    .takke-trust svg { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 3px; color: var(--green-light); }
+    .takke-back { display: inline-block; background: transparent; border: 1px solid var(--hairline); color: var(--text); border-radius: 12px; padding: 13px 28px; font-family: var(--display); font-size: 15px; font-weight: 600; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+    .takke-back:hover { border-color: var(--text-2); background: var(--surface-card); }
+    @media (max-width: 600px) { .takke-inner h1 { font-size: 30px; } .takke-icn { width: 72px; height: 72px; } }
     .form-last-trust { text-align: center; font-size: 13px; color: var(--text-2); margin-top: 24px; display: inline-flex; align-items: center; gap: 8px; }
     .form-last-trust svg { width: 16px; height: 16px; color: var(--green-light); }
     .footer { padding: 56px 0 40px; border-top: 1px solid var(--hairline-soft); background: var(--surface-section); position: relative; z-index: 10; }
@@ -494,7 +519,7 @@
           <div class="field"><label>Foreningens navn<span class="req">*</span></label><input type="text" id="f-forening" placeholder="Eksempel: Hillerød SK"></div>
           <div class="field"><label>Email<span class="req">*</span></label><input type="email" id="f-email" placeholder="Den email vi skal skrive til"></div>
           <div class="row-2">
-            <div class="field"><label>CVR <span class="hint" style="display:inline;margin:0">hvis I har det klar</span></label><input type="text" id="f-cvr" placeholder="8 cifre" maxlength="8" inputmode="numeric"></div>
+            <div class="field"><label>CVR <span style="color:var(--red)">*</span></label><input type="text" id="f-cvr" placeholder="8 cifre" maxlength="8" inputmode="numeric" required></div>
             <div class="field"><label>Antal medlemmer<span class="req">*</span></label><input type="number" id="f-medlemmer" placeholder="F.eks. 120" min="0"></div>
           </div>
           <div class="field"><label>Foreningstype<span class="req">*</span></label>
@@ -578,6 +603,23 @@
       </div>
     </div>
   </footer>
+
+  <!-- S38 Takkeside - full-page overlay -->
+  <div class="takkeside" id="takkeside" role="dialog" aria-modal="true" aria-labelledby="takke-title">
+    <button class="takke-x" id="takke-x" type="button" aria-label="Luk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="takke-inner">
+      <div class="takke-icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <h1 id="takke-title">Tak for tilliden</h1>
+      <p class="takke-sub">Jeres forening er nu skrevet op til StøtMedHjerte 2.0. Vi kontakter jer, når vi åbner for onboarding, så I kan få en rolig og overskuelig opstart.</p>
+      <div class="takke-steps">
+        <div class="takke-step"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span>I er på ventelisten</span></div>
+        <div class="takke-step"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span>Vi kontakter jer ved åbning</span></div>
+        <div class="takke-step"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span>Ingen betaling nu</span></div>
+      </div>
+      <div class="takke-trust">Når I senere tager værktøjet i brug, bliver foreningens midler hos foreningen.</div>
+      <div><button class="takke-back" id="takke-back" type="button">Tilbage til forsiden</button></div>
+    </div>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://mqehrwipzfypnniqnldt.supabase.co";
@@ -606,7 +648,8 @@
       if (!kontaktperson) return visFejl('Skriv venligst en kontaktperson.');
       if (!forening_navn) return visFejl('Skriv venligst foreningens navn.');
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return visFejl('Skriv venligst en gyldig email.');
-      if (cvrRaw && !/^[0-9]{8}$/.test(cvrRaw)) return visFejl('CVR skal vaere 8 cifre, hvis I udfylder det.');
+      if (!cvrRaw) return visFejl("Skriv venligst foreningens CVR-nummer.");
+      if (!/^[0-9]{8}$/.test(cvrRaw)) return visFejl("CVR skal vaere 8 cifre.");
       if (!$('f-foreningstype').value) return visFejl('Vaelg venligst en foreningstype.');
       if ($('f-foreningstype').value === 'Andet' && !foreningstypeAndet) return visFejl('Skriv venligst foreningstypen.');
       if (!medlemmerRaw) return visFejl('Skriv venligst antal medlemmer.');
@@ -635,13 +678,21 @@
           return;
         }
         $('form-view').style.display = 'none';
-        $('form-success').style.display = 'block';
-        $('form-success').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('takkeside').classList.add('vis');
+        document.body.style.overflow = 'hidden';
+        window.scrollTo(0, 0);
       } catch (e) {
         visFejl('Noget gik galt. Proev venligst igen, eller skriv til salg@stotmedhjerte.dk');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Skriv foreningen op';
       }
+    });
+
+    $('takke-back').addEventListener('click', () => {
+      window.location.reload();
+    });
+    $('takke-x').addEventListener('click', () => {
+      window.location.reload();
     });
 
     $('f-foreningstype').addEventListener('change', () => {
