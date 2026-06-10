@@ -208,6 +208,13 @@
     .field input:focus, .field select:focus { outline: none; border-color: rgba(224,25,63,0.50); background: rgba(255,255,255,0.05); }
     .field input::placeholder { color: var(--text-3); }
     .field .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px; }
+    .cvr-status { display: none; align-items: center; gap: 7px; margin-top: 7px; font-size: 13px; font-weight: 500; }
+    .cvr-status.vis { display: flex; }
+    .cvr-status svg { width: 16px; height: 16px; flex: 0 0 auto; }
+    .cvr-status.ok { color: var(--green-light); }
+    .cvr-status.advarsel { color: var(--amber-light); }
+    .cvr-status.fejl { color: #FCA5A5; }
+    .cvr-status.tjekker { color: var(--text-2); }
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .consent { display: flex; gap: 12px; align-items: flex-start; padding: 15px; background: rgba(255,255,255,0.025); border: 1px solid var(--hairline-soft); border-radius: 11px; margin-bottom: 22px; }
     .consent input { width: 20px; height: 20px; margin-top: 1px; accent-color: var(--red); flex-shrink: 0; cursor: pointer; }
@@ -536,7 +543,7 @@
           </div>
           <div class="hp-field" aria-hidden="true"><label>Hjemmeside</label><input type="text" id="f-website" tabindex="-1" autocomplete="off"></div>
           <div class="row-2">
-            <div class="field"><label>CVR <span style="color:var(--red)">*</span> <span class="hint" style="display:inline;margin:0;font-weight:400">udfylder navnet</span></label><input type="text" id="f-cvr" placeholder="8 cifre" maxlength="8" inputmode="numeric" required></div>
+            <div class="field"><label>CVR <span style="color:var(--red)">*</span> <span class="hint" style="display:inline;margin:0;font-weight:400">udfylder navnet</span></label><input type="text" id="f-cvr" placeholder="8 cifre" maxlength="8" inputmode="numeric" required><div class="cvr-status" id="cvr-status"></div></div>
             <div class="field"><label>Antal medlemmer<span class="req">*</span></label><input type="number" id="f-medlemmer" placeholder="F.eks. 120" min="0"></div>
           </div>
           <div class="field"><label>Foreningens navn<span class="req">*</span></label><input type="text" id="f-forening" placeholder="Udfyldes automatisk fra CVR"></div>
@@ -724,18 +731,10 @@
       const marketing_consent = $('f-consent').checked;
 
       if (!kontaktperson) return visFejl('Skriv venligst en kontaktperson.');
-      if (!forening_navn) return visFejl('Skriv venligst foreningens navn.');
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return visFejl('Skriv venligst en gyldig email.');
-      if (!cvrRaw) return visFejl("Skriv venligst foreningens CVR-nummer.");
-      if (!/^[0-9]{8}$/.test(cvrRaw)) return visFejl("CVR skal vaere 8 cifre.");
-      if (!$('f-foreningstype').value) return visFejl('Vaelg venligst en foreningstype.');
-      if ($('f-foreningstype').value === 'Andet' && !foreningstypeAndet) return visFejl('Skriv venligst foreningstypen.');
-      if (!medlemmerRaw) return visFejl('Skriv venligst antal medlemmer.');
-      const n = parseInt(medlemmerRaw, 10);
-      if (isNaN(n) || n < 0) return visFejl('Antal medlemmer skal vaere et positivt tal.');
-      const antal_medlemmer = n;
+      if (!cvrRaw) return visFejl('Skriv venligst foreningens CVR-nummer.');
+      if (!/^[0-9]{8}$/.test(cvrRaw)) return visFejl('CVR skal vaere 8 cifre.');
 
-      // S38: CVR-tjek - genbrug blur-resultat, ellers hent som fallback
+      // S38: CVR-aegthedstjek FOERST - kilden til foreningsnavn
       submitBtn.disabled = true;
       submitBtn.textContent = 'Tjekker CVR...';
       if (!cvrResultat || cvrResultat._cvr !== cvrRaw) {
@@ -755,16 +754,28 @@
             return visFejl('Foreningen står som ophørt i CVR-registret.');
           }
           cvrResultat = { _cvr: cvrRaw, navn: cvrData.foreningsnavn || '', adresse: cvrData.address || '', postnummer: cvrData.postnummer || '', by: cvrData.by || '' };
+          if (navnInput && cvrResultat.navn) { navnInput.value = cvrResultat.navn; navnInput.readOnly = true; navnInput.style.opacity = '0.7'; }
         } catch (e) {
           submitBtn.disabled = false; submitBtn.textContent = 'Skriv foreningen op';
           return visFejl('Vi kunne ikke tjekke CVR-nummeret lige nu. Prøv igen om lidt.');
         }
       }
+      submitBtn.textContent = 'Skriv foreningen op';
+
+      const forening_navn_final = cvrResultat ? cvrResultat.navn : forening_navn;
+      if (!forening_navn_final) return visFejl('Vi kunne ikke hente foreningens navn. Tjek CVR-nummeret.');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return visFejl('Skriv venligst en gyldig email.');
+      if (!$('f-foreningstype').value) return visFejl('Vaelg venligst en foreningstype.');
+      if ($('f-foreningstype').value === 'Andet' && !foreningstypeAndet) return visFejl('Skriv venligst foreningstypen.');
+      if (!medlemmerRaw) return visFejl('Skriv venligst antal medlemmer.');
+      const n = parseInt(medlemmerRaw, 10);
+      if (isNaN(n) || n < 0) return visFejl('Antal medlemmer skal vaere et positivt tal.');
+      const antal_medlemmer = n;
 
 
       const row = {
         kontaktperson,
-        forening_navn: cvrResultat ? cvrResultat.navn : forening_navn,
+        forening_navn: forening_navn_final,
         email,
         cvr: cvrRaw || null,
         foreningstype,
@@ -808,38 +819,50 @@
       window.location.reload();
     });
 
-    // S38: CVR auto-udfyld - hent officielt navn + stamdata ved blur, laas navnefelt
+    // S38: CVR auto-udfyld + live-status - hent navn+stamdata ved blur, vis status
     const cvrInput = $('f-cvr');
     const navnInput = $('f-forening');
+    const cvrStatus = $('cvr-status');
+    const SVG_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>';
+    const SVG_ADVARSEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
+    const SVG_FEJL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>';
+    function visStatus(klasse, ikon, tekst){
+      if (!cvrStatus) return;
+      cvrStatus.className = 'cvr-status vis ' + klasse;
+      cvrStatus.innerHTML = ikon + '<span>' + tekst + '</span>';
+    }
+    function ryddStatus(){ if (cvrStatus) cvrStatus.className = 'cvr-status'; }
+    function laasNavn(navn){ if (navnInput){ navnInput.value = navn; navnInput.readOnly = true; navnInput.style.opacity = '0.7'; } }
+    function aabnNavn(){ if (navnInput){ navnInput.value = ''; navnInput.readOnly = false; navnInput.style.opacity = ''; } }
     if (cvrInput) {
       cvrInput.addEventListener('blur', async () => {
         const v = cvrInput.value.trim();
-        if (!/^[0-9]{8}$/.test(v)) return;
+        if (!/^[0-9]{8}$/.test(v)) { ryddStatus(); return; }
         if (cvrResultat && cvrResultat._cvr === v) return;
+        visStatus('tjekker', '', 'Tjekker CVR...');
         try {
           const r = await fetch('https://api.stotmedhjerte.dk/cvr/lookup?cvr=' + v);
           const d = await r.json();
           if (d && d.success && d.valid && d.active) {
             cvrResultat = { _cvr: v, navn: d.foreningsnavn || '', adresse: d.address || '', postnummer: d.postnummer || '', by: d.by || '' };
-            if (navnInput) {
-              navnInput.value = d.foreningsnavn || '';
-              navnInput.readOnly = true;
-              navnInput.style.opacity = '0.7';
-            }
+            laasNavn(d.foreningsnavn || '');
+            visStatus('ok', SVG_OK, d.foreningsnavn || 'Forening fundet');
             skjulFejl();
+          } else if (d && d.success && d.valid && !d.active) {
+            cvrResultat = null; aabnNavn();
+            visStatus('advarsel', SVG_ADVARSEL, 'Foreningen står som ophørt i registret');
           } else {
-            cvrResultat = null;
-            if (navnInput) { navnInput.readOnly = false; navnInput.style.opacity = ''; }
+            cvrResultat = null; aabnNavn();
+            visStatus('fejl', SVG_FEJL, 'Vi kan ikke finde det CVR-nummer');
           }
         } catch (e) {
-          cvrResultat = null;
-          if (navnInput) { navnInput.readOnly = false; navnInput.style.opacity = ''; }
+          cvrResultat = null; aabnNavn();
+          visStatus('fejl', SVG_FEJL, 'Vi kunne ikke tjekke CVR lige nu');
         }
       });
       cvrInput.addEventListener('input', () => {
         if (cvrResultat && cvrResultat._cvr !== cvrInput.value.trim()) {
-          cvrResultat = null;
-          if (navnInput) { navnInput.value = ''; navnInput.readOnly = false; navnInput.style.opacity = ''; }
+          cvrResultat = null; aabnNavn(); ryddStatus();
         }
       });
     }
