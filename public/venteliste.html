@@ -647,6 +647,11 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    // SIKKERHED: SUPABASE_ANON_KEY er OFFENTLIG per Supabase-design - den ligger
+    // i enhver klient der besoeger siden og er ikke en hemmelighed. Den reelle
+    // beskyttelse er fail-closed RLS paa waitlist-tabellen: anon kan KUN INSERT,
+    // ingen SELECT/UPDATE/DELETE. Se RLS-isolation-audit (smh-app docs/audits/).
+    // Derfor bevidst IKKE flyttet til skjult config - eksplicit + sporbar er enterprise-korrekt.
     const SUPABASE_URL = "https://mqehrwipzfypnniqnldt.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZWhyd2lwemZ5cG5uaXFubGR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MTQ1ODksImV4cCI6MjA5MTk5MDU4OX0.4H-m4wk-vMKx4sGi40ONf1BC1waRGWcX5oJkBXWmmVc";
 
