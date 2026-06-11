@@ -16,3 +16,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/privatlivspolitik"
+  to = "/privatlivspolitik.html"
+  status = 200

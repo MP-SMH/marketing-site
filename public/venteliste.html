@@ -4,9 +4,81 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080E1A">
-  <meta name="robots" content="noindex, nofollow">
   <title>Indsamling for foreninger og klubber | StøtMedHjerte</title>
   <meta name="description" content="Professionel indsamling for danske foreninger uden procenter af donationerne. Bidrag går direkte til jeres egen konto. Automatisk indsamlingsregnskab og månedlige rapporter.">
+  <link rel="canonical" href="https://stotmedhjerte.dk/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="StøtMedHjerte">
+  <meta property="og:locale" content="da_DK">
+  <meta property="og:url" content="https://stotmedhjerte.dk/">
+  <meta property="og:title" content="Indsamling for foreninger og klubber | StøtMedHjerte">
+  <meta property="og:description" content="Professionel indsamling for danske foreninger uden procenter af donationerne. Bidrag går direkte til jeres egen konto.">
+  <meta property="og:image" content="https://stotmedhjerte.dk/og-billede.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Indsamling for foreninger og klubber | StøtMedHjerte">
+  <meta name="twitter:description" content="Professionel indsamling for danske foreninger uden procenter af donationerne. Bidrag går direkte til jeres egen konto.">
+  <meta name="twitter:image" content="https://stotmedhjerte.dk/og-billede.png">
+  <script>
+    (function () {
+      // Dynamisk robots: rod + www = indekserbar. beta = noindex (testscene).
+      var h = window.location.hostname;
+      var erBeta = h.indexOf('beta.') === 0;
+      var m = document.createElement('meta');
+      m.name = 'robots';
+      m.content = erBeta ? 'noindex, nofollow' : 'index, follow';
+      document.head.appendChild(m);
+    })();
+  </script>
+
+  <!-- SMH samtykke-gating + Meta Pixel (gated, S41). Pixel loader KUN ved aktivt samtykke. -->
+  <script>
+    (function () {
+      var PIXEL_ID = '880580461194374';
+      var STORAGE_KEY = 'smh_cookie_samtykke';
+      var pixelLoaded = false;
+
+      function loadMetaPixel() {
+        if (pixelLoaded || window.fbq) return;
+        pixelLoaded = true;
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+        document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        window.fbq('init', PIXEL_ID);
+        window.fbq('track', 'PageView');
+      }
+
+      function harAccepteret() {
+        try { return localStorage.getItem(STORAGE_KEY) === 'accepteret'; }
+        catch (e) { return false; }
+      }
+
+      window.smhConsent = {
+        accepter: function () {
+          try { localStorage.setItem(STORAGE_KEY, 'accepteret'); } catch (e) {}
+          loadMetaPixel();
+        },
+        afvis: function () {
+          try { localStorage.setItem(STORAGE_KEY, 'afvist'); } catch (e) {}
+        },
+        harValgt: function () {
+          try { var v = localStorage.getItem(STORAGE_KEY); return v === 'accepteret' || v === 'afvist'; }
+          catch (e) { return false; }
+        },
+        harAccepteret: harAccepteret,
+        sporLead: function () {
+          if (harAccepteret() && window.fbq) {
+            window.fbq('track', 'Lead');
+            window.fbq('track', 'CompleteRegistration');
+          }
+        }
+      };
+
+      // Ved sideindlaesning: hvis tidligere accepteret, genaktiver pixel. Ellers intet.
+      if (harAccepteret()) { loadMetaPixel(); }
+    })();
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -810,6 +882,7 @@
         document.getElementById('takkeside').classList.add('vis');
         document.body.style.overflow = 'hidden';
         window.scrollTo(0, 0);
+        if (window.smhConsent) { window.smhConsent.sporLead(); }
       } catch (e) {
         visFejl('Noget gik galt. Prøv venligst igen, eller skriv til hej@stotmedhjerte.dk');
         submitBtn.disabled = false;
@@ -888,6 +961,34 @@
       }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
       document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
     }
+  </script>
+  <!-- SMH samtykke-banner (S41). Vises foerste besoeg. Knapper kalder window.smhConsent. -->
+  <div id="cookie-banner" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:9999; padding:20px 24px; background:rgba(11,20,36,0.97); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border-top:1px solid rgba(255,255,255,0.10); box-shadow:0 -12px 40px rgba(0,0,0,0.4);">
+    <div style="max-width:1080px; margin:0 auto; display:flex; flex-wrap:wrap; align-items:center; gap:18px 28px; justify-content:space-between;">
+      <div style="flex:1; min-width:280px;">
+        <p style="font-family:'Inter Tight',sans-serif; font-weight:600; font-size:15px; color:#F8FAFC; margin:0 0 6px;">Cookies på siden</p>
+        <p style="font-size:13.5px; line-height:1.6; color:rgba(248,250,252,0.70); margin:0;">Vi bruger nødvendige cookies til at få siden til at fungere. Med dit samtykke bruger vi også Meta som markedsføringsværktøj til at måle besøg og tilmeldinger, så vi kan vise vores annoncer til de rigtige danske foreninger. <a href="/privatlivspolitik" style="color:#FCA5B5; text-decoration:underline;">Læs politikken</a></p>
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <button id="cookie-afvis" style="padding:11px 20px; border-radius:11px; background:transparent; border:1px solid rgba(255,255,255,0.18); color:#F8FAFC; font-family:'Inter',sans-serif; font-size:13.5px; font-weight:600; cursor:pointer; transition:border-color 0.2s, background 0.2s;">Kun nødvendige</button>
+        <button id="cookie-accepter" style="padding:11px 22px; border-radius:11px; background:#E0193F; border:1px solid #E0193F; color:#fff; font-family:'Inter',sans-serif; font-size:13.5px; font-weight:600; cursor:pointer; transition:background 0.2s, transform 0.2s;">Accepter</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var banner = document.getElementById('cookie-banner');
+      if (!banner || !window.smhConsent) return;
+      if (!window.smhConsent.harValgt()) { banner.style.display = 'block'; }
+      document.getElementById('cookie-accepter').addEventListener('click', function () {
+        window.smhConsent.accepter();
+        banner.style.display = 'none';
+      });
+      document.getElementById('cookie-afvis').addEventListener('click', function () {
+        window.smhConsent.afvis();
+        banner.style.display = 'none';
+      });
+    })();
   </script>
 </body>
 </html>
