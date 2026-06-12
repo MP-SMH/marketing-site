@@ -410,13 +410,18 @@
       .nav-cta { padding: 8px 14px; }
       .footer-top { flex-direction: column; gap: 28px; }
     }
+    /* mellemtrin 401-430px (iPhone 11/XR 414, Pro Max 430): scale(0.50) klipper her, da 760x0.50=380 > ~374 tilgaengelig. Ligger EFTER 768px og FOER 400px, saa 375-400px stadig faar scale(0.44). */
+    @media (max-width: 430px) {
+      .dash { transform: scale(0.48); margin: 0 -200px -313px; }
+    }
     @media (max-width: 400px) {
       .container { padding: 0 18px; }
       .hero-h1 { font-size: 31px; line-height: 1.1; }
       .hero-sub { font-size: 15.5px; }
       .hero-microcopy { font-size: 13px; }
-      .dash { transform: scale(0.47); margin: 0 -200px -315px; }
-      .hero-trust-below { max-width: 250px; }
+      /* symmetrisk margin + scale saa 760px-dash faktisk passer i ~339px (375px viewport minus 18px padding hver side), centreret uden klip */
+      .dash { transform: scale(0.44); margin: 0 -211px -325px; }
+      .hero-trust-below { max-width: 250px; margin-left: auto; margin-right: auto; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
