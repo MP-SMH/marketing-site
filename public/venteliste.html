@@ -125,7 +125,10 @@
     .hero-text { text-align: center; max-width: 800px; }
     .hero-h1 { font-family: var(--display); font-weight: 600; font-size: clamp(38px, 4.8vw, 64px); color: var(--text); letter-spacing: -0.025em; line-height: 1.06; margin-bottom: 22px; }
     .hero-h1 .accent { color: var(--red-light); }
+    .hero-h1 .accent-green { color: var(--green-light); }
     .hero-sub { font-size: 18px; color: var(--text-2); line-height: 1.6; max-width: 560px; margin: 0 auto 30px; }
+    .hero-trustline { display: inline-flex; align-items: center; gap: 9px; font-size: 14.5px; color: var(--green-light); font-weight: 500; margin-bottom: 30px; }
+    .hero-trustline svg { width: 16px; height: 16px; flex-shrink: 0; }
     .hero-cta-row { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 40px; }
     .btn-primary { display: inline-flex; align-items: center; gap: 9px; background: var(--red); border: none; color: #fff; border-radius: 13px; height: 52px; padding: 0 26px; font-family: var(--display); font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 28px rgba(224,25,63,0.18); }
     .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 12px 30px rgba(224,25,63,0.18); }
@@ -445,9 +448,11 @@
       <div class="hero-grid">
         <div class="hero-text">
           <div class="hero-eyebrow"><span class="dot"></span><span>Ventelisten er åben</span></div>
-          <h1 class="hero-h1">Alt til jeres pengeindsamling <span class="accent">samlet ét sted</span></h1>
-          <p class="hero-sub">StøtMedHjerte gør det nemt for jeres forening at samle penge ind og holde styr på arbejdet bagefter. I får ét samlet sted til bidrag, støtter, kvitteringer, rapporter og regnskab.</p>
-          <p class="hero-microcopy">De første 1.000 foreninger får 3 måneder gratis.</p>
+          <h1 class="hero-h1">Et samlet værktøj til jeres <span class="accent-green">pengeindsamling</span></h1>
+          <p class="hero-sub">StøtMedHjerte gør det nemt for jeres forening at samle penge ind og holde styr på arbejdet bagefter.</p>
+          <p class="hero-sub">Få ét samlet sted til bidrag, støtter, kvitteringer, rapporter og regnskab.</p>
+          <div class="hero-trustline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Bidrag går direkte til foreningens egen konto.</div>
+          <p class="hero-microcopy">3 måneder gratis ved opskrivning</p>
           <div class="hero-cta-row">
             <a href="#venteliste" class="btn-primary">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
