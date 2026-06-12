@@ -6,6 +6,12 @@
   NODE_VERSION = "22"
 
 [[redirects]]
+  from = "/"
+  to = "/venteliste.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/privatlivspolitik"
   to = "/privatlivspolitik.html"
   status = 200
