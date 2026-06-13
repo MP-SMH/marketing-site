@@ -293,6 +293,21 @@
     .pay-card h3 { font-family: var(--display); font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 7px; letter-spacing: -0.015em; }
     .pay-card p { font-size: 13.5px; color: var(--text-2); line-height: 1.6; }
     .pay-bottom { text-align: center; font-size: 14px; color: var(--text-2); font-weight: 500; margin-top: 22px; }
+    .flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 920px; margin: 0 auto; align-items: stretch; }
+    .flow-step { position: relative; display: flex; flex-direction: column; padding: 28px 24px; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 18px; transition: transform 0.3s, border-color 0.3s; }
+    .flow-step:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.16); }
+    .flow-step.accent { border-color: rgba(34,197,94,0.30); background: rgba(34,197,94,0.05); }
+    .flow-num { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 16px; }
+    .flow-step.accent .flow-num { color: var(--green-light); }
+    .flow-ico { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; background: rgba(255,255,255,0.05); color: var(--text-2); }
+    .flow-step.accent .flow-ico { background: rgba(34,197,94,0.16); color: var(--green-light); }
+    .flow-ico svg { width: 21px; height: 21px; }
+    .flow-step h3 { font-family: var(--display); font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 8px; letter-spacing: -0.015em; }
+    .flow-step p { font-size: 13.5px; color: var(--text-2); line-height: 1.6; }
+    .flow-bottom { text-align: center; font-size: 14px; color: var(--text-2); font-weight: 500; margin-top: 26px; }
+    @media (max-width: 720px) { .flow { grid-template-columns: 1fr; gap: 14px; } }
+    .desk-br { display: none; }
+    @media (min-width: 721px) { .desk-br { display: inline; } }
     .never-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 720px; margin: 36px auto 0; }
     .never { display: flex; align-items: center; gap: 12px; padding: 18px 22px; min-height: 58px; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 12px; font-size: 14px; color: var(--text); }
     .never .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); flex-shrink: 0; }
@@ -645,29 +660,31 @@
   <section class="section alt">
     <div class="container">
       <div class="section-head center reveal">
-        <div class="section-label" style="justify-content:center;color:var(--green-light)"><span class="tick" style="background:var(--green)"></span>Sikker afregning</div>
-        <h2 class="section-h2">Foreningens midler bliver hos foreningen</h2>
-        <p class="section-sub">Når en støtter bidrager til en hjertesag, går beløbet direkte til jeres konto. StøtMedHjerte giver jer overblik over indtægter, kvitteringer og indsamlingsregnskab.</p>
+        <div class="section-label" style="justify-content:center;color:var(--green-light)"><span class="tick" style="background:var(--green)"></span>Når støtten gives</div>
+        <h2 class="section-h2">Bidrag går direkte til<br class="desk-br"> foreningens egen konto</h2>
+        <p class="section-sub">Når en person støtter jeres forening gennem StøtMedHjerte, går bidraget direkte til jer. StøtMedHjerte hjælper jer med overblik, kvitteringer, rapporter og regnskab omkring støtten.</p>
       </div>
-      <div class="pay reveal">
-        <div class="pay-top">En støtter bidrager til en hjertesag</div>
-        <div class="pay-top-sub">Beløbet går til jer, og oplysningerne bruges til dokumentation.</div>
-        <div class="pay-cards">
-          <div class="pay-card money">
-            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg></div>
-            <div class="pl">Bidraget</div>
-            <h3>Direkte til jer</h3>
-            <p>Beløbet går ind på jeres egen konto.</p>
-          </div>
-          <div class="pay-card data">
-            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></div>
-            <div class="pl">Overblik</div>
-            <h3>Dokumentation</h3>
-            <p>Oplysninger bruges til kvitteringer, rapporter og indsamlingsregnskab.</p>
-          </div>
+      <div class="flow reveal">
+        <div class="flow-step reveal-d1">
+          <div class="flow-num">01</div>
+          <div class="flow-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+          <h3>En person støtter jer</h3>
+          <p>En støtter vælger at bakke op om jeres forening.</p>
         </div>
-        <div class="pay-bottom">Foreningens midler bliver hos foreningen.</div>
+        <div class="flow-step accent reveal-d2">
+          <div class="flow-num">02</div>
+          <div class="flow-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg></div>
+          <h3>Bidraget går til jer</h3>
+          <p>Beløbet går direkte til foreningens egen konto.</p>
+        </div>
+        <div class="flow-step reveal-d3">
+          <div class="flow-num">03</div>
+          <div class="flow-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></div>
+          <h3>I får overblik bagefter</h3>
+          <p>Oplysningerne samles, så I kan arbejde videre med kvitteringer, rapporter og regnskab.</p>
+        </div>
       </div>
+      <div class="flow-bottom">Foreningens midler bliver hos foreningen.</div>
     </div>
   </section>
   <section class="section" id="venteliste">
