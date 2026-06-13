@@ -334,7 +334,7 @@
     .offer-progress .cd-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--green-light); border-radius: 999px; box-shadow: 0 0 12px rgba(34,197,94,0.5); transition: width 1.5s cubic-bezier(0.16,1,0.3,1); }
     .offer-progress-empty { font-size: 12.5px; color: var(--text-3); font-weight: 500; letter-spacing: 0.01em; }
     .offer-trust { position: relative; font-size: 13px; color: var(--text-3); line-height: 1.55; margin-top: 16px; }
-    .offer-glow { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 620px; max-width: 90%; height: 300px; background: radial-gradient(ellipse at center, rgba(34,197,94,0.13) 0%, transparent 68%); pointer-events: none; z-index: 0; }
+    .offer-glow { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 620px; max-width: 90%; height: 300px; background: radial-gradient(ellipse at center, rgba(34,197,94,0.15) 0%, transparent 66%); pointer-events: none; z-index: 0; }
     @media (min-width: 901px) {
       .section-offer { padding: 144px 0; }
       .section-offer .section-h2 { font-size: 52px; }
@@ -344,7 +344,7 @@
     .offer-cta:hover { background: var(--red-dark); transform: translateY(-1px); }
     .offer-cta svg { width: 16px; height: 16px; }
     .section-mission { position: relative; overflow: hidden; }
-    .mission-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 720px; max-width: 90%; height: 380px; background: radial-gradient(ellipse at center, rgba(224,25,63,0.05) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+    .mission-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 720px; max-width: 90%; height: 380px; background: radial-gradient(ellipse at center, rgba(224,25,63,0.07) 0%, transparent 68%); pointer-events: none; z-index: 0; }
     .mission-inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; text-align: center; }
     .mission-punch { font-family: var(--display); font-weight: 600; font-size: clamp(20px, 2.6vw, 28px); color: var(--text); letter-spacing: -0.02em; line-height: 1.3; margin: 30px 0 0; }
     .mission-punch .accent { color: var(--red-light); }
@@ -608,7 +608,7 @@
     </div>
   </section>
 
-  <section class="section section-mission">
+  <section class="section alt section-mission">
     <div class="container">
       <div class="mission-glow"></div>
       <div class="mission-inner reveal">
@@ -619,7 +619,7 @@
     </div>
   </section>
 
-  <section class="section alt">
+  <section class="section">
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Sådan skaber det værdi</div>
@@ -652,6 +652,37 @@
   </section>
 
   <section class="section alt">
+    <div class="container">
+      <div class="section-head center reveal">
+        <div class="section-label" style="justify-content:center;color:var(--green-light)"><span class="tick" style="background:var(--green)"></span>Når støtten gives</div>
+        <h2 class="section-h2">Bidrag går direkte til<br class="desk-br"> foreningens egen konto</h2>
+        <p class="section-sub">Når en person støtter jeres forening gennem StøtMedHjerte, går bidraget direkte til jer. StøtMedHjerte hjælper jer med overblik, kvitteringer, rapporter og regnskab omkring støtten.</p>
+      </div>
+      <div class="flow reveal">
+        <div class="flow-step reveal-d1">
+          <div class="flow-num">01</div>
+          <div class="flow-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+          <h3>En person støtter jer</h3>
+          <p>En støtter vælger at bakke op om jeres forening.</p>
+        </div>
+        <div class="flow-step accent reveal-d2">
+          <div class="flow-num">02</div>
+          <div class="flow-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg></div>
+          <h3>Bidraget går til jer</h3>
+          <p>Beløbet går direkte til foreningens egen konto.</p>
+        </div>
+        <div class="flow-step reveal-d3">
+          <div class="flow-num">03</div>
+          <div class="flow-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></div>
+          <h3>I får overblik bagefter</h3>
+          <p>Oplysningerne samles, så I kan arbejde videre med kvitteringer, rapporter og regnskab.</p>
+        </div>
+      </div>
+      <div class="flow-bottom">Foreningens midler bliver hos foreningen.</div>
+    </div>
+  </section>
+
+  <section class="section">
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Priser</div>
@@ -701,7 +732,7 @@
     </div>
   </section>
 
-  <section class="section section-offer">
+  <section class="section alt section-offer">
     <div class="container" style="position:relative">
       <div class="offer-glow"></div>
       <div class="section-head center reveal">
@@ -729,38 +760,7 @@
       </div>
     </div>
   </section>
-
-  <section class="section alt">
-    <div class="container">
-      <div class="section-head center reveal">
-        <div class="section-label" style="justify-content:center;color:var(--green-light)"><span class="tick" style="background:var(--green)"></span>Når støtten gives</div>
-        <h2 class="section-h2">Bidrag går direkte til<br class="desk-br"> foreningens egen konto</h2>
-        <p class="section-sub">Når en person støtter jeres forening gennem StøtMedHjerte, går bidraget direkte til jer. StøtMedHjerte hjælper jer med overblik, kvitteringer, rapporter og regnskab omkring støtten.</p>
-      </div>
-      <div class="flow reveal">
-        <div class="flow-step reveal-d1">
-          <div class="flow-num">01</div>
-          <div class="flow-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
-          <h3>En person støtter jer</h3>
-          <p>En støtter vælger at bakke op om jeres forening.</p>
-        </div>
-        <div class="flow-step accent reveal-d2">
-          <div class="flow-num">02</div>
-          <div class="flow-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg></div>
-          <h3>Bidraget går til jer</h3>
-          <p>Beløbet går direkte til foreningens egen konto.</p>
-        </div>
-        <div class="flow-step reveal-d3">
-          <div class="flow-num">03</div>
-          <div class="flow-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></div>
-          <h3>I får overblik bagefter</h3>
-          <p>Oplysningerne samles, så I kan arbejde videre med kvitteringer, rapporter og regnskab.</p>
-        </div>
-      </div>
-      <div class="flow-bottom">Foreningens midler bliver hos foreningen.</div>
-    </div>
-  </section>
-  <section class="section" id="venteliste">
+  <section class="section alt" id="venteliste">
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Skriv jer op</div>
@@ -844,7 +844,7 @@
     </div>
   </section>
 
-  <section class="section alt">
+  <section class="section">
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Ofte stillede spørgsmål</div>
