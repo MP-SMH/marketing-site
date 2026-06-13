@@ -351,6 +351,16 @@
     .mission-note { font-size: 15px; color: var(--text-3); line-height: 1.6; font-style: italic; max-width: 540px; margin: 28px auto 0; }
     .mission-accent { color: var(--red-light); font-weight: 500; }
     @media (min-width: 901px) { .section-mission { padding: 132px 0; } }
+    .value-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; max-width: 900px; margin: 0 auto; }
+    .value-card { padding: 28px 26px; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 18px; transition: transform 0.3s, border-color 0.3s; }
+    .value-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.16); }
+    .value-card h3 { font-family: var(--display); font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 9px; letter-spacing: -0.015em; }
+    .value-card p { font-size: 13.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 18px; }
+    .value-ba { display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-family: var(--mono); }
+    .value-ba .before { color: var(--text-3); }
+    .value-ba .arrow { color: var(--text-3); }
+    .value-ba .after { color: var(--green-light); font-weight: 600; }
+    @media (max-width: 720px) { .value-grid { grid-template-columns: 1fr; } }
     .form-card { max-width: 560px; margin: 0 auto; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 20px; padding: 36px 32px; box-shadow: 0 24px 64px rgba(0,0,0,0.4); text-align: left; }
     .form-intro { font-size: 14px; color: var(--text-2); margin-bottom: 26px; line-height: 1.6; }
     .field { margin-bottom: 18px; }
@@ -598,6 +608,38 @@
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Vores mission</div>
         <h2 class="section-h2">Vi vil gøre pengeindsamling nemmere for danske foreninger</h2>
         <p class="section-sub">Vi bygger StøtMedHjerte, fordi det praktiske arbejde omkring pengeindsamling ofte tager tid fra de frivillige. Målet er enkelt: <span class="mission-accent">mindre bøvl, mere overblik, og mere tid til fællesskabet.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="container">
+      <div class="section-head center reveal">
+        <div class="section-label" style="justify-content:center"><span class="tick"></span>Sådan skaber det værdi</div>
+        <h2 class="section-h2">Mere ro omkring jeres pengeindsamling</h2>
+        <p class="section-sub">StøtMedHjerte hjælper jer med at gøre pengeindsamling mere overskuelig fra start til slut.</p>
+      </div>
+      <div class="value-grid">
+        <div class="value-card reveal reveal-d1">
+          <h3>Mindre tid på manuelt arbejde</h3>
+          <p>I slipper for at samle oplysninger fra mange steder, hver gang der skal laves overblik.</p>
+          <div class="value-ba"><span class="before">Spredte oplysninger</span><span class="arrow">→</span><span class="after">Samlet overblik</span></div>
+        </div>
+        <div class="value-card reveal reveal-d2">
+          <h3>Mere tryghed i hverdagen</h3>
+          <p>I får hjælp til kvitteringer, rapporter og regnskab, så det bliver lettere at holde orden.</p>
+          <div class="value-ba"><span class="before">Manuelt rod</span><span class="arrow">→</span><span class="after">Styr på det</span></div>
+        </div>
+        <div class="value-card reveal reveal-d3">
+          <h3>Nemmere at få støtte</h3>
+          <p>Jeres støtter får en enkel måde at bakke op om foreningen på.</p>
+          <div class="value-ba"><span class="before">Besværligt</span><span class="arrow">→</span><span class="after">Enkelt at støtte</span></div>
+        </div>
+        <div class="value-card reveal reveal-d4">
+          <h3>Mere tid til fællesskabet</h3>
+          <p>Når det praktiske fylder mindre, kan frivillige bruge mere tid på medlemmer og aktiviteter.</p>
+          <div class="value-ba"><span class="before">Tid på praktik</span><span class="arrow">→</span><span class="after">Tid til medlemmer</span></div>
+        </div>
       </div>
     </div>
   </section>
