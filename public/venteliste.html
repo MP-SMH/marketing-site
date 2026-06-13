@@ -278,6 +278,8 @@
     .law-icon svg { width: 20px; height: 20px; }
     .law-card h3 { font-family: var(--display); font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
     .law-card p { font-size: 13.5px; color: var(--text-2); line-height: 1.6; }
+    .law-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 980px; margin: 0 auto; }
+    @media (max-width: 720px) { .law-grid-3 { grid-template-columns: 1fr; } }
     .pay { max-width: 760px; margin: 0 auto; }
     .pay-top { text-align: center; font-family: var(--display); font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     .pay-top-sub { text-align: center; font-size: 12.5px; color: var(--text-3); margin-bottom: 26px; }
@@ -644,15 +646,14 @@
   <section class="section">
     <div class="container">
       <div class="section-head center reveal">
-        <div class="section-label" style="justify-content:center"><span class="tick"></span>Ansvar og dokumentation</div>
-        <h2 class="section-h2">Styr på regler, kvitteringer og dokumentation</h2>
-        <p class="section-sub">En offentlig indsamling er, når I beder personer uden for den nære, personlige kreds om at bidrage. Det gælder også online og på sociale medier. StøtMedHjerte gør det lettere at holde styr på tilladelse, kvitteringer, rapporter og indsamlingsregnskab.</p>
+        <div class="section-label" style="justify-content:center"><span class="tick"></span>Regler og dokumentation</div>
+        <h2 class="section-h2">Få bedre styr på kvitteringer, rapporter og regnskab</h2>
+        <p class="section-sub">Når en forening samler penge ind, skal der være styr på dokumentationen. StøtMedHjerte hjælper jer med at samle oplysningerne, så det bliver lettere at lave kvitteringer, rapporter og indsamlingsregnskab.</p>
       </div>
-      <div class="law-grid">
-        <div class="law-card reveal reveal-d1"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg></div><div><h3>Offentlig indsamling</h3><p>Når indsamlingen er offentlig, kræver den tilladelse fra Indsamlingsnævnet.</p></div></div>
-        <div class="law-card reveal reveal-d2"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg></div><div><h3>Før I går i gang</h3><p>Få overblik over, hvad der skal være på plads før start.</p></div></div>
-        <div class="law-card reveal reveal-d3"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><div><h3>Indsamlingsregnskab</h3><p>Få et automatisk regnskab over bidrag, historik og formål.</p></div></div>
-        <div class="law-card reveal reveal-d4"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></div><div><h3>Månedlige rapporter</h3><p>Følg udviklingen måned for måned i en samlet rapport.</p></div></div>
+      <div class="law-grid-3">
+        <div class="law-card reveal reveal-d1"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg></div><div><h3>Før I går i gang</h3><p>Få bedre overblik over, hvad I skal have styr på.</p></div></div>
+        <div class="law-card reveal reveal-d2"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></div><div><h3>Under indsamlingen</h3><p>Følg bidrag og støtter løbende.</p></div></div>
+        <div class="law-card reveal reveal-d3"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><div><h3>Når der skal laves regnskab</h3><p>Saml oplysningerne, så rapporter og regnskab bliver nemmere at håndtere.</p></div></div>
       </div>
     </div>
   </section>
