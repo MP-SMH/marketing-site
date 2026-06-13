@@ -266,6 +266,10 @@
     .price-list { list-style: none; display: flex; flex-direction: column; flex: 1; }
     .price-list li { padding: 11px 0; font-size: 13.5px; color: var(--text-2); line-height: 1.45; border-top: 1px solid var(--hairline-soft); }
     .price-list li:first-child { border-top: none; padding-top: 0; }
+    .price-after { text-align: center; max-width: 620px; margin: 32px auto 0; }
+    .price-after p { font-size: 14.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
+    .price-cta { display: inline-block; padding: 14px 32px; border-radius: 12px; background: var(--red); color: #fff; font-size: 15px; font-weight: 600; font-family: var(--body); text-decoration: none; transition: background 0.3s, transform 0.3s; }
+    .price-cta:hover { background: var(--red-dark); transform: translateY(-2px); }
     .price-note { text-align: center; font-size: 13.5px; color: var(--text-3); max-width: 620px; margin: 36px auto 0; line-height: 1.6; }
     .law-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; max-width: 900px; margin: 0 auto; }
     .law-card { display: flex; gap: 16px; align-items: flex-start; padding: 26px; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 20px; transition: transform 0.3s, border-color 0.3s; }
@@ -558,43 +562,47 @@
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Priser</div>
-        <h2 class="section-h2">Fast pris. Ingen procenter.</h2>
-        <p class="section-sub">I betaler en fast månedlig pris for adgang til StøtMedHjerte. Donationer går direkte til jer.</p>
+        <h2 class="section-h2">En fast månedlig pris for værktøjet</h2>
+        <p class="section-sub">I betaler en fast månedlig pris for adgang til StøtMedHjerte. Så ved jeres forening på forhånd, hvad værktøjet koster.</p>
       </div>
       <div class="price-grid">
         <div class="price-card reveal reveal-d1">
           <div class="price-flag empty">.</div>
           <div class="price-name">Donationer</div>
           <div class="price-amount">149<span> kr./md.</span></div>
-          <div class="price-desc">Til jer, der vil samle bidrag til hjertesager.</div>
+          <div class="price-desc">Til jer, der vil samle penge ind til konkrete formål.</div>
           <ul class="price-list">
-            <li>Hjertesager og donationer</li>
-            <li>Kvitteringer</li>
-            <li>Indsamlingsregnskab</li>
+            <li>Opret indsamlinger</li>
+            <li>Tag imod bidrag</li>
+            <li>Få kvitteringer og regnskab</li>
           </ul>
         </div>
         <div class="price-card reveal reveal-d2">
           <div class="price-flag empty">.</div>
           <div class="price-name">Fast støtte</div>
           <div class="price-amount">199<span> kr./md.</span></div>
-          <div class="price-desc">Til jer, der vil modtage faste månedlige bidrag.</div>
+          <div class="price-desc">Til jer, der vil gøre det nemt at støtte foreningen fast hver måned.</div>
           <ul class="price-list">
-            <li>Faste bidrag</li>
-            <li>Aktive støtter</li>
+            <li>Faste månedlige bidrag</li>
+            <li>Overblik over støtter</li>
             <li>Støttehistorik</li>
           </ul>
         </div>
         <div class="price-card featured reveal reveal-d3">
-          <div class="price-flag">Samlet løsning</div>
-          <div class="price-name">Donationer + Fast støtte</div>
+          <div class="price-flag">Mest komplet</div>
+          <div class="price-name">Samlet løsning</div>
           <div class="price-amount">278<span> kr./md.</span></div>
-          <div class="price-desc">Til jer, der vil kombinere enkeltbidrag og fast støtte.</div>
+          <div class="price-desc">Til jer, der vil samle både enkeltbidrag og fast støtte ét sted.</div>
           <ul class="price-list">
-            <li>Begge dele samlet</li>
-            <li>20% billigere</li>
+            <li>Begge muligheder samlet</li>
             <li>Månedlige rapporter</li>
+            <li>Ét samlet overblik</li>
           </ul>
         </div>
+      </div>
+      <div class="price-after reveal">
+        <p>Alle planer er gratis i 3 måneder for de første 1.000 foreninger på ventelisten.</p>
+        <a href="#venteliste" class="price-cta">Skriv foreningen op</a>
       </div>
       <p class="price-note">Viste priser er inkl. moms.</p>
     </div>
