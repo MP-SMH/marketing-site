@@ -361,6 +361,13 @@
     .value-ba .arrow { color: var(--text-3); }
     .value-ba .after { color: var(--green-light); font-weight: 600; }
     @media (max-width: 720px) { .value-grid { grid-template-columns: 1fr; } }
+    .faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .faq-item { background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 14px; overflow: hidden; }
+    .faq-q { width: 100%; text-align: left; background: none; border: none; cursor: pointer; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-family: var(--display); font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+    .faq-q .faq-ico { flex-shrink: 0; width: 20px; height: 20px; color: var(--text-3); transition: transform 0.3s; }
+    .faq-item.open .faq-ico { transform: rotate(45deg); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .faq-a-inner { padding: 0 24px 22px; font-size: 14.5px; color: var(--text-2); line-height: 1.65; }
     .form-card { max-width: 560px; margin: 0 auto; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 20px; padding: 36px 32px; box-shadow: 0 24px 64px rgba(0,0,0,0.4); text-align: left; }
     .form-intro { font-size: 14px; color: var(--text-2); margin-bottom: 26px; line-height: 1.6; }
     .field { margin-bottom: 18px; }
@@ -837,6 +844,45 @@
     </div>
   </section>
 
+  <section class="section alt">
+    <div class="container">
+      <div class="section-head center reveal">
+        <div class="section-label" style="justify-content:center"><span class="tick"></span>Ofte stillede spørgsmål</div>
+        <h2 class="section-h2">Det vil foreninger gerne vide</h2>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-q">Koster det noget at skrive sig op?<svg class="faq-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="faq-a"><div class="faq-a-inner">Nej. Det er gratis og helt uforpligtende at skrive jeres forening op på ventelisten.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Binder vi os til noget?<svg class="faq-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="faq-a"><div class="faq-a-inner">Nej. At skrive sig op på ventelisten binder jer ikke til noget. I bestemmer selv, om I vil bruge StøtMedHjerte, når vi åbner.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Hvem er StøtMedHjerte for?<svg class="faq-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="faq-a"><div class="faq-a-inner">For danske foreninger og klubber, der samler penge ind og gerne vil have et bedre overblik over arbejdet bagefter.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Hvad kan vi bruge det til?<svg class="faq-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="faq-a"><div class="faq-a-inner">I kan tage imod støtte, holde overblik over jeres støtter og få hjælp til kvitteringer, rapporter og regnskab.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Hvor går bidragene hen?<svg class="faq-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="faq-a"><div class="faq-a-inner">Bidragene går direkte til foreningens egen konto. StøtMedHjerte er et værktøj til at holde styr på arbejdet, ikke et sted, hvor pengene samles.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Hvornår åbner I?<svg class="faq-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="faq-a"><div class="faq-a-inner">Vi åbner snart for de første foreninger. Skriver I jer op på ventelisten, giver vi besked, så snart der er nyt.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Hvad betyder 3 måneder gratis?<svg class="faq-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="faq-a"><div class="faq-a-inner">De første 1.000 foreninger og klubber på ventelisten får 3 måneders gratis adgang, når vi åbner for onboarding.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer class="footer">
     <div class="container">
       <div class="footer-top">
@@ -1228,6 +1274,15 @@
         banner.style.display = 'none';
       });
     })();
+    document.querySelectorAll('.faq-q').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var item = btn.parentElement;
+        var ans = item.querySelector('.faq-a');
+        var isOpen = item.classList.contains('open');
+        if (isOpen) { item.classList.remove('open'); ans.style.maxHeight = '0'; }
+        else { item.classList.add('open'); ans.style.maxHeight = ans.scrollHeight + 'px'; }
+      });
+    });
   </script>
 </body>
 </html>
