@@ -82,7 +82,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -310,6 +310,8 @@
     @media (max-width: 720px) { .flow { grid-template-columns: 1fr; gap: 14px; } }
     .desk-br { display: none; }
     @media (min-width: 721px) { .desk-br { display: inline; } }
+    .mob-br { display: inline; }
+    @media (min-width: 721px) { .mob-br { display: none; } }
     .never-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 720px; margin: 36px auto 0; }
     .never { display: flex; align-items: center; gap: 12px; padding: 18px 22px; min-height: 58px; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 12px; font-size: 14px; color: var(--text); }
     .never .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); flex-shrink: 0; }
@@ -350,6 +352,10 @@
     .mission-punch .accent { color: var(--red-light); }
     .mission-note { font-size: 15px; color: var(--text-3); line-height: 1.6; font-style: italic; max-width: 540px; margin: 28px auto 0; }
     .mission-accent { color: var(--red-light); font-weight: 500; }
+    .mission-quote { max-width: 760px; margin: 30px auto 0; font-family: var(--display); font-size: clamp(20px, 2.2vw, 26px); font-weight: 600; font-style: italic; line-height: 1.4; letter-spacing: -0.015em; color: var(--red-light); }
+    .mission-signature { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--hairline-soft); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .mission-signature .sig-name { font-family: 'Caveat', cursive; font-size: 34px; font-weight: 600; color: var(--text); line-height: 1; }
+    .mission-signature .sig-role { font-size: 12px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3); }
     .mission-stroke { position: relative; display: inline-block; }
     .mission-stroke svg { position: absolute; left: -1%; bottom: -0.16em; width: 102%; height: 0.34em; pointer-events: none; overflow: visible; }
     @media (min-width: 901px) { .section-mission { padding: 100px 0; } .section-mission .section-h2 { font-size: 52px; } }
@@ -463,8 +469,8 @@
       .dash-body { grid-template-columns: 1fr; }
       .dash-stats { grid-template-columns: repeat(2, 1fr); }
       /* trust-punkter: venstrejusteret pæn kolonne, ikke ujævn trappe */
-      .hero-trust-below { flex-direction: column; align-items: flex-start; gap: 14px; margin-top: 28px; padding-top: 28px; max-width: 280px; margin-left: auto; margin-right: auto; }
-      .hero-trust-below .item { font-size: 15px; }
+      .hero-trust-below { flex-direction: column; align-items: flex-start; gap: 14px; margin-top: 28px; padding-top: 28px; max-width: 300px; margin-left: auto; margin-right: auto; }
+      .hero-trust-below .item { font-size: 15px; align-items: flex-start; text-align: left; }
       .row-2 { grid-template-columns: 1fr; }
       .form-card { padding: 28px 22px; }
       .nav-cta { padding: 8px 14px; }
@@ -472,7 +478,7 @@
     }
     @media (max-width: 400px) {
       .container { padding: 0 18px; }
-      .hero-h1 { font-size: 31px; line-height: 1.1; }
+      .hero-h1 { font-size: 27px; line-height: 1.12; }
       .hero-sub { font-size: 15.5px; }
       .hero-trust-below { max-width: 250px; margin-left: auto; margin-right: auto; }
     }
@@ -503,7 +509,7 @@
       <div class="hero-grid">
         <div class="hero-text">
           <div class="hero-eyebrow"><span class="dot"></span><span>Ventelisten er åben</span></div>
-          <h1 class="hero-h1">En samlet professionel platform til jeres <span class="accent-green">pengeindsamling</span></h1>
+          <h1 class="hero-h1">Jeres professionelle platform<br>til <span class="accent-green">pengeindsamling</span></h1>
           <p class="hero-sub">StøtMedHjerte hjælper danske foreninger og klubber med at tage imod støtte på en tryg, ordentlig og struktureret måde. Fra oprettelse af hjertesager til færdigt indsamlingsregnskab får I én samlet platform, der er bygget til danske indsamlingsregler.</p>
           <div class="hero-offer-pill"><span class="dot"></span>3 måneder gratis ved opskrivning</div>
           <div class="hero-cta-row">
@@ -583,7 +589,7 @@
     <div class="container">
       <div class="section-head reveal">
         <div class="section-label"><span class="tick"></span>Udfordringen</div>
-        <h2 class="section-h2">En indsamling kræver mere end en god sag</h2>
+        <h2 class="section-h2">En indsamling kræver<br class="desk-br"> mere end en god sag</h2>
         <p class="section-sub">Mange foreninger har stærke formål, som medlemmer, forældre og lokalsamfund gerne vil bakke op om. Men når støtten skal samles ind offentligt, følger der ansvar med: tilladelse, dokumentation, formål, opfølgning og regnskab. Det er ofte her, arbejdet bliver tungt for de frivillige.</p>
       </div>
       <div class="problem-grid">
@@ -629,7 +635,7 @@
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Hjertesager</div>
-        <h2 class="section-h2">Jeres formål gjort synlige for støtter</h2>
+        <h2 class="section-h2">Jeres formål gjort<br class="mob-br"> synlige for støtter</h2>
         <p class="section-sub">En hjertesag er et konkret formål, jeres forening ønsker støtte til, og I kan have op til 5 hjertesager. Det kan være udstyr, ture, aktiviteter, faciliteter eller fællesskaber, som har brug for opbakning. På stotmedhjerte.dk kan støtter finde jeres hjertesager, se hvad det konkrete formål handler om og give en donation direkte til jeres forening.</p>
       </div>
       <!-- HJERTESAG-CARD PLACEHOLDER (Fase 2 visual) -->
@@ -637,7 +643,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section alt">
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Samme professionelle standard</div>
@@ -674,7 +680,12 @@
       <div class="mission-inner reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Mission</div>
         <h2 class="section-h2">Vi vil gøre <span class="mission-stroke">pengeindsamling<svg viewBox="0 0 300 14" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M5 8 Q 150 2, 295 8" stroke="var(--red)" stroke-width="4.5" stroke-linecap="round"/></svg></span> nemmere for danske foreninger</h2>
-        <p class="section-sub">Vi bygger StøtMedHjerte, fordi frivillige ikke skal bruge unødvendig tid på regler, teknik og regnskab. Foreninger skal kunne samle støtte ind med samme ro og professionalisme som Red Barnet, Blå Kors og UNICEF, bare i en platform udviklet til danske klubber og fællesskaber. <span class="mission-accent">Vores mål er at gøre professionel pengeindsamling tilgængelig for alle danske foreninger.</span></p>
+        <p class="section-sub">Vi bygger StøtMedHjerte, fordi frivillige ikke skal bruge unødvendig tid på regler, teknik og regnskab. Foreninger skal kunne samle støtte ind med samme ro og professionalisme som Red Barnet, Blå Kors og UNICEF, bare i en platform udviklet til danske klubber og fællesskaber.</p>
+        <p class="mission-quote">&ldquo;Vores mål er at gøre professionel pengeindsamling tilgængelig for alle danske foreninger.&rdquo;</p>
+        <div class="mission-signature">
+          <span class="sig-name">Mario Paunovic</span>
+          <span class="sig-role">Stifter af StøtMedHjerte</span>
+        </div>
       </div>
     </div>
   </section>
@@ -683,7 +694,7 @@
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Værdi for jer</div>
-        <h2 class="section-h2">Mindre manuelt arbejde for bestyrelse og frivillige</h2>
+        <h2 class="section-h2">Mindre manuelt arbejde<br class="desk-br"> for bestyrelse og frivillige</h2>
         <p class="section-sub">StøtMedHjerte gør støttearbejdet nemmere at fordele, følge og afslutte. Det giver bestyrelse, kasserer og ansvarlige et bedre grundlag at arbejde ud fra, uden at alt skal bygges op manuelt hver gang.</p>
       </div>
       <div class="value-grid">
@@ -964,12 +975,7 @@
       <div class="footer-top">
         <div class="footer-brand">
           <div class="footer-logo">StøtMedHjerte<sup>™</sup></div>
-          <p class="footer-desc">StøtMedHjerte gør det lettere for danske foreninger og klubber at samle penge ind og holde styr på arbejdet bagefter. Støtte. Støtter. Kvitteringer. Rapporter. Regnskab.</p>
-        </div>
-        <div class="footer-links">
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>Bidrag direkte til foreningen</span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Bygget til danske foreninger</span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><polyline points="14 2 14 8 20 8"/></svg>Regnskab gjort lettere</span>
+          <p class="footer-desc">StøtMedHjerte giver danske foreninger og klubber en komplet og professionel platform til at tage imod støtte, synliggøre hjertesager og afslutte indsamlinger korrekt. Udviklet til foreninger, der vil arbejde efter danske regler og automatisere arbejdet fra første bidrag til færdigt indsamlingsregnskab.</p>
         </div>
       </div>
       <div class="footer-bottom">
