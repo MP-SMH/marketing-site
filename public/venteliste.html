@@ -676,7 +676,7 @@
       <div class="hcard reveal">
         <div class="hcard-banner" style="background-image:url('/img/hjertesag-demo.jpg')">
           <span class="hcard-badge"><span class="dot"></span>SVØMMEKLUB</span>
-          <span class="hcard-pct"><svg viewBox="0 0 24 24" width="13" height="13" fill="#E0193F" stroke="none"><path d="M12 21.23l-7.78-7.78a5.5 5.5 0 017.78-7.78L12 5.67l.06-.06a5.5 5.5 0 017.78 7.78z"/></svg>37%</span>
+          <span class="hcard-pct"><svg viewBox="0 0 24 24" width="13" height="13" fill="#E0193F" stroke="none"><path d="M12 21.23l-7.78-7.78a5.5 5.5 0 017.78-7.78L12 5.67l.06-.06a5.5 5.5 0 017.78 7.78z"/></svg><span class="hcard-anim" data-count-to="37" data-suffix="%">37%</span></span>
         </div>
         <div class="hcard-body">
           <div class="hcard-org">
@@ -689,12 +689,12 @@
           </div>
           <h3 class="hcard-title">Svømmestævner 2026</h3>
           <p class="hcard-desc">Hjælp vores svømmere til stævner i hele landet, så de kan udvikle sig og repræsentere klubben.</p>
-          <div class="hcard-bar"><span style="width:37%"></span></div>
+          <div class="hcard-bar"><span class="hcard-fill" data-fill="37" style="width:0%"></span></div>
           <p class="hcard-bar-note">Godt i gang, hver støtte tæller</p>
           <div class="hcard-stats">
-            <div><p class="hcard-stat-label">INDSAMLET</p><p class="hcard-stat-val">5.600 kr.</p></div>
-            <div style="text-align:center"><p class="hcard-stat-label">MÅL</p><p class="hcard-stat-val">15.000 kr.</p></div>
-            <div style="text-align:right"><p class="hcard-stat-label" style="color:#E0193F">MANGLER</p><p class="hcard-stat-val" style="color:#E0193F">9.400 kr.</p></div>
+            <div><p class="hcard-stat-label">INDSAMLET</p><p class="hcard-stat-val hcard-anim" data-count-to="5600" data-suffix=" kr.">5.600 kr.</p></div>
+            <div style="text-align:center"><p class="hcard-stat-label">MÅL</p><p class="hcard-stat-val hcard-anim" data-count-to="15000" data-suffix=" kr.">15.000 kr.</p></div>
+            <div style="text-align:right"><p class="hcard-stat-label" style="color:#E0193F">MANGLER</p><p class="hcard-stat-val hcard-anim" style="color:#E0193F" data-count-to="9400" data-suffix=" kr.">9.400 kr.</p></div>
           </div>
           <div class="hcard-cta"><svg viewBox="0 0 24 24" width="16" height="16" fill="#fff" stroke="none"><path d="M12 21.23l-7.78-7.78a5.5 5.5 0 017.78-7.78L12 5.67l.06-.06a5.5 5.5 0 017.78 7.78z"/></svg>Støt nu<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </div>
@@ -1388,6 +1388,36 @@
       }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
       document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
     }
+
+    (function(){
+      var card = document.querySelector('.hcard');
+      if (!card) return;
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var nums = card.querySelectorAll('.hcard-anim');
+      var fill = card.querySelector('.hcard-fill');
+      function fmt(n){ return n.toLocaleString('da-DK'); }
+      function setFinal(){
+        nums.forEach(function(el){ var to = parseInt(el.getAttribute('data-count-to'),10); el.textContent = fmt(to) + (el.getAttribute('data-suffix')||''); });
+        if (fill) fill.style.width = (fill.getAttribute('data-fill')||'0') + '%';
+      }
+      if (reduce){ setFinal(); return; }
+      function animate(){
+        var dur = 4000, start = null;
+        if (fill){ fill.style.transition = 'width 4s cubic-bezier(0.22,1,0.36,1)'; requestAnimationFrame(function(){ fill.style.width = (fill.getAttribute('data-fill')||'0') + '%'; }); }
+        function step(ts){
+          if (!start) start = ts;
+          var p = Math.min((ts - start)/dur, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          nums.forEach(function(el){ var to = parseInt(el.getAttribute('data-count-to'),10); var cur = Math.round(to * eased); el.textContent = fmt(cur) + (el.getAttribute('data-suffix')||''); });
+          if (p < 1) requestAnimationFrame(step); else setFinal();
+        }
+        requestAnimationFrame(step);
+      }
+      var io = new IntersectionObserver(function(es){
+        es.forEach(function(e){ if (e.isIntersecting){ animate(); io.unobserve(e.target); } });
+      }, { threshold: 0.3 });
+      io.observe(card);
+    })();
   </script>
   <!-- SMH samtykke-banner (S41). Vises foerste besoeg. Knapper kalder window.smhConsent. -->
   <div id="cookie-banner" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:9999; padding:20px 24px; background:rgba(11,20,36,0.97); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border-top:1px solid rgba(255,255,255,0.10); box-shadow:0 -12px 40px rgba(0,0,0,0.4);">
