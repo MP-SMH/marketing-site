@@ -356,6 +356,40 @@
     .mission-signature { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--hairline-soft); display: flex; flex-direction: column; align-items: center; gap: 2px; }
     .mission-signature .sig-name { font-family: 'Caveat', cursive; font-size: 34px; font-weight: 600; color: var(--text); line-height: 1; }
     .mission-signature .sig-role { font-size: 12px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3); }
+    .hcard { max-width: 440px; margin: 0 auto; background: #0E1626; border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; overflow: hidden; text-align: left; box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
+    .hcard-banner { position: relative; height: 156px; background-size: cover; background-position: center; }
+    .hcard-badge { position: absolute; top: 13px; left: 13px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; color: #15406B; background: #F8FAFC; padding: 6px 12px; border-radius: 999px; }
+    .hcard-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #15406B; }
+    .hcard-pct { position: absolute; top: 13px; right: 13px; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: #E0193F; background: #F8FAFC; padding: 6px 11px; border-radius: 999px; }
+    .hcard-body { background: #F8FAFC; padding: 18px; }
+    .hcard-org { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+    .hcard-avatar { width: 42px; height: 42px; border-radius: 11px; background: #E6F1FB; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; color: #15406B; flex-shrink: 0; }
+    .hcard-org-name { font-weight: 700; font-size: 15px; color: #0E1626; margin: 0; line-height: 1.2; }
+    .hcard-org-loc { font-size: 12.5px; color: #6B7280; margin: 2px 0 0; }
+    .hcard-verified { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: #0F6E56; background: rgba(34,197,94,0.12); padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+    .hcard-title { font-size: 18px; font-weight: 700; color: #0E1626; margin: 0 0 10px; letter-spacing: -0.01em; }
+    .hcard-desc { font-size: 13.5px; color: #4B5563; line-height: 1.55; margin: 0 0 18px; }
+    .hcard-bar { width: 100%; height: 7px; border-radius: 999px; background: #E5E7EB; overflow: hidden; margin-bottom: 8px; }
+    .hcard-bar span { display: block; height: 100%; border-radius: 999px; background: #E0193F; }
+    .hcard-bar-note { font-size: 12.5px; font-style: italic; color: #6B7280; margin: 0 0 16px; }
+    .hcard-stats { display: flex; justify-content: space-between; margin-bottom: 18px; }
+    .hcard-stat-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.05em; color: #9CA3AF; margin: 0; }
+    .hcard-stat-val { font-size: 17px; font-weight: 700; color: #0E1626; margin: 2px 0 0; }
+    .hcard-cta { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; background: #E0193F; color: #fff; font-size: 15px; font-weight: 600; padding: 13px; border-radius: 12px; }
+    .hjerte-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; max-width: 960px; margin: 12px auto 0; }
+    .hjerte-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; max-width: 980px; margin: 16px auto 0; }
+    .hjerte-2col .section-head { text-align: left; max-width: none; margin: 0; }
+    .hjerte-2col .section-head .section-label { justify-content: flex-start; }
+    .hjerte-2col .hcard { margin: 0; }
+    @media (max-width: 900px) { .hjerte-2col { grid-template-columns: 1fr; gap: 28px; max-width: 440px; } .hjerte-2col .section-head { text-align: center; } .hjerte-2col .section-head .section-label { justify-content: center; } .hjerte-2col .hcard { margin: 0 auto; } }
+    .hjerte-features { display: flex; flex-direction: column; gap: 26px; }
+    .hjerte-feature { display: flex; gap: 15px; align-items: flex-start; }
+    .hjerte-feature-ico { width: 42px; height: 42px; border-radius: 12px; background: rgba(224,25,63,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #FCA5B5; }
+    .hjerte-feature-ico.green { background: rgba(34,197,94,0.12); color: #22C55E; }
+    .hjerte-feature-ico svg { width: 20px; height: 20px; }
+    .hjerte-feature h3 { font-size: 16px; font-weight: 600; color: var(--text); margin: 0 0 4px; letter-spacing: -0.01em; }
+    .hjerte-feature p { font-size: 13.5px; color: var(--text-2); line-height: 1.5; margin: 0; }
+    @media (max-width: 900px) { .hjerte-grid { grid-template-columns: 1fr; gap: 32px; max-width: 420px; } .hjerte-grid .hcard { order: -1; } }
     .mission-stroke { position: relative; display: inline-block; }
     .mission-stroke svg { position: absolute; left: -1%; bottom: -0.16em; width: 102%; height: 0.34em; pointer-events: none; overflow: visible; }
     @media (min-width: 901px) { .section-mission { padding: 100px 0; } .section-mission .section-h2 { font-size: 52px; } }
@@ -633,13 +667,39 @@
 
   <section class="section">
     <div class="container">
-      <div class="section-head center reveal">
+      <div class="hjerte-2col reveal">
+      <div class="section-head">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Hjertesager</div>
-        <h2 class="section-h2">Jeres formål gjort<br class="mob-br"> synlige for støtter</h2>
-        <p class="section-sub">En hjertesag er et konkret formål, jeres forening ønsker støtte til, og I kan have op til 5 hjertesager. Det kan være udstyr, ture, aktiviteter, faciliteter eller fællesskaber, som har brug for opbakning. På stotmedhjerte.dk kan støtter finde jeres hjertesager, se hvad det konkrete formål handler om og give en donation direkte til jeres forening.</p>
+        <h2 class="section-h2">Gør jeres konkrete formål<br class="mob-br"> nemme at finde og støtte</h2>
+        <p class="section-sub">En hjertesag er et formålsbestemt indsamlingsmål, som jeres forening opretter på stotmedhjerte.dk. Det kan være stævner, udstyr, ture, aktiviteter, faciliteter eller fællesskaber, hvor I har brug for opbakning. Støtter kan se, hvad sagen handler om, hvor langt I er fra målet, og give en donation direkte til jeres forening.</p>
       </div>
-      <!-- HJERTESAG-CARD PLACEHOLDER (Fase 2 visual) -->
-      <div class="hjertesag-card-placeholder reveal" style="max-width:420px;margin:0 auto"></div>
+      <div class="hcard reveal">
+        <div class="hcard-banner" style="background-image:url('/img/hjertesag-demo.jpg')">
+          <span class="hcard-badge"><span class="dot"></span>SVØMMEKLUB</span>
+          <span class="hcard-pct"><svg viewBox="0 0 24 24" width="13" height="13" fill="#E0193F" stroke="none"><path d="M12 21.23l-7.78-7.78a5.5 5.5 0 017.78-7.78L12 5.67l.06-.06a5.5 5.5 0 017.78 7.78z"/></svg>37%</span>
+        </div>
+        <div class="hcard-body">
+          <div class="hcard-org">
+            <div class="hcard-avatar">J</div>
+            <div>
+              <p class="hcard-org-name">Jeres Forening</p>
+              <p class="hcard-org-loc">Eksempel</p>
+            </div>
+            <span class="hcard-verified"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Verificeret</span>
+          </div>
+          <h3 class="hcard-title">Svømmestævner 2026</h3>
+          <p class="hcard-desc">Hjælp vores svømmere til stævner i hele landet, så de kan udvikle sig og repræsentere klubben.</p>
+          <div class="hcard-bar"><span style="width:37%"></span></div>
+          <p class="hcard-bar-note">Godt i gang, hver støtte tæller</p>
+          <div class="hcard-stats">
+            <div><p class="hcard-stat-label">INDSAMLET</p><p class="hcard-stat-val">5.600 kr.</p></div>
+            <div style="text-align:center"><p class="hcard-stat-label">MÅL</p><p class="hcard-stat-val">15.000 kr.</p></div>
+            <div style="text-align:right"><p class="hcard-stat-label" style="color:#E0193F">MANGLER</p><p class="hcard-stat-val" style="color:#E0193F">9.400 kr.</p></div>
+          </div>
+          <div class="hcard-cta"><svg viewBox="0 0 24 24" width="16" height="16" fill="#fff" stroke="none"><path d="M12 21.23l-7.78-7.78a5.5 5.5 0 017.78-7.78L12 5.67l.06-.06a5.5 5.5 0 017.78 7.78z"/></svg>Støt nu<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+      </div>
+      </div>
     </div>
   </section>
 
