@@ -378,10 +378,44 @@
     .hcard-cta { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; background: #E0193F; color: #fff; font-size: 15px; font-weight: 600; padding: 13px; border-radius: 12px; }
     .hjerte-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; max-width: 960px; margin: 12px auto 0; }
     .hjerte-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; max-width: 980px; margin: 16px auto 0; }
+    .hjerte-2col .section-head { display: flex; flex-direction: column; }
+    .hjerte-2col .hcard { align-self: center; }
     .hjerte-2col .section-head { text-align: left; max-width: none; margin: 0; }
     .hjerte-2col .section-head .section-label { justify-content: flex-start; }
     .hjerte-2col .hcard { margin: 0; }
-    @media (max-width: 900px) { .hjerte-2col { grid-template-columns: 1fr; gap: 28px; max-width: 440px; } .hjerte-2col .section-head { text-align: center; } .hjerte-2col .section-head .section-label { justify-content: center; } .hjerte-2col .hcard { margin: 0 auto; } }
+    .hjerte-feats { margin-top: 26px; border-top: 0.5px solid rgba(255,255,255,0.10); }
+    .hjerte-feat { display: flex; gap: 14px; align-items: flex-start; padding: 15px 8px; border-radius: 10px; transition: background 0.25s ease; }
+    .hjerte-feat + .hjerte-feat { border-top: 0.5px solid rgba(255,255,255,0.06); }
+    .hjerte-feat:hover { background: rgba(255,255,255,0.03); }
+    .hjerte-feat-ico { flex-shrink: 0; width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+    .hjerte-feat-ico.red { background: rgba(224,25,63,0.10); border: 0.5px solid rgba(224,25,63,0.22); color: #FCA5B5; }
+    .hjerte-feat-ico.green { background: rgba(34,197,94,0.10); border: 0.5px solid rgba(34,197,94,0.22); color: #5DCAA5; }
+    .hjerte-feat-t { font-size: 14.5px; font-weight: 600; color: var(--text); margin: 0 0 3px; }
+    .hjerte-feat-d { font-size: 13px; line-height: 1.5; color: var(--text-3); margin: 0; }
+    @media (max-width: 900px) { .hjerte-2col { grid-template-columns: 1fr; gap: 28px; max-width: 440px; } .hjerte-2col .section-head { text-align: center; } .hjerte-2col .section-head .section-label { justify-content: center; } .hjerte-2col .section-head .section-sub { text-align: left; } .hjerte-2col .hcard { margin: 0 auto; } .hjerte-feats { text-align: left; } .hjerte-feat-t, .hjerte-feat-d { text-align: left; } }
+    .section-platform .section-head { margin-bottom: 34px; }
+    .plat-wrap { max-width: 860px; margin: 0 auto; }
+    .plat-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+    .plat-tab { display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border-radius: 11px; border: 0.5px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.03); color: var(--text-3); font-family: var(--body); font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all 0.25s ease; }
+    .plat-tab:hover { background: rgba(255,255,255,0.06); color: var(--text-2); }
+    .plat-tab.active { background: rgba(255,255,255,0.10); color: var(--text); }
+    .plat-tab-ico { display: inline-flex; }
+    .plat-panel { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,255,255,0.10); background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
+    .plat-glow { position: absolute; top: -40%; left: -10%; width: 50%; height: 120%; background: radial-gradient(circle, rgba(167,139,250,0.18), transparent 70%); pointer-events: none; transition: background 0.5s ease; z-index: 0; }
+    .plat-bar { display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-bottom: 0.5px solid rgba(255,255,255,0.08); position: relative; z-index: 1; }
+    .plat-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .plat-dot.r { background: #E24B4A; } .plat-dot.y { background: #EF9F27; } .plat-dot.g { background: #1D9E75; }
+    .plat-url { margin-left: 10px; font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+    .plat-body { display: flex; align-items: flex-start; gap: 20px; padding: 34px; min-height: 180px; position: relative; z-index: 1; transition: opacity 0.4s ease, transform 0.4s ease; }
+    .plat-ico { flex-shrink: 0; width: 60px; height: 60px; border-radius: 15px; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.10); display: flex; align-items: center; justify-content: center; }
+    .plat-content { flex: 1; }
+    .plat-title { font-family: var(--display); font-weight: 700; font-size: 22px; color: var(--text); margin: 0 0 8px; }
+    .plat-desc { font-size: 14.5px; line-height: 1.6; color: var(--text-2); margin: 0 0 20px; max-width: 480px; }
+    .plat-stat { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 11px; background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.08); }
+    .plat-stat-num { font-family: var(--display); font-weight: 700; font-size: 20px; color: var(--text); }
+    .plat-stat-lbl { font-size: 12px; color: var(--text-3); }
+    .plat-foot { text-align: center; font-size: 14.5px; font-weight: 600; color: var(--text-2); margin: 28px 0 0; }
+    @media (max-width: 720px) { .plat-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .plat-tab { justify-content: center; padding: 12px 10px; font-size: 13px; } .plat-body { flex-direction: column; gap: 16px; padding: 24px; } .plat-ico { width: 50px; height: 50px; } .plat-glow { width: 90%; left: 5%; } }
     .th-wrap { max-width: 760px; margin: 0 auto; }
     .th-grid { display: block; margin-bottom: 16px; }
     .th-card { margin-bottom: 16px; }
@@ -578,7 +612,7 @@
         <div class="hero-text">
           <div class="hero-eyebrow"><span class="dot"></span><span>Ventelisten er åben</span></div>
           <h1 class="hero-h1">Jeres professionelle platform<br>til <span class="accent-green">pengeindsamling</span></h1>
-          <p class="hero-sub">I får hjertesager, donationer, fast støtte og indsamlingsregnskab samlet i én platform.<br><br>Platformen automatiserer arbejdet omkring jeres indsamlinger og er bygget til dansk lovgivning, så I får mere struktur, tryghed og gennemsigtighed.</p>
+          <p class="hero-sub">I får hjertesager, donationer, fast støtte og indsamlingsregnskab samlet i én platform. Platformen automatiserer arbejdet omkring jeres indsamlinger og er bygget til dansk lovgivning, så I får mere struktur, tryghed og gennemsigtighed.</p>
           <div class="hero-offer-pill"><span class="dot"></span>3 måneder gratis ved opskrivning</div>
           <div class="hero-cta-row">
             <a href="#venteliste" class="btn-primary">
@@ -658,7 +692,7 @@
       <div class="section-head reveal">
         <div class="section-label"><span class="tick"></span>Udfordringen</div>
         <h2 class="section-h2">En indsamling kræver<br class="desk-br"> mere end en god sag</h2>
-        <p class="section-sub">I har formål, som medlemmer, forældre, frivillige og lokalsamfund gerne vil bakke op om.<br><br>Når støtten samles ind offentligt, følger der også ansvar med: tilladelse, dokumentation, opfølgning og regnskab.<br><br>Det er ofte her, arbejdet bliver tungt for de få personer, der allerede løfter meget i foreningen.</p>
+        <p class="section-sub">I har formål, som medlemmer, forældre, frivillige og lokalsamfund gerne vil bakke op om. Når støtten samles ind offentligt, følger der også ansvar med: tilladelse, dokumentation, opfølgning og regnskab. Det er ofte her, arbejdet bliver tungt for de få personer, der allerede løfter meget i foreningen.</p>
       </div>
       <div class="problem-grid">
         <div class="problem-card reveal reveal-d1"><div class="problem-num">01</div><div class="problem-title">Oplysninger spredes</div><div class="problem-body">Bidrag, beskeder og formål ender let i forskellige systemer, tråde og regneark.</div></div>
@@ -673,7 +707,7 @@
       <div class="section-head reveal">
         <div class="section-label"><span class="tick"></span>Dansk lovgivning</div>
         <h2 class="section-h2">Gør tingene rigtigt fra starten</h2>
-        <p class="section-sub">Indsamlinger på hjemmesider, sociale medier og andre åbne kanaler kræver tilladelse fra Indsamlingsnævnet under Civilstyrelsen.<br><br>I får en platform, der er bygget til den virkelighed, jeres forening skal arbejde i.<br><br>Tilladelse, formål, indsamling og regnskabsgrundlag hænger sammen i ét forløb, så I ikke skal samle det hele op manuelt til sidst.</p>
+        <p class="section-sub">Indsamlinger på hjemmesider, sociale medier og andre åbne kanaler kræver tilladelse fra Indsamlingsnævnet under Civilstyrelsen. I får en platform, der er bygget til den virkelighed, jeres forening skal arbejde i. Tilladelse, formål, indsamling og regnskabsgrundlag hænger sammen i ét forløb, så I ikke skal samle det hele op manuelt til sidst.</p>
       </div>
       <div class="problem-grid">
         <div class="problem-card reveal reveal-d1"><div class="problem-num">01</div><div class="problem-title">Før I går i gang</div><div class="problem-body">Indsamlingen skal være godkendt hos Indsamlingsnævnet, før den sættes i gang.</div></div>
@@ -688,7 +722,7 @@
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Løsningen</div>
         <h2 class="section-h2">Platformen automatiserer jeres indsamling fra start til regnskab</h2>
-        <p class="section-sub">I får de centrale arbejdsgange samlet, så pengeindsamling ikke skal bygges op fra bunden hver gang.<br><br>Donationer, fast støtte, hjertesager og indsamlingsregnskab bliver en del af samme proces.<br><br>Det giver jer en mere rolig måde at arbejde på, uden at alt skal ligge i mails, manuelle lister og løse beregninger.</p>
+        <p class="section-sub">I får de centrale arbejdsgange samlet, så pengeindsamling ikke skal bygges op fra bunden hver gang. Donationer, fast støtte, hjertesager og indsamlingsregnskab bliver en del af samme proces. Det giver jer en mere rolig måde at arbejde på, uden at alt skal ligge i mails, manuelle lister og løse beregninger.</p>
       </div>
       <div class="product-grid">
         <div class="product-card reveal reveal-d1"><div class="product-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div class="product-title">Donationer</div><div class="product-desc">Tag imod engangsbidrag fra dem, der vil støtte jeres forening her og nu.</div></div>
@@ -703,9 +737,23 @@
     <div class="container">
       <div class="hjerte-2col reveal">
       <div class="section-head">
-        <div class="section-label" style="justify-content:center"><span class="tick"></span>Hjertesager</div>
-        <h2 class="section-h2">Gør jeres konkrete formål<br class="mob-br"> nemme at finde og støtte</h2>
-        <p class="section-sub">En hjertesag er et formålsbestemt indsamlingsmål, som jeres forening opretter på stotmedhjerte.dk. Det kan være stævner, udstyr, ture, aktiviteter, faciliteter eller fællesskaber, hvor I har brug for opbakning. Støtter kan se, hvad sagen handler om, hvor langt I er fra målet, og give en donation direkte til jeres forening.</p>
+        <div class="section-label"><span class="tick"></span>Hjertesager</div>
+        <h2 class="section-h2">Opret løbende indsamlinger<br class="mob-br"> som hjertesager</h2>
+        <p class="section-sub">En hjertesag er en konkret indsamling til et bestemt formål i jeres forening. I kan oprette nye hjertesager løbende og have op til 5 aktive hjertesager ad gangen. Det kan være stævner, udstyr, ture, aktiviteter, faciliteter eller fællesskaber. På stotmedhjerte.dk kan støtter finde jeres hjertesager, se hvad de støtter, og give en donation direkte til jeres forening.</p>
+        <div class="hjerte-feats">
+          <div class="hjerte-feat">
+            <span class="hjerte-feat-ico red"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+            <div><p class="hjerte-feat-t">Op til 5 aktive hjertesager</p><p class="hjerte-feat-d">Saml flere formål på samme tid, uden at de blandes sammen.</p></div>
+          </div>
+          <div class="hjerte-feat">
+            <span class="hjerte-feat-ico red"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15 6.7L3 16"/></svg></span>
+            <div><p class="hjerte-feat-t">Nye indsamlinger løbende</p><p class="hjerte-feat-d">Når én hjertesag er afsluttet, kan I oprette den næste.</p></div>
+          </div>
+          <div class="hjerte-feat">
+            <span class="hjerte-feat-ico green"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+            <div><p class="hjerte-feat-t">Direkte til jer</p><p class="hjerte-feat-d">Bidrag går direkte til jeres egen indsamlingskonto.</p></div>
+          </div>
+        </div>
       </div>
       <div class="hcard reveal">
         <div class="hcard-banner" style="background-image:url('/img/hjertesag-demo.jpg')">
@@ -722,9 +770,9 @@
             <span class="hcard-verified"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Verificeret</span>
           </div>
           <h3 class="hcard-title">Svømmestævner 2026</h3>
-          <p class="hcard-desc">Hjælp vores svømmere til stævner i hele landet, så de kan udvikle sig og repræsentere klubben.</p>
+          <p class="hcard-desc">Støt klubbens unge svømmere med deltagergebyrer, transport og fælles oplevelser til stævner i hele landet.</p>
           <div class="hcard-bar"><span class="hcard-fill" data-fill="37" style="width:0%"></span></div>
-          <p class="hcard-bar-note">Godt i gang, hver støtte tæller</p>
+          <p class="hcard-bar-note">37% af målet er nået</p>
           <div class="hcard-stats">
             <div><p class="hcard-stat-label">INDSAMLET</p><p class="hcard-stat-val hcard-anim" data-count-to="5600" data-suffix=" kr.">5.600 kr.</p></div>
             <div style="text-align:center"><p class="hcard-stat-label">MÅL</p><p class="hcard-stat-val hcard-anim" data-count-to="15000" data-suffix=" kr.">15.000 kr.</p></div>
@@ -733,6 +781,40 @@
           <div class="hcard-cta"><svg viewBox="0 0 24 24" width="16" height="16" fill="#fff" stroke="none"><path d="M12 21.23l-7.78-7.78a5.5 5.5 0 017.78-7.78L12 5.67l.06-.06a5.5 5.5 0 017.78 7.78z"/></svg>Støt nu<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </div>
       </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-platform">
+    <div class="container">
+      <div class="section-head center reveal">
+        <div class="section-label" style="justify-content:center"><span class="tick"></span>Platformen</div>
+        <h2 class="section-h2">Fire centrale funktioner samlet ét sted</h2>
+        <p class="section-sub">Hver funktion har sin egen rolle. Klik jer rundt og se, hvad platformen samler for jeres forening.</p>
+      </div>
+      <div class="plat-wrap reveal">
+        <div class="plat-tabs" role="tablist">
+          <button class="plat-tab active" data-pt="0"><span class="plat-tab-ico" style="color:#A78BFA"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="none"><path d="M12 21.23l-7.78-7.78a5.5 5.5 0 017.78-7.78L12 5.67l.06-.06a5.5 5.5 0 017.78 7.78z"/></svg></span>Donationer</button>
+          <button class="plat-tab" data-pt="1"><span class="plat-tab-ico" style="color:#E0193F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115-6.7L21 8M3 22v-6h6M21 12a9 9 0 01-15 6.7L3 16"/></svg></span>Fast støtte</button>
+          <button class="plat-tab" data-pt="2"><span class="plat-tab-ico" style="color:#5DCAA5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></span>Hjertesager</button>
+          <button class="plat-tab" data-pt="3"><span class="plat-tab-ico" style="color:#85B7EB"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><polyline points="14 2 14 8 20 8"/></svg></span>Indsamlingsregnskab</button>
+        </div>
+        <div class="plat-panel">
+          <div class="plat-glow"></div>
+          <div class="plat-bar">
+            <span class="plat-dot r"></span><span class="plat-dot y"></span><span class="plat-dot g"></span>
+            <span class="plat-url">app.stotmedhjerte.dk</span>
+          </div>
+          <div class="plat-body">
+            <div class="plat-ico" style="color:#A78BFA"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" stroke="none"><path d="M12 21.23l-7.78-7.78a5.5 5.5 0 017.78-7.78L12 5.67l.06-.06a5.5 5.5 0 017.78 7.78z"/></svg></div>
+            <div class="plat-content">
+              <h3 class="plat-title">Donationer</h3>
+              <p class="plat-desc">Tag imod engangsbidrag fra dem, der vil støtte jeres forening her og nu. Bidragene går direkte til jeres egen indsamlingskonto.</p>
+              <div class="plat-stat"><span class="plat-stat-num">8.450 kr.</span><span class="plat-stat-lbl">i engangsbidrag denne måned</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="plat-foot">Én platform. Fire funktioner. Ét samlet støttearbejde.</p>
       </div>
     </div>
   </section>
@@ -1558,6 +1640,37 @@
         else { item.classList.add('open'); ans.style.maxHeight = ans.scrollHeight + 'px'; }
       });
     });
+    (function(){
+      var wrap = document.querySelector('.plat-wrap');
+      if (!wrap) return;
+      var tabs = wrap.querySelectorAll('.plat-tab');
+      var glow = wrap.querySelector('.plat-glow');
+      var body = wrap.querySelector('.plat-body');
+      var ico = wrap.querySelector('.plat-ico');
+      var title = wrap.querySelector('.plat-title');
+      var desc = wrap.querySelector('.plat-desc');
+      var statNum = wrap.querySelector('.plat-stat-num');
+      var statLbl = wrap.querySelector('.plat-stat-lbl');
+      var data = [
+        { color:'#A78BFA', glow:'rgba(167,139,250,0.18)', ico:'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" stroke="none"><path d="M12 21.23l-7.78-7.78a5.5 5.5 0 017.78-7.78L12 5.67l.06-.06a5.5 5.5 0 017.78 7.78z"/></svg>', title:'Donationer', desc:'Tag imod engangsbidrag fra dem, der vil støtte jeres forening her og nu. Bidragene går direkte til jeres egen indsamlingskonto.', num:'8.450 kr.', lbl:'i engangsbidrag denne måned' },
+        { color:'#E0193F', glow:'rgba(224,25,63,0.16)', ico:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115-6.7L21 8M3 22v-6h6M21 12a9 9 0 01-15 6.7L3 16"/></svg>', title:'Fast støtte', desc:'Lad støtter bakke jer op med et fast månedligt bidrag. I får et stabilt grundlag at planlægge ud fra, måned efter måned.', num:'42 støtter', lbl:'giver fast hver måned' },
+        { color:'#5DCAA5', glow:'rgba(94,202,165,0.16)', ico:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>', title:'Hjertesager', desc:'Opret konkrete indsamlinger til bestemte formål. Støtter finder dem på stotmedhjerte.dk og kan se præcis, hvad de støtter.', num:'op til 5', lbl:'aktive hjertesager ad gangen' },
+        { color:'#85B7EB', glow:'rgba(133,183,235,0.16)', ico:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><polyline points="14 2 14 8 20 8"/></svg>', title:'Indsamlingsregnskab', desc:'Få regnskabsgrundlaget samlet automatisk, mens indsamlingen kører. Klar til revisor og afsluttende behandling, når I er færdige.', num:'auto', lbl:'dokumentation samlet løbende' }
+      ];
+      function select(i){
+        var d = data[i];
+        tabs.forEach(function(t, j){ if (j === i) t.classList.add('active'); else t.classList.remove('active'); });
+        body.style.opacity = '0'; body.style.transform = 'translateY(6px)';
+        setTimeout(function(){
+          ico.style.color = d.color; ico.innerHTML = d.ico;
+          title.textContent = d.title; desc.textContent = d.desc;
+          statNum.textContent = d.num; statLbl.textContent = d.lbl;
+          glow.style.background = 'radial-gradient(circle, ' + d.glow + ', transparent 70%)';
+          body.style.opacity = '1'; body.style.transform = 'translateY(0)';
+        }, 60);
+      }
+      tabs.forEach(function(t, i){ t.addEventListener('click', function(){ select(i); }); });
+    })();
   </script>
 </body>
 </html>
