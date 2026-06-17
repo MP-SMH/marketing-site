@@ -252,8 +252,7 @@
     .problem-title { font-family: var(--display); font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: -0.015em; line-height: 1.3; margin-bottom: 11px; }
     .problem-body { font-size: 14.5px; color: var(--text-2); line-height: 1.6; }
     .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 900px; margin: 0 auto; }
-    .product-card { padding: 30px 28px; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 20px; transition: transform 0.3s, border-color 0.3s; display: flex; flex-direction: column; }
-    .product-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.16); }
+    .product-card { padding: 30px 28px; background: linear-gradient(150deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)); border: 1px solid var(--hairline); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.18); display: flex; flex-direction: column; }
     .product-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
     .product-icon svg { width: 21px; height: 21px; }
     .product-icon.red { background: rgba(224,25,63,0.12); border: 1px solid rgba(224,25,63,0.26); color: var(--red-light); }
@@ -799,7 +798,7 @@
     </div>
   </section>
 
-  <section class="section section-platform">
+  <section class="section alt section-platform">
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Platformen</div>
@@ -1019,21 +1018,7 @@
       </div>
     </div>
   </section>
-  <section class="section">
-    <div class="container">
-      <div class="section-head center reveal">
-        <div class="section-label" style="justify-content:center"><span class="tick"></span>Regler og dokumentation</div>
-        <h2 class="section-h2">Få bedre styr på kvitteringer, rapporter og regnskab</h2>
-        <p class="section-sub">Når I samler penge ind, skal der være styr på dokumentationen. StøtMedHjerte hjælper jer med at samle oplysningerne, så det bliver lettere at lave kvitteringer, rapporter og indsamlingsregnskab.</p>
-      </div>
-      <div class="law-grid-3">
-        <div class="law-card reveal reveal-d1"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg></div><div><h3>Før I går i gang</h3><p>Få bedre overblik over, hvad I skal have styr på.</p></div></div>
-        <div class="law-card reveal reveal-d2"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></div><div><h3>Under indsamlingen</h3><p>Følg bidrag og støtter løbende.</p></div></div>
-        <div class="law-card reveal reveal-d3"><div class="law-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><div><h3>Når der skal laves regnskab</h3><p>Saml oplysningerne, så rapporter og regnskab bliver nemmere at håndtere.</p></div></div>
-      </div>
-    </div>
-  </section>
-  <section class="section alt" id="venteliste">
+  <section class="section" id="venteliste">
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Skriv jer op</div>
@@ -1117,7 +1102,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section alt">
     <div class="container">
       <div class="section-head center reveal">
         <div class="section-label" style="justify-content:center"><span class="tick"></span>Ofte stillede spørgsmål</div>
