@@ -1,6 +1,6 @@
-# Marketing Starter-Prompt (KANONISK) — Session 49 start
+# Marketing Starter-Prompt (KANONISK) — Session 50 start
 
-Sidst opdateret: 17. juni 2026 (S48 close)
+Sidst opdateret: 18. juni 2026 (S49 close). Seneste session-log: docs/sessions/2026-06-18-session-49-dag-nat-tema-fundament.md. HEAD: 156ae09.
 Spor: Marketing (marketing-site repo, venteliste-landingsside, stotmedhjerte.dk)
 KUN marketing. App-arbejde (smh-app/smh-api) hoerer IKKE til her.
 Opdateres ved hver session-end (se docs/MARKETING-SESSION-END-SOP.md).
@@ -52,19 +52,22 @@ hukommelse eller session-logs. Verificer ALT, ogsaa det der staar her.
 Ingen fast bunden opgave. Aktive pending-spor (Mario vaelger):
 
 ### A. Marketing-dokumentation samling (kortlagt, klar)
-Flyt marketing-docs fra smh-app ind i marketing-site/docs/. Filer:
-smh-app/docs/BACKLOG-UPDATE-P2-MARKETING.md, HANDOVER-P2-MARKETING.md,
-MVP-PROGRESS-UPDATE-P2-MARKETING.md, docs/marketing/ (BRAND-TOKENS, FEATURE-MAPPING,
-IMPLEMENTATION-BRIEF-10-OUT-OF-10, PLATFORM-DEEP-DIVE, ROADMAP, wireframes/),
-docs/strategy/landing-venteliste-koereplan-s34.md. TJEK referencer i smh-app FOER
-flytning (grep filnavne). git mv for at bevare historik. Ogsaa: fjern marketing-dele
-fra smh-app STARTER-PROMPT saa app og marketing er helt adskilt.
+STATUS S49: 23 docs ER kopieret til marketing-site/docs/ (commit 78d6c0c). MANGLER:
+fjernelse fra smh-app (intet slettet endnu). Goeres paa separat branch fra smh-app MAIN
+(ikke feat-branchen). Strategy-filen findes KUN paa feat-branchen. Migration 20260608
+peger paa strategy-filen - checksum-laast, roeres IKKE. Fjern stadig marketing-dele fra
+smh-app STARTER-PROMPT.
 
-### B. Dag/nat-tema-funktion (vurderet, ikke bygget)
-Komplet lys version til dagtimerne + auto-skift til moerk om aftenen. Logik nem
-(~15 linjer JS, data-theme paa html). STOR del: inline hex-farver mange steder
-responderer IKKE auto. Trin 1 = farve-refactor (flyt inline til CSS-variabler),
-saa lyst saet, saa test hver sektion begge temaer. Eget spor over flere sessioner.
+### B. Dag/nat-tema-funktion (FASE 0-2 faerdig, mangler finish)
+STATUS S49: FASE 0-2 FAERDIG (commit 156ae09). Alle farver refactoreret til CSS-variabler
+i :root (glas/kanter/tekst/flader + accent-kanal-variabler --c-roed/--c-groen). Moerkt tema
+bevist PIXEL-IDENTISK hele vejen (Playwright i ~/Desktop/smh-visual-baseline). Lyst
+tema-fundament bygget: [data-theme=light] blok med --base #FBFCFE, moerkeblaa tekst,
+sort-alpha glas, accenter #15A04A/#C1122E. IKKE aktiveret endnu (ingen toggle, intet deployet).
+MANGLER FINISH (se session-49-log for fuld liste): 1) bloede skygger (sort-alpha ikke
+tema-bar endnu - vigtigst), 2) bloedere sektionsovergange (systematisk), 3) kontrast-tjek
+hele siden, 4) parkerede elementer (badge/avatar/dropdown-pil/lyse accent-hex), 5) html-bg
++ meta theme-color via JS, 6) premium toggle + auto-skift (FASE 3), 7) dashboard bevares urort.
 
 ### C. Lav prio
 - SEO: Mario trykker "Valider rettelse" i Google Search Console
