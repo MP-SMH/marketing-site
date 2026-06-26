@@ -32,3 +32,10 @@ dist-ssr
 
 # Local Netlify folder
 .netlify
+
+# === S59: branch-rod (versions-iterationer + backups, untracked) ===
+*.backup
+*.backup-*
+*.v[0-9].jsx
+*.v[0-9][0-9].jsx
+.backups/
