@@ -18,7 +18,7 @@ function formatDKK(n) {
   return n.toLocaleString('da-DK');
 }
 
-const PRESET_AMOUNTS = [1000, 2000, 3000, 5000, 7500, 10000];
+const PRESET_AMOUNTS = [50, 100, 200, 300, 500, 1000];
 const SUGGESTED_INDEX = 2;
 const MIN_AMOUNT = 100;
 
@@ -27,7 +27,6 @@ export default function DonationPage({ campaign, onBack }) {
   const [customAmount, setCustomAmount] = React.useState('');
   const [isAnonymous, setIsAnonymous] = React.useState(false);
   const [paymentMethod, setPaymentMethod] = React.useState(null);
-  const [tipPercent, setTipPercent] = React.useState(20);
   const [amountError, setAmountError] = React.useState('');
   const [showNudge, setShowNudge] = React.useState(true);
 
@@ -41,8 +40,6 @@ export default function DonationPage({ campaign, onBack }) {
 
   const rawAmount = selectedAmount || (customAmount ? Number(customAmount) : 0);
   const activeAmount = rawAmount >= MIN_AMOUNT ? rawAmount : 0;
-  const tipAmount = activeAmount ? Math.round(activeAmount * tipPercent / 100) : 0;
-  const donationToAssociation = activeAmount - tipAmount;
   const totalAmount = activeAmount;
 
   const images = campaign.images && campaign.images.length > 0
@@ -235,13 +232,6 @@ export default function DonationPage({ campaign, onBack }) {
               <span>⚠</span> {amountError}
             </div>
           )}
-          {activeAmount > 0 && tipPercent > 0 && (
-            <div style={{
-              textAlign: 'right', fontSize: 13, color: '#6B7280', marginTop: 6,
-            }}>
-              Heraf {formatDKK(tipAmount)} kr. ({tipPercent}%) til StøtMedHjerte
-            </div>
-          )}
 
           {/* Recent donation nudge */}
           {showNudge && (
@@ -269,7 +259,7 @@ export default function DonationPage({ campaign, onBack }) {
         }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>Om din støtte</div>
           <p style={{ fontSize: 13, color: '#6B7280', margin: 0, lineHeight: 1.6 }}>
-            80% af dit beløb går direkte til foreningen. 20% går til at drive og vedligeholde StøtMedHjerte platformen, så den forbliver gratis for alle foreninger.
+            Hele dit bidrag går direkte til foreningens egen MobilePay-konto. StøtMedHjerte håndterer ikke donorpenge. Platformen gør det nemt, sikkert og overskueligt at støtte foreningen direkte.
           </p>
         </div>
 
@@ -329,19 +319,9 @@ export default function DonationPage({ campaign, onBack }) {
             border: '1px solid #EBEBEB', marginBottom: 24,
           }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 16 }}>Din betaling</div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontSize: 14, color: '#6B7280' }}>Til foreningen</span>
-              <span style={{ fontSize: 14, color: '#111827', fontWeight: 600 }}>kr {formatDKK(donationToAssociation)}</span>
-            </div>
-            {tipPercent > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontSize: 14, color: '#6B7280' }}>Til StøtMedHjerte ({tipPercent}%)</span>
-                <span style={{ fontSize: 14, color: '#111827', fontWeight: 600 }}>kr {formatDKK(tipAmount)}</span>
-              </div>
-            )}
-            <div style={{ borderTop: '1px solid #F3F4F6', marginTop: 8, paddingTop: 12, display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>Total</span>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>kr {formatDKK(totalAmount)}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>Til foreningen</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>kr {formatDKK(activeAmount)}</span>
             </div>
           </div>
         )}
@@ -387,9 +367,9 @@ export default function DonationPage({ campaign, onBack }) {
         }}>
           <ShieldCheck size={24} color="#15803d" style={{ flexShrink: 0, marginTop: 2 }} />
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 4 }}>StøtMedHjerte beskytter din donation</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Tryg betaling via MobilePay</div>
             <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.6 }}>
-              Vi garanterer fuld refusion i op til et år i det sjældne tilfælde, at der opstår problemer.
+              Din betaling gennemføres sikkert via MobilePay, og bidraget går direkte til foreningens egen konto. Foreninger på StøtMedHjerte CVR-valideres, så du kan støtte med større tryghed.
             </div>
           </div>
         </div>

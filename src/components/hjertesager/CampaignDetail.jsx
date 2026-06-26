@@ -691,19 +691,19 @@ export default function CampaignDetail({ campaign, onBack, onDonate }) {
             {[
               {
                 label: 'Nemt',
-                desc: 'Køb merchandise og støt automatisk',
+                desc: 'Støt med MobilePay på få sekunder',
                 iconBg: 'rgba(255,255,255,0.08)',
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>,
               },
               {
                 label: 'Sikkert',
-                desc: 'Alle transaktioner er krypterede og sikre',
+                desc: 'Betalinger gennemføres sikkert via MobilePay',
                 iconBg: 'rgba(255,255,255,0.08)',
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>,
               },
               {
                 label: 'Verificeret',
-                desc: 'Alle foreninger er MitID og CVR-validerede',
+                desc: 'Foreninger er CVR-validerede',
                 iconBg: 'rgba(255,255,255,0.08)',
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>,
               },
