@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ShieldCheck, ExternalLink, Heart, ChevronLeft, ChevronRight, Link as LinkIcon, Facebook, Linkedin, Star, X, ShoppingBag, Share2, Copy } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Heart, ChevronLeft, ChevronRight, Link as LinkIcon, Facebook, Linkedin, X, Share2, Copy } from 'lucide-react';
 
 function useCountUp(target, duration = 1200) {
   const [value, setValue] = React.useState(0);
@@ -135,25 +135,25 @@ export default function CampaignDetail({ campaign, onBack, onDonate }) {
   ];
 
   const supporters = [
-    { name: "Mette J.", amount: 100, time: "12 min. siden", type: "recent", source: "merchandise" },
+    { name: "Mette J.", amount: 100, time: "12 min. siden", type: "recent", source: "donation" },
     { name: "Anonym", amount: 200, time: "1 time siden", type: "top", source: "donation" },
-    { name: "Lars K.", amount: 100, time: "3 timer siden", type: "recent", source: "merchandise" },
+    { name: "Lars K.", amount: 100, time: "3 timer siden", type: "recent", source: "donation" },
     { name: "Sofie M.", amount: 500, time: "1 dag siden", type: "top", source: "donation" },
   ];
 
   const allSupporters = [
-    { name: "Mette J.", amount: 100, time: "12 min. siden", type: "recent", source: "merchandise" },
+    { name: "Mette J.", amount: 100, time: "12 min. siden", type: "recent", source: "donation" },
     { name: "Anonym", amount: 200, time: "1 time siden", type: "top", source: "donation" },
-    { name: "Lars K.", amount: 100, time: "3 timer siden", type: "recent", source: "merchandise" },
+    { name: "Lars K.", amount: 100, time: "3 timer siden", type: "recent", source: "donation" },
     { name: "Sofie M.", amount: 500, time: "1 dag siden", type: "top", source: "donation" },
-    { name: "Thomas B.", amount: 100, time: "2 dage siden", type: "recent", source: "merchandise" },
+    { name: "Thomas B.", amount: 100, time: "2 dage siden", type: "recent", source: "donation" },
     { name: "Anne H.", amount: 300, time: "3 dage siden", type: "top", source: "donation" },
-    { name: "Anonym", amount: 150, time: "4 dage siden", type: "recent", source: "merchandise" },
-    { name: "Peter S.", amount: 100, time: "5 dage siden", type: "recent", source: "merchandise" },
+    { name: "Anonym", amount: 150, time: "4 dage siden", type: "recent", source: "donation" },
+    { name: "Peter S.", amount: 100, time: "5 dage siden", type: "recent", source: "donation" },
     { name: "Camilla R.", amount: 250, time: "6 dage siden", type: "top", source: "donation" },
-    { name: "Jesper M.", amount: 100, time: "1 uge siden", type: "recent", source: "merchandise" },
+    { name: "Jesper M.", amount: 100, time: "1 uge siden", type: "recent", source: "donation" },
     { name: "Anonym", amount: 100, time: "1 uge siden", type: "recent", source: "donation" },
-    { name: "Karen L.", amount: 400, time: "2 uger siden", type: "top", source: "merchandise" },
+    { name: "Karen L.", amount: 400, time: "2 uger siden", type: "top", source: "donation" },
   ];
 
   const modalSupporters = modalTab === 'top'
@@ -162,50 +162,6 @@ export default function CampaignDetail({ campaign, onBack, onDonate }) {
 
   const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % images.length);
   const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
-
-  const circumference = 2 * Math.PI * 33;
-
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isAndroid = /Android/.test(navigator.userAgent);
-
-  const PaymentIcons = ({ size = 'normal' }) => {
-    const h = size === 'small' ? 16 : 20;
-    return (
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: size === 'small' ? 6 : 8, marginLeft: size === 'small' ? 4 : 8 }}>
-        <span style={{ height: h, display: 'inline-flex', alignItems: 'center', opacity: 0.9 }}>
-          <svg height={h} viewBox="0 0 60 38" fill="none">
-            <rect width="60" height="38" rx="6" fill="#5A78FF"/>
-            <text x="30" y="23" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="700" fontFamily="system-ui">MobilePay</text>
-          </svg>
-        </span>
-        {isIOS && (
-          <span style={{ height: h, display: 'inline-flex', alignItems: 'center', opacity: 0.9 }}>
-            <svg height={h} viewBox="0 0 50 38" fill="none">
-              <rect width="50" height="38" rx="6" fill="#000"/>
-              <text x="25" y="23" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="600" fontFamily="system-ui"> Pay</text>
-            </svg>
-          </span>
-        )}
-        {isAndroid && (
-          <span style={{ height: h, display: 'inline-flex', alignItems: 'center', opacity: 0.9 }}>
-            <svg height={h} viewBox="0 0 50 38" fill="none">
-              <rect width="50" height="38" rx="6" fill="#fff" stroke="#DADCE0"/>
-              <text x="25" y="23" textAnchor="middle" fill="#3C4043" fontSize="10" fontWeight="600" fontFamily="system-ui">G Pay</text>
-            </svg>
-          </span>
-        )}
-        {!isIOS && !isAndroid && (
-          <span style={{ height: h, display: 'inline-flex', alignItems: 'center', opacity: 0.9 }}>
-            <svg height={h} viewBox="0 0 38 38" fill="none">
-              <rect width="38" height="38" rx="6" fill="#F3F4F6"/>
-              <rect x="9" y="10" width="20" height="14" rx="2.5" stroke="#6B7280" strokeWidth="1.5" fill="none"/>
-              <rect x="9" y="14" width="20" height="3" fill="#6B7280"/>
-            </svg>
-          </span>
-        )}
-      </span>
-    );
-  };
 
   return (
     <div
@@ -590,64 +546,6 @@ export default function CampaignDetail({ campaign, onBack, onDonate }) {
                 <Heart size={16} fill="#fff" /> Støt nu
               </button>
 
-              <div style={{
-                fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
-                letterSpacing: '1.2px', color: '#9CA3AF', marginBottom: 8,
-              }}>
-                Eller køb supportertøj
-              </div>
-
-              {/* 2. Foreningens supporterkollektion */}
-              <button
-                className="hjerte-support-option"
-                style={{
-                  width: '100%', border: '1px solid #EBEBEB', borderRadius: 12,
-                  padding: '10px 14px', marginBottom: 6, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  background: '#fff', transition: 'all 0.2s', textAlign: 'left',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#E0193F'; e.currentTarget.style.background = 'rgba(224,25,63,0.03)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#EBEBEB'; e.currentTarget.style.background = '#fff'; }}
-              >
-                <div style={{
-                  width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                  background: 'linear-gradient(135deg, #16a34a, #22C55E)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Heart size={16} color="#fff" />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{campaign.association} kollektion</div>
-                  <div style={{ fontSize: 11, color: '#6B7280' }}>Vis din støtte med foreningens tøj</div>
-                </div>
-                <ExternalLink size={13} color="#9CA3AF" />
-              </button>
-
-              {/* 3. StøtMedHjerte kollektion */}
-              <button
-                className="hjerte-support-option"
-                style={{
-                  width: '100%', border: '1px solid #EBEBEB', borderRadius: 12,
-                  padding: '10px 14px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  background: '#fff', transition: 'all 0.2s', textAlign: 'left',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#E0193F'; e.currentTarget.style.background = 'rgba(224,25,63,0.03)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#EBEBEB'; e.currentTarget.style.background = '#fff'; }}
-              >
-                <div style={{
-                  width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                  background: 'linear-gradient(135deg, #111827, #374151)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <ShoppingBag size={16} color="#fff" />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>StøtMedHjerte kollektion</div>
-                  <div style={{ fontSize: 11, color: '#6B7280' }}>Rep vores branding</div>
-                </div>
-                <ExternalLink size={13} color="#9CA3AF" />
-              </button>
             </div>
 
             {/* Divider */}
@@ -914,14 +812,6 @@ export default function CampaignDetail({ campaign, onBack, onDonate }) {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>{s.name}</span>
-                        {s.source === 'merchandise' && (
-                          <span style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 3,
-                            background: '#F0FDF4', color: '#15803d',
-                            fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 100,
-                            border: '1px solid #BBF7D0', textTransform: 'uppercase', letterSpacing: '0.03em',
-                          }}>Merchandise</span>
-                        )}
                         {s.source === 'donation' && (
                           <span style={{
                             display: 'inline-flex', alignItems: 'center', gap: 3,
@@ -992,18 +882,6 @@ export default function CampaignDetail({ campaign, onBack, onDonate }) {
                 onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(224,25,63,0.22)'; }}
               >
                 <Heart size={14} fill="#fff" /> Støt nu
-              </button>
-              <button style={{
-                flex: 1, height: 44, borderRadius: 12,
-                background: '#fff', color: '#0F172A', border: '1px solid #EBEBEB',
-                fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                transition: 'background 0.15s',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#FAFAFA'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
-              >
-                <ShoppingBag size={14} /> Kollektioner <ExternalLink size={12} />
               </button>
             </div>
           </div>

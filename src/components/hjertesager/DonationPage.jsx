@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Heart, ShieldCheck, Lock, Check, CreditCard, X } from 'lucide-react';
+import { ArrowLeft, Heart, ShieldCheck, Lock, Check, X } from 'lucide-react';
 
 const CATEGORY_COLORS = {
   'Fodbold': '#16a34a',
@@ -28,10 +28,6 @@ export default function DonationPage({ campaign, onBack }) {
   const [isAnonymous, setIsAnonymous] = React.useState(false);
   const [paymentMethod, setPaymentMethod] = React.useState(null);
   const [tipPercent, setTipPercent] = React.useState(20);
-  const [cardNumber, setCardNumber] = React.useState('');
-  const [cardExpiry, setCardExpiry] = React.useState('');
-  const [cardCvc, setCardCvc] = React.useState('');
-  const [cardName, setCardName] = React.useState('');
   const [amountError, setAmountError] = React.useState('');
   const [showNudge, setShowNudge] = React.useState(true);
 
@@ -53,34 +49,10 @@ export default function DonationPage({ campaign, onBack }) {
     ? campaign.images
     : [campaign.image].filter(Boolean);
 
-  const handleCustomAmount = (val) => {
-    setCustomAmount(val);
-    setSelectedAmount(null);
-    if (val && Number(val) < MIN_AMOUNT && Number(val) > 0) {
-      setAmountError('Mindstebeløb er ' + formatDKK(MIN_AMOUNT) + ' kr.');
-    } else {
-      setAmountError('');
-    }
-  };
-
-  const formatCardNumber = (val) => {
-    const digits = val.replace(/\D/g, '').slice(0, 16);
-    return digits.replace(/(\d{4})(?=\d)/g, '$1 ');
-  };
-
-  const formatExpiry = (val) => {
-    const digits = val.replace(/\D/g, '').slice(0, 4);
-    if (digits.length > 2) return digits.slice(0, 2) + '/' + digits.slice(2);
-    return digits;
-  };
-
   const FONT = "system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Ubuntu', 'Cantarell', 'Noto Sans', sans-serif";
 
   const paymentColors = {
     mobilepay: { border: '#5A78FF', bg: '#F0F3FF', check: '#5A78FF' },
-    googlepay: { border: '#4285F4', bg: '#EEF3FF', check: '#4285F4' },
-    applepay: { border: '#111827', bg: '#F3F4F6', check: '#111827' },
-    card: { border: '#111827', bg: '#F3F4F6', check: '#111827' },
   };
 
   return (
@@ -325,117 +297,7 @@ export default function DonationPage({ campaign, onBack }) {
               {paymentMethod === 'mobilepay' && <Check size={18} color={paymentColors.mobilepay.check} style={{ marginLeft: 'auto' }} />}
             </button>
 
-            {/* Google Pay */}
-            <button type="button" onClick={() => setPaymentMethod('googlepay')} style={{
-              display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
-              borderRadius: 12, border: '1.5px solid',
-              borderColor: paymentMethod === 'googlepay' ? paymentColors.googlepay.border : '#EBEBEB',
-              background: paymentMethod === 'googlepay' ? paymentColors.googlepay.bg : '#fff',
-              cursor: 'pointer', transition: 'all 0.15s', width: '100%',
-            }}>
-              <svg width="44" height="30" viewBox="0 0 44 30">
-                <rect width="44" height="30" rx="6" fill="#fff" stroke="#DADCE0"/>
-                <text x="10" y="19" fill="#4285F4" fontSize="10" fontWeight="700" fontFamily="system-ui">G</text>
-                <text x="20" y="19" fill="#EA4335" fontSize="9" fontWeight="600" fontFamily="system-ui">P</text>
-                <text x="27" y="19" fill="#FBBC05" fontSize="9" fontWeight="600" fontFamily="system-ui">a</text>
-                <text x="33" y="19" fill="#4285F4" fontSize="9" fontWeight="600" fontFamily="system-ui">y</text>
-              </svg>
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>Google Pay</span>
-              {paymentMethod === 'googlepay' && <Check size={18} color={paymentColors.googlepay.check} style={{ marginLeft: 'auto' }} />}
-            </button>
-
-            {/* Apple Pay */}
-            <button type="button" onClick={() => setPaymentMethod('applepay')} style={{
-              display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
-              borderRadius: 12, border: '1.5px solid',
-              borderColor: paymentMethod === 'applepay' ? paymentColors.applepay.border : '#EBEBEB',
-              background: paymentMethod === 'applepay' ? paymentColors.applepay.bg : '#fff',
-              cursor: 'pointer', transition: 'all 0.15s', width: '100%',
-            }}>
-              <svg width="44" height="30" viewBox="0 0 44 30">
-                <rect width="44" height="30" rx="6" fill="#000"/>
-                <text x="22" y="19" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="600" fontFamily="system-ui"> Pay</text>
-              </svg>
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>Apple Pay</span>
-              {paymentMethod === 'applepay' && <Check size={18} color={paymentColors.applepay.check} style={{ marginLeft: 'auto' }} />}
-            </button>
-
-            {/* Card */}
-            <button type="button" onClick={() => setPaymentMethod('card')} style={{
-              display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
-              borderRadius: 12, border: '1.5px solid',
-              borderColor: paymentMethod === 'card' ? paymentColors.card.border : '#EBEBEB',
-              background: paymentMethod === 'card' ? paymentColors.card.bg : '#fff',
-              cursor: 'pointer', transition: 'all 0.15s', width: '100%',
-            }}>
-              <div style={{
-                width: 44, height: 30, borderRadius: 6, background: paymentMethod === 'card' ? '#111827' : '#F3F4F6',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                transition: 'all 0.15s',
-              }}>
-                <CreditCard size={18} color={paymentMethod === 'card' ? '#fff' : '#6B7280'} />
-              </div>
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>Betalingskort</span>
-              {paymentMethod === 'card' && <Check size={18} color={paymentColors.card.check} style={{ marginLeft: 'auto' }} />}
-            </button>
           </div>
-
-          {/* Card input fields */}
-          {paymentMethod === 'card' && (
-            <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <input
-                placeholder="Navn på kort"
-                value={cardName}
-                onChange={e => setCardName(e.target.value)}
-                style={{
-                  height: 48, borderRadius: 10, border: '1.5px solid #EBEBEB',
-                  padding: '0 14px', fontSize: 14, fontFamily: FONT,
-                  outline: 'none', width: '100%', boxSizing: 'border-box',
-                }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#111827'; }}
-                onBlur={e => { e.currentTarget.style.borderColor = '#EBEBEB'; }}
-              />
-              <input
-                placeholder="Kortnummer"
-                value={cardNumber}
-                onChange={e => setCardNumber(formatCardNumber(e.target.value))}
-                style={{
-                  height: 48, borderRadius: 10, border: '1.5px solid #EBEBEB',
-                  padding: '0 14px', fontSize: 14, fontFamily: FONT,
-                  outline: 'none', width: '100%', boxSizing: 'border-box',
-                  letterSpacing: '0.05em',
-                }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#111827'; }}
-                onBlur={e => { e.currentTarget.style.borderColor = '#EBEBEB'; }}
-              />
-              <div style={{ display: 'flex', gap: 10 }}>
-                <input
-                  placeholder="MM/ÅÅ"
-                  value={cardExpiry}
-                  onChange={e => setCardExpiry(formatExpiry(e.target.value))}
-                  style={{
-                    flex: 1, height: 48, borderRadius: 10, border: '1.5px solid #EBEBEB',
-                    padding: '0 14px', fontSize: 14, fontFamily: FONT,
-                    outline: 'none', boxSizing: 'border-box',
-                  }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#111827'; }}
-                  onBlur={e => { e.currentTarget.style.borderColor = '#EBEBEB'; }}
-                />
-                <input
-                  placeholder="CVC"
-                  value={cardCvc}
-                  onChange={e => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  style={{
-                    width: 100, height: 48, borderRadius: 10, border: '1.5px solid #EBEBEB',
-                    padding: '0 14px', fontSize: 14, fontFamily: FONT,
-                    outline: 'none', boxSizing: 'border-box',
-                  }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#111827'; }}
-                  onBlur={e => { e.currentTarget.style.borderColor = '#EBEBEB'; }}
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Anonymous */}
