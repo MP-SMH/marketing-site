@@ -62,7 +62,7 @@ function DashboardMockup() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <div>
               <div style={{ fontSize: 8, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Dashboard</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Hillerød Svømmeklub</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Søværk Svømmeklub</div>
             </div>
             <div style={{
               width: 24, height: 24, borderRadius: '50%', background: '#F0FDF4',

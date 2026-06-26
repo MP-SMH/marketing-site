@@ -13,7 +13,7 @@ const testimonials = [
     quote: 'Endelig en platform der forstår danske foreninger. Og den er gratis at bruge!',
     name: 'Lars K.',
     title: 'Kassér',
-    club: 'Hillerød Svømmeklub',
+    club: 'Søværk Svømmeklub',
   },
   {
     quote: 'Vi har aldrig haft så nemt ved at samle penge ind. MobilePay-donationer er en game changer.',
@@ -42,7 +42,7 @@ const testimonials = [
 ];
 
 const donationFeed = [
-  { text: 'Sofie M. donerede 500 kr. til Hillerød Svømmeklub', time: '3 min. siden' },
+  { text: 'Sofie M. donerede 500 kr. til Søværk Svømmeklub', time: '3 min. siden' },
   { text: 'Thomas B. blev fast støtter hos Big Rock Academy', time: '12 min. siden' },
   { text: 'Anne H. købte merchandise for Ålholm Fodbold', time: '28 min. siden' },
 ];

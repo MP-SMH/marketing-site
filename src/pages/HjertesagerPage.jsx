@@ -13,7 +13,7 @@ const CAMPAIGNS = [
   {
     id: 1,
     title: 'Støt børnenes sport',
-    association: 'Heartland United',
+    association: 'Nordbro Boldklub',
     type: 'Fodbold',
     city: 'Hillerød',
     zip: '3400',
@@ -26,14 +26,14 @@ const CAMPAIGNS = [
       'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800',
       'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800',
     ],
-    desc: 'Heartland United samler ind via StøtMedHjerte for at give vores børn mulighed for at deltage i fodboldrejser, turneringer og stævner i hele Danmark. Vores klub har eksisteret i over 15 år og har altid prioriteret fællesskabet og det sociale sammenhold lige så højt som de sportslige resultater. Hvert år sender vi hold til ungdomsturneringer i både ind- og udland, men de stigende transportomkostninger og deltagergebyrer gør det sværere for mange familier at følge med. Med denne hjertesag ønsker vi at sikre, at ingen børn holdes ude af holdet på grund af økonomi. Pengene går direkte til rejseudgifter, overnatning og turneringsgebyrer, så alle børn får chancen for at opleve glæden ved at spille bold sammen med deres holdkammerater.',
+    desc: 'Nordbro Boldklub samler ind via StøtMedHjerte for at give vores børn mulighed for at deltage i fodboldrejser, turneringer og stævner i hele Danmark. Vores klub har eksisteret i over 15 år og har altid prioriteret fællesskabet og det sociale sammenhold lige så højt som de sportslige resultater. Hvert år sender vi hold til ungdomsturneringer i både ind- og udland, men de stigende transportomkostninger og deltagergebyrer gør det sværere for mange familier at følge med. Med denne hjertesag ønsker vi at sikre, at ingen børn holdes ude af holdet på grund af økonomi. Pengene går direkte til rejseudgifter, overnatning og turneringsgebyrer, så alle børn får chancen for at opleve glæden ved at spille bold sammen med deres holdkammerater.',
     raised: 15200,
     goal: 25000,
   },
   {
     id: 2,
     title: 'Støtte til afvikling af vores aktiviteter',
-    association: 'Vennernes Klub',
+    association: 'Lysningen Fritidsklub',
     type: 'Handicap / Special',
     city: 'Gentofte',
     zip: '2820',
@@ -47,7 +47,7 @@ const CAMPAIGNS = [
   {
     id: 3,
     title: 'Nye redskaber til gymnastikken',
-    association: 'Skjold Birkerød',
+    association: 'Engdal Gymnastik',
     type: 'Gymnastik',
     city: 'Birkerød',
     zip: '3460',
@@ -67,7 +67,7 @@ const CAMPAIGNS = [
   {
     id: 4,
     title: 'Svømmestævner 2026',
-    association: 'Hillerød Svømmeklub',
+    association: 'Søværk Svømmeklub',
     type: 'Svømmeklub',
     city: 'Hillerød',
     zip: '3400',
@@ -87,7 +87,7 @@ const CAMPAIGNS = [
   {
     id: 5,
     title: 'Håndbold for alle',
-    association: 'Køge Håndbold',
+    association: 'Vestervig Håndbold',
     type: 'Håndbold',
     city: 'Køge',
     zip: '4600',
@@ -107,7 +107,7 @@ const CAMPAIGNS = [
   {
     id: 6,
     title: 'Karate Camp 2026',
-    association: 'Allerød Karate',
+    association: 'Teglgård Kampsport',
     type: 'Kampsport',
     city: 'Allerød',
     zip: '3450',

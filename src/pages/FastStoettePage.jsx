@@ -8,14 +8,14 @@ import InfoSection from '../components/faststoette/InfoSection';
 import AnimationStyles from '../components/faststoette/AnimationStyles';
 
 const ORGS = [
-  { id: 1, name: 'Vennernes Klub', type: 'Handicap / Special', zip: '2820', city: 'Gentofte', verified: true, supporters: 23, desc: 'Den månedlige støtte går direkte til at holde vores fællesskab levende - fx aktiviteter, udstyr og de små ting i hverdagen, der gør en stor forskel for vores børn og familier.' },
-  { id: 2, name: 'Heartland United', type: 'Fodbold', zip: '3400', city: 'Hillerød', verified: true, supporters: 41, desc: 'Din faste støtte styrker fællesskabet i klubben. Den hjælper os med at arrangere træningsdage, stævner og sociale aktiviteter for børn, unge og voksne hele året rundt.' },
+  { id: 1, name: 'Lysningen Fritidsklub', type: 'Handicap / Special', zip: '2820', city: 'Gentofte', verified: true, supporters: 23, desc: 'Den månedlige støtte går direkte til at holde vores fællesskab levende - fx aktiviteter, udstyr og de små ting i hverdagen, der gør en stor forskel for vores børn og familier.' },
+  { id: 2, name: 'Nordbro Boldklub', type: 'Fodbold', zip: '3400', city: 'Hillerød', verified: true, supporters: 41, desc: 'Din faste støtte styrker fællesskabet i klubben. Den hjælper os med at arrangere træningsdage, stævner og sociale aktiviteter for børn, unge og voksne hele året rundt.' },
   { id: 3, name: 'MK01 Motion', type: 'Løb / Motion', zip: '7000', city: 'Fredericia', verified: false, supporters: 0, desc: 'Din støtte giver vores frivillige forening tryghed til at starte nye arrangementer og skabe rammer for motion og fællesskab i lokalområdet.' },
-  { id: 4, name: 'Skjold Birkerød', type: 'Gymnastik', zip: '3460', city: 'Birkerød', verified: true, supporters: 67, desc: 'Støt gymnastikken i Birkerød. Bidragene går til nye redskaber, stævner og sjove oplevelser der samler børn og voksne i foreningen.' },
+  { id: 4, name: 'Engdal Gymnastik', type: 'Gymnastik', zip: '3460', city: 'Birkerød', verified: true, supporters: 67, desc: 'Støt gymnastikken i Birkerød. Bidragene går til nye redskaber, stævner og sjove oplevelser der samler børn og voksne i foreningen.' },
   { id: 5, name: 'Albertslund IF', type: 'Fodbold', zip: '2620', city: 'Albertslund', verified: true, supporters: 18, desc: 'Støt lokal fodbold i Albertslund. Bidragene går til træningstøj, stævner og det fællesskab der samler alle aldersgrupper i klubben.' },
-  { id: 6, name: 'Hillerød Svømmeklub', type: 'Svømmeklub', zip: '3400', city: 'Hillerød', verified: true, supporters: 34, desc: 'Støt svømmerne i Hillerød. Bidragene går til træning, udstyr og konkurrencer for alle niveauer - fra motionist til konkurrencesvømmer.' },
-  { id: 7, name: 'Køge Håndbold', type: 'Håndbold', zip: '4600', city: 'Køge', verified: true, supporters: 52, desc: 'Støt håndbold i Køge. Vi træner og deltager i turneringer for alle aldre. Din støtte gør det muligt at udvikle klubben og skabe glæde.' },
-  { id: 8, name: 'Allerød Karate', type: 'Kampsport', zip: '3450', city: 'Allerød', verified: true, supporters: 15, desc: 'Støt kampsport i Allerød. Vi træner karate, judo og selvforsvar for alle aldre. Din støtte går til udstyr, træningslejre og fællesskab.' },
+  { id: 6, name: 'Søværk Svømmeklub', type: 'Svømmeklub', zip: '3400', city: 'Hillerød', verified: true, supporters: 34, desc: 'Støt svømmerne i Hillerød. Bidragene går til træning, udstyr og konkurrencer for alle niveauer - fra motionist til konkurrencesvømmer.' },
+  { id: 7, name: 'Vestervig Håndbold', type: 'Håndbold', zip: '4600', city: 'Køge', verified: true, supporters: 52, desc: 'Støt håndbold i Køge. Vi træner og deltager i turneringer for alle aldre. Din støtte gør det muligt at udvikle klubben og skabe glæde.' },
+  { id: 8, name: 'Teglgård Kampsport', type: 'Kampsport', zip: '3450', city: 'Allerød', verified: true, supporters: 15, desc: 'Støt kampsport i Allerød. Vi træner karate, judo og selvforsvar for alle aldre. Din støtte går til udstyr, træningslejre og fællesskab.' },
 ];
 
 const ALL_CATEGORIES = [
