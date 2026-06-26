@@ -20,7 +20,7 @@ function formatDKK(n) {
 
 const PRESET_AMOUNTS = [50, 100, 200, 300, 500, 1000];
 const SUGGESTED_INDEX = 2;
-const MIN_AMOUNT = 100;
+const MIN_AMOUNT = 50;
 
 export default function DonationPage({ campaign, onBack }) {
   const [selectedAmount, setSelectedAmount] = React.useState(null);
@@ -129,71 +129,20 @@ export default function DonationPage({ campaign, onBack }) {
         }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 16 }}>Vælg beløb</div>
 
-          <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10,
-            marginBottom: 16,
-          }}>
-            {PRESET_AMOUNTS.map((amount, i) => (
-              <button
-                key={amount}
-                type="button"
-                onClick={() => { setSelectedAmount(amount); setCustomAmount(''); setAmountError(''); }}
-                style={{
-                  height: 50, borderRadius: 12, border: '1.5px solid',
-                  borderColor: selectedAmount === amount ? '#E0193F' : '#EBEBEB',
-                  background: selectedAmount === amount ? 'rgba(224,25,63,0.04)' : '#fff',
-                  color: selectedAmount === amount ? '#E0193F' : '#0F172A',
-                  fontSize: 15, fontWeight: 700, cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: FONT, position: 'relative',
-                }}
-                onMouseEnter={e => {
-                  if (selectedAmount !== amount) {
-                    e.currentTarget.style.borderColor = '#E0193F';
-                    e.currentTarget.style.background = '#FFFBFB';
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (selectedAmount !== amount) {
-                    e.currentTarget.style.borderColor = '#EBEBEB';
-                    e.currentTarget.style.background = '#fff';
-                  }
-                }}
-              >
-                <span>kr {formatDKK(amount)}</span>
-                {i === SUGGESTED_INDEX && (
-                  <span style={{
-                    position: 'absolute', bottom: -10,
-                    fontSize: 9, fontWeight: 700, color: '#15803d',
-                    background: '#ECFDF5', border: '1px solid #A7F3D0',
-                    padding: '1px 8px', borderRadius: 100,
-                    display: 'flex', alignItems: 'center', gap: 3,
-                    textTransform: 'uppercase', letterSpacing: '0.04em',
-                  }}>
-                    <Heart size={8} fill="#15803d" color="#15803d" /> Foreslået
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Custom amount heading + input */}
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#6B7280', marginTop: 20, marginBottom: 8 }}>Eller indtast eget beløb (min. 100 kr.)</div>
+          {/* Custom amount input (primaert) */}
           <div style={{
             border: '1.5px solid',
-            borderColor: activeAmount > 0 ? '#E0193F' : (customAmount ? '#E0193F' : '#EBEBEB'),
+            borderColor: activeAmount > 0 ? '#16a34a' : (customAmount ? '#16a34a' : '#EBEBEB'),
             borderRadius: 12,
-            background: activeAmount > 0 ? 'rgba(224,25,63,0.03)' : '#FAFAFA',
+            background: activeAmount > 0 ? 'rgba(22,163,74,0.03)' : '#FAFAFA',
             padding: '14px 18px',
-            marginTop: 20,
             display: 'flex', alignItems: 'center',
             transition: 'all 0.2s',
             cursor: 'text',
           }}>
             <span style={{
               fontSize: 28, fontWeight: 700,
-              color: (activeAmount > 0 || customAmount) ? '#E0193F' : '#D1D5DB',
+              color: (activeAmount > 0 || customAmount) ? '#16a34a' : '#D1D5DB',
               marginRight: 12,
             }}>kr</span>
             <input
@@ -232,6 +181,56 @@ export default function DonationPage({ campaign, onBack }) {
               <span>⚠</span> {amountError}
             </div>
           )}
+
+          {/* Preset amounts (sekundaert) */}
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#6B7280', marginTop: 20, marginBottom: 12 }}>Eller vælg et fast beløb</div>
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10,
+          }}>
+            {PRESET_AMOUNTS.map((amount, i) => (
+              <button
+                key={amount}
+                type="button"
+                onClick={() => { setSelectedAmount(amount); setCustomAmount(''); setAmountError(''); }}
+                style={{
+                  height: 50, borderRadius: 12, border: '1.5px solid',
+                  borderColor: selectedAmount === amount ? '#16a34a' : '#EBEBEB',
+                  background: selectedAmount === amount ? 'rgba(22,163,74,0.04)' : '#fff',
+                  color: selectedAmount === amount ? '#16a34a' : '#0F172A',
+                  fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: FONT, position: 'relative',
+                }}
+                onMouseEnter={e => {
+                  if (selectedAmount !== amount) {
+                    e.currentTarget.style.borderColor = '#16a34a';
+                    e.currentTarget.style.background = '#F7FEF9';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (selectedAmount !== amount) {
+                    e.currentTarget.style.borderColor = '#EBEBEB';
+                    e.currentTarget.style.background = '#fff';
+                  }
+                }}
+              >
+                <span>kr {formatDKK(amount)}</span>
+                {i === SUGGESTED_INDEX && (
+                  <span style={{
+                    position: 'absolute', bottom: -10,
+                    fontSize: 9, fontWeight: 700, color: '#15803d',
+                    background: '#ECFDF5', border: '1px solid #A7F3D0',
+                    padding: '1px 8px', borderRadius: 100,
+                    display: 'flex', alignItems: 'center', gap: 3,
+                    textTransform: 'uppercase', letterSpacing: '0.04em',
+                  }}>
+                    <Heart size={8} fill="#15803d" color="#15803d" /> Foreslået
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
 
           {/* Recent donation nudge */}
           {showNudge && (
@@ -279,10 +278,7 @@ export default function DonationPage({ campaign, onBack }) {
               background: paymentMethod === 'mobilepay' ? paymentColors.mobilepay.bg : '#fff',
               cursor: 'pointer', transition: 'all 0.15s', width: '100%',
             }}>
-              <svg width="44" height="30" viewBox="0 0 44 30">
-                <rect width="44" height="30" rx="6" fill="#5A78FF"/>
-                <text x="22" y="19" textAnchor="middle" fill="#fff" fontSize="9" fontWeight="700" fontFamily="system-ui">MobilePay</text>
-              </svg>
+              <img src="/mobilepay-paymark.svg" alt="MobilePay" width="44" height="30" style={{ display: 'block' }} />
               <span style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>MobilePay</span>
               {paymentMethod === 'mobilepay' && <Check size={18} color={paymentColors.mobilepay.check} style={{ marginLeft: 'auto' }} />}
             </button>
