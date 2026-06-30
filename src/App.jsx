@@ -47,6 +47,7 @@ import PageNotFound from '@/lib/PageNotFound';
 import Home from './pages/Home';
 import HomeNy from './pages/HomeNy';
 import ForForeningerPage from './pages/ForForeningerPage';
+import ForStoetterPage from './pages/ForStoetterPage';
 import HjertesagerPage from './pages/HjertesagerPage';
 import ForeningerPage from './pages/ForeningerPage';
 import SaadanVirkerDetPage from './pages/SaadanVirkerDetPage';
@@ -88,6 +89,7 @@ function App() {
             <Route path="/hjertesager" element={<HjertesagerPage />} />
             <Route path="/foreninger" element={<ForeningerPage />} />
             <Route path="/for-foreninger" element={<ForForeningerPage />} />
+            <Route path="/for-stoetter" element={<ForStoetterPage />} />
             <Route path="/saadan-virker-det" element={<SaadanVirkerDetPage />} />
             <Route path="/priser" element={<PriserPage />} />
             <Route path="/om-os" element={<OmOsPage />} />
