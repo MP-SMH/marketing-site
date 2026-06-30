@@ -52,6 +52,7 @@ import HjertesagerPage from './pages/HjertesagerPage';
 import ForeningerPage from './pages/ForeningerPage';
 import SaadanVirkerDetPage from './pages/SaadanVirkerDetPage';
 import PriserPage from './pages/PriserPage';
+import DenReneModelPage from './pages/DenReneModelPage';
 import OmOsPage from './pages/OmOsPage';
 import BlogPage from './pages/BlogPage';
 import FAQPage from './pages/FAQPage';
@@ -92,6 +93,8 @@ function App() {
             <Route path="/for-stoetter" element={<ForStoetterPage />} />
             <Route path="/saadan-virker-det" element={<SaadanVirkerDetPage />} />
             <Route path="/priser" element={<PriserPage />} />
+            <Route path="/den-rene-model" element={<DenReneModelPage />} />
+            <Route path="/den-rene-model" element={<DenReneModelPage />} />
             <Route path="/om-os" element={<OmOsPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/faq" element={<FAQPage />} />
