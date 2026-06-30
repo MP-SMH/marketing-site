@@ -1,0 +1,62 @@
+/* ============================================================
+   StøtMedHjerte - Sådan virker det  (/saadan-virker-det)
+   Konverteret 1:1 fra CD-prototypen (Saadan virker det.dc.html).
+   Side-scoped under .svd-page. Alle klasser har prefiks .svd-.
+   Globale tokens fra index.css. Side-scopede --smh- defineret nedenfor.
+   ============================================================ */
+
+.svd-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.svd-page *{box-sizing:border-box;}
+
+@keyframes svdRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.svd-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.svd-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.svd-sec-pad{padding-top:90px;padding-bottom:90px;}}
+
+.svd-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.svd-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.svd-cta-w{width:100%;}
+@media(min-width:520px){.svd-cta-w{width:auto;}}
+
+/* shared connectors (rail + screens) */
+.svd-ah{display:none;} @media(min-width:900px){.svd-ah{display:flex;}}
+.svd-av{display:flex;} @media(min-width:900px){.svd-av{display:none;}}
+
+/* systemflow rail: 5 stops + 4 connectors */
+.svd-rail{display:grid;grid-template-columns:1fr;gap:10px;align-items:stretch;}
+@media(min-width:900px){.svd-rail{grid-template-columns:1fr auto 1fr auto 1fr auto 1fr auto 1fr;gap:4px;align-items:stretch;}}
+.svd-rconn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:2px 0;}
+
+/* støtteflow: 3 screens + 2 connectors */
+.svd-three{display:grid;grid-template-columns:1fr;gap:16px;align-items:center;justify-items:center;}
+@media(min-width:900px){.svd-three{grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;}}
+
+/* forening dashboard split */
+.svd-fgrid{display:grid;grid-template-columns:1fr;gap:32px;align-items:center;}
+@media(min-width:980px){.svd-fgrid{grid-template-columns:.82fr 1.18fr;gap:46px;}}
+.svd-dash{display:grid;grid-template-columns:1fr;}
+@media(min-width:560px){.svd-dash{grid-template-columns:60px 1fr;}}
+.svd-dsb{display:none;}
+@media(min-width:560px){.svd-dsb{display:flex;}}
+
+.svd-linkgrid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:600px){.svd-linkgrid{grid-template-columns:1fr 1fr;gap:16px;}}
+@media(min-width:1000px){.svd-linkgrid{grid-template-columns:repeat(4,1fr);}}
+
+/* hover-tilstande (erstatter prototypens style-hover) */
+.svd-btn-brand{transition:.15s;}
+.svd-btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.svd-btn-ghost{transition:.15s;}
+.svd-btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+.svd-linkcard{transition:.16s;}
+.svd-linkcard:hover{transform:translateY(-3px);border-color:#cdd3dd;box-shadow:0 24px 50px -34px rgba(8,14,26,.28);}
+
+.svd-btn-brand:focus-visible,.svd-btn-ghost:focus-visible,.svd-linkcard:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
