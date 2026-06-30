@@ -1,211 +1,76 @@
 /* ============================================================
    StøtMedHjerte - For støtter  (/for-stoetter)
-   Side-scoped stylesheet. Alle klasser har prefiks .fs- så de
-   ikke kolliderer med resten af kodebasen.
-
-   FARVER: kun globale var(--token) + de to side-scopede --smh-
-   tokens defineret nedenfor. Tints og skygger er afledt af tokens
-   via color-mix(), så der ikke optræder rå HEX i filen.
-
-   RESPONSIVT: mobil-først. Breakpoints testet ved 360/768/1024/1440.
-   Ingen vandret scroll. Interaktive elementer min 48px høje.
-   KONTRAST: brødtekst/overskrifter bruger var(--body)/var(--ink)
-   (>= 7:1). var(--smh-muted)/var(--label) kun til små labels.
-   Den primære brand-CTA (hvid på var(--brand), ca. 4.8:1) er en
-   bevidst, AA-godkendt brand-undtagelse.
+   Konverteret 1:1 fra CD-prototypen (For stoetter.dc.html).
+   Side-scoped under .fs-page. Klasser prefiks .fs-.
    ============================================================ */
 
 .fs-page{
-  /* Side-scopede tokens (jf. kontrakt) */
   --smh-border:#E5E7EB;
   --smh-muted:#6B7280;
-
   background:var(--page);
-  color:var(--body);
+  color:var(--ink);
   font-family:"Inter",system-ui,-apple-system,sans-serif;
   -webkit-font-smoothing:antialiased;
 }
 .fs-page *{box-sizing:border-box;}
-.fs-page img{max-width:100%;display:block;}
 
-/* ---- layout ---- */
+@keyframes fsRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fsDraw{from{transform:scaleY(0);}to{transform:scaleY(1);}}
+@keyframes fsDrawX{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+
 .fs-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
-.fs-section{padding-top:60px;padding-bottom:60px;}
-.fs-section--alt{background:var(--alt);border-top:1px solid var(--smh-border);border-bottom:1px solid var(--smh-border);}
-.fs-section--navy{position:relative;overflow:hidden;background:var(--navy1);}
-@media(min-width:768px){.fs-section{padding-top:104px;padding-bottom:104px;}}
-.fs-center{text-align:center;}
+.fs-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.fs-sec-pad{padding-top:104px;padding-bottom:104px;}}
 
-/* ---- typografi ---- */
-.fs-eyebrow{
-  display:inline-flex;align-items:center;gap:9px;margin:0 0 14px;
-  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-  color:var(--ink);
-}
-.fs-eyebrow--center{justify-content:center;}
-.fs-eyebrow--light{color:var(--label);}
-.fs-eyebrow-dot{width:8px;height:8px;border-radius:50%;background:var(--brand);flex-shrink:0;}
-
-.fs-h1{
-  margin:0 0 20px;font-size:clamp(32px,5.4vw,54px);line-height:1.06;
-  font-weight:800;letter-spacing:-1.2px;color:var(--ink);text-wrap:balance;
-}
-.fs-h2{
-  margin:0 0 18px;font-size:clamp(27px,4.4vw,40px);line-height:1.12;
-  font-weight:800;letter-spacing:-.9px;color:var(--ink);text-wrap:balance;
-}
-.fs-h2--onnavy{color:var(--surface);}
-.fs-lead{margin:0 0 26px;font-size:clamp(16px,2.2vw,17.5px);line-height:1.65;color:var(--body);}
-.fs-lead--onnavy{color:var(--surface);opacity:.82;}
-.fs-head{max-width:700px;margin:0 auto 36px;}
-.fs-head--center{text-align:center;margin-bottom:48px;}
-.fs-head .fs-h2{margin-left:auto;margin-right:auto;max-width:580px;}
-.fs-head-lead{margin:0;font-size:clamp(16px,2.2vw,18px);line-height:1.6;color:var(--body);}
-.fs-center .fs-head{text-align:center;}
-
-.fs-textlink{
-  display:inline-flex;align-items:center;gap:7px;
-  font-size:15px;font-weight:700;color:var(--ink);text-decoration:none;
-}
-.fs-textlink svg{transition:transform .15s ease;}
-.fs-textlink:hover svg{transform:translateX(3px);}
-.fs-center-link{text-align:center;margin:40px 0 0;}
-
-/* ---- knapper ---- */
-.fs-btn{
-  display:inline-flex;align-items:center;justify-content:center;text-align:center;
-  text-decoration:none;font-family:inherit;font-weight:600;font-size:16px;
-  border-radius:999px;border:1px solid transparent;cursor:pointer;
-  min-height:48px;padding:14px 28px;transition:background .15s ease,border-color .15s ease,transform .15s ease,box-shadow .15s ease;
-}
-.fs-btn--lg{min-height:54px;padding:16px 30px;}
-.fs-btn--xl{font-size:16.5px;min-height:56px;padding:17px 34px;}
-.fs-btn--brand{
-  background:var(--brand);color:var(--surface);
-  box-shadow:0 12px 30px color-mix(in srgb,var(--brand) 24%,transparent);
-}
-.fs-btn--brand:hover{background:var(--brand-hover);transform:translateY(-2px);box-shadow:0 16px 38px color-mix(in srgb,var(--brand) 30%,transparent);}
-.fs-btn--ghost{background:var(--surface);color:var(--ink);border-color:var(--smh-border);}
-.fs-btn--ghost:hover{background:var(--alt);border-color:color-mix(in srgb,var(--ink) 18%,var(--surface));}
-
-/* fokus-tilstand (synlig på alle baggrunde) */
-.fs-page a:focus-visible,
-.fs-page button:focus-visible{outline:3px solid var(--brand);outline-offset:3px;border-radius:8px;}
-.fs-section--navy a:focus-visible{outline-color:var(--surface);}
-
-/* ---- CTA-rækker ---- */
-.fs-cta-row{display:flex;flex-direction:column;gap:12px;}
-.fs-btn--full{width:100%;}
-@media(min-width:520px){
-  .fs-cta-row{flex-direction:row;flex-wrap:wrap;}
-  .fs-cta-row .fs-btn--full{width:auto;}
-}
-.fs-cta-row--center{justify-content:center;}
-
-/* ============ HERO ============ */
-.fs-hero{padding-top:48px;padding-bottom:56px;}
 .fs-hero-grid{display:grid;grid-template-columns:1fr;gap:40px;align-items:center;}
 @media(min-width:900px){.fs-hero-grid{grid-template-columns:1.02fr .98fr;gap:56px;}}
-.fs-hero-copy{animation:fs-rise .6s ease both;}
-.fs-hero-visual{display:flex;justify-content:center;animation:fs-rise .7s .12s ease both;}
 
-.fs-badge{
-  display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;
-  padding:8px 15px;border-radius:999px;background:var(--brand-surface);
-  border:1px solid var(--brand-border);font-size:13px;font-weight:600;
-  color:var(--brand-hover);letter-spacing:-.1px;
-}
-.fs-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--brand);}
-.fs-hero .fs-lead{max-width:540px;}
-.fs-trust{
-  display:flex;align-items:center;gap:10px;margin:24px 0 0;
-  font-size:14.5px;font-weight:600;color:var(--body);
-}
-.fs-trust-ic{color:var(--success);flex-shrink:0;}
+.fs-g4{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:560px){.fs-g4{grid-template-columns:1fr 1fr;gap:16px;}}
+@media(min-width:980px){.fs-g4{grid-template-columns:repeat(4,1fr);gap:18px;}}
 
-.fs-hero-stage{position:relative;width:100%;max-width:360px;}
-.fs-hero-glow{
-  position:absolute;inset:-16px;z-index:0;border-radius:40px;pointer-events:none;filter:blur(6px);
-  background:
-    radial-gradient(58% 50% at 70% 22%,color-mix(in srgb,var(--brand) 16%,transparent),transparent 70%),
-    radial-gradient(54% 48% at 22% 84%,color-mix(in srgb,var(--navy3) 16%,transparent),transparent 72%);
-}
-.fs-hero-photo{
-  position:relative;z-index:1;margin:0;border-radius:30px;overflow:hidden;
-  border:1px solid var(--smh-border);aspect-ratio:4/5;
-  box-shadow:0 40px 90px -40px color-mix(in srgb,var(--ink) 34%,transparent);
-}
-.fs-hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center 28%;}
-
-/* ============ PILLS (hvad kan du støtte) ============ */
-.fs-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:760px;margin:0 auto;padding:0;list-style:none;}
-.fs-pill{display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:999px;background:var(--surface);border:1px solid var(--smh-border);font-size:15px;font-weight:600;color:var(--ink);}
-.fs-pill-dot{width:7px;height:7px;border-radius:50%;background:var(--brand);}
-
-/* ============ FLOW-STEPPER (sådan støtter du) ============ */
-.fs-flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;position:relative;}
-.fs-step{position:relative;display:flex;gap:18px;padding-bottom:30px;}
-.fs-step:last-child{padding-bottom:0;}
-.fs-step-badge{
-  position:relative;z-index:1;flex-shrink:0;width:46px;height:46px;border-radius:14px;
-  background:var(--ink);color:var(--surface);display:flex;align-items:center;justify-content:center;
-  font-size:17px;font-weight:800;box-shadow:0 8px 20px -6px color-mix(in srgb,var(--ink) 40%,transparent);
-}
-.fs-step-conn{position:absolute;left:22px;top:50px;bottom:6px;width:2px;background:var(--smh-border);overflow:hidden;}
-.fs-step-conn::after{
-  content:"";position:absolute;inset:0;transform:scaleY(0);transform-origin:top;
-  background:linear-gradient(180deg,var(--brand),color-mix(in srgb,var(--brand) 58%,var(--surface)));
-  animation:fs-draw-y 1.3s ease both;
-}
-.fs-step:nth-child(1) .fs-step-conn::after{animation-delay:.15s;}
-.fs-step:nth-child(2) .fs-step-conn::after{animation-delay:.5s;}
-.fs-step:nth-child(3) .fs-step-conn::after{animation-delay:.85s;}
-.fs-step-body{padding-top:3px;}
-.fs-step-title{margin:0 0 8px;font-size:17px;font-weight:700;letter-spacing:-.3px;color:var(--ink);}
-.fs-step-text{margin:0;font-size:14.5px;line-height:1.55;color:var(--body);}
-@media(min-width:780px){
-  .fs-flow{flex-direction:row;gap:20px;}
-  .fs-step{flex-direction:column;align-items:center;text-align:center;gap:18px;padding-bottom:0;flex:1;}
-  .fs-step-conn{left:50%;right:-50%;top:22px;bottom:auto;width:auto;height:2px;}
-  .fs-step-conn::after{transform:scaleX(0);transform-origin:left;animation:fs-draw-x 1.3s ease both;}
-}
-
-/* ============ TRYGHED-KORT ============ */
-.fs-grid4{display:grid;grid-template-columns:1fr;gap:14px;}
-@media(min-width:560px){.fs-grid4{grid-template-columns:1fr 1fr;gap:16px;}}
-@media(min-width:980px){.fs-grid4{grid-template-columns:repeat(4,1fr);gap:18px;}}
-.fs-card{
-  background:var(--surface);border:1px solid var(--smh-border);border-radius:26px;padding:30px 28px;
-  transition:transform .2s ease,box-shadow .2s ease;
-}
-.fs-card:hover{transform:translateY(-3px);box-shadow:0 22px 50px -26px color-mix(in srgb,var(--ink) 16%,transparent);}
-.fs-card-ic{width:50px;height:50px;border-radius:16px;background:var(--brand-surface);color:var(--brand);display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
-.fs-card-title{margin:0 0 9px;font-size:18px;font-weight:700;letter-spacing:-.3px;color:var(--ink);}
-.fs-card-text{margin:0;font-size:14.5px;line-height:1.6;color:var(--body);}
-
-/* ============ FAST STØTTE (split) ============ */
 .fs-split{display:grid;grid-template-columns:1fr;gap:36px;align-items:center;}
 @media(min-width:860px){.fs-split{grid-template-columns:1fr 1fr;gap:56px;}}
-.fs-split-photo{
-  margin:0;border-radius:24px;overflow:hidden;border:1px solid var(--smh-border);aspect-ratio:4/5;
-  box-shadow:0 30px 70px -36px color-mix(in srgb,var(--ink) 16%,transparent);order:-1;
+
+.fs-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.fs-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.fs-cta-w{width:100%;}
+@media(min-width:520px){.fs-cta-w{width:auto;}}
+
+.fs-photo-on-mobile{order:-1;}
+@media(min-width:860px){.fs-photo-on-mobile{order:0;}}
+
+.fs-hero-stage{position:relative;}
+.fs-hero-glow{position:absolute;inset:-16px;z-index:0;border-radius:40px;background:radial-gradient(58% 50% at 70% 22%,rgba(224,25,63,.16),transparent 70%),radial-gradient(54% 48% at 22% 84%,rgba(36,59,87,.14),transparent 72%);filter:blur(6px);pointer-events:none;}
+
+/* flow-stepper: lodret mobil, vandret fra 760px */
+.fs-flow-steps{display:flex;flex-direction:column;gap:0;position:relative;}
+.fs-flow-step{position:relative;display:flex;gap:18px;padding-bottom:30px;}
+.fs-flow-step:last-child{padding-bottom:0;}
+.fs-flow-step:last-child .fs-flow-conn{display:none;}
+.fs-flow-badge{position:relative;z-index:1;flex-shrink:0;width:46px;height:46px;border-radius:14px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;box-shadow:0 8px 20px -6px rgba(8,14,26,.4);}
+.fs-flow-conn{position:absolute;left:22px;top:50px;bottom:6px;width:2px;background:var(--smh-border);overflow:hidden;}
+.fs-flow-conn::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,var(--brand),#F2547A);transform:scaleY(0);transform-origin:top;animation:fsDraw 1.3s ease both;}
+.fs-flow-step:nth-child(1) .fs-flow-conn::after{animation-delay:.15s;}
+.fs-flow-step:nth-child(2) .fs-flow-conn::after{animation-delay:.5s;}
+.fs-flow-step:nth-child(3) .fs-flow-conn::after{animation-delay:.85s;}
+@media(min-width:760px){
+  .fs-flow-steps{flex-direction:row;gap:20px;}
+  .fs-flow-step{flex-direction:column;align-items:center;text-align:center;gap:18px;padding-bottom:0;flex:1;}
+  .fs-flow-conn{left:50%;right:-50%;top:22px;bottom:auto;width:auto;height:2px;}
+  .fs-flow-conn::after{transform:scaleX(0);transform-origin:left;animation:fsDrawX 1.3s ease both;}
 }
-@media(min-width:860px){.fs-split-photo{order:0;}}
-.fs-split-photo img{width:100%;height:100%;object-fit:cover;}
 
-/* ============ NAVY AFSLUTNING ============ */
-.fs-final-glow{position:absolute;top:-120px;right:-80px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--brand) 16%,transparent),transparent 65%);pointer-events:none;}
-.fs-final-inner{position:relative;max-width:820px;margin:0 auto;padding-left:20px;padding-right:20px;text-align:center;}
-.fs-final-inner .fs-h2{margin:0 auto 22px;max-width:640px;}
-.fs-final-inner .fs-lead--onnavy{margin:0 auto 32px;max-width:620px;}
-.fs-final-inner .fs-cta-row{max-width:340px;margin:0 auto;}
+.fs-trust-card{transition:.2s;}
+.fs-trust-card:hover{box-shadow:0 22px 50px -26px rgba(8,14,26,.16);transform:translateY(-3px);}
 
-/* ---- animationer (respekterer reduced-motion) ---- */
-@keyframes fs-rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-@keyframes fs-draw-y{to{transform:scaleY(1);}}
-@keyframes fs-draw-x{to{transform:scaleX(1);}}
-@media(prefers-reduced-motion:reduce){
-  .fs-hero-copy,.fs-hero-visual{animation:none;}
-  .fs-step-conn::after{animation:none;transform:none;}
-  .fs-btn,.fs-card,.fs-textlink svg{transition:none;}
+.fs-btn-brand{transition:.15s;}
+.fs-btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.fs-btn-ghost{transition:.15s;}
+.fs-btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+
+.fs-btn-brand:focus-visible,.fs-btn-ghost:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
+
+@media (prefers-reduced-motion: reduce){
+  .fs-flow-conn::after{animation:none !important;}
 }
