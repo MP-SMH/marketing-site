@@ -1,0 +1,63 @@
+/* ============================================================
+   StøtMedHjerte - Priser  (/priser)
+   Konverteret 1:1 fra CD-prototypen (Priser.dc.html).
+   Side-scoped under .pr-page. Klasser prefiks .pr-.
+   ============================================================ */
+
+.pr-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  --green-surface:#ECFDF3;
+  --green-border:#BBF7D0;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.pr-page *{box-sizing:border-box;}
+
+@keyframes prRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.pr-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.pr-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.pr-sec-pad{padding-top:90px;padding-bottom:90px;}}
+
+.pr-eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--brand);margin-bottom:14px;}
+.pr-h2{margin:0 0 16px;font-size:clamp(25px,3.6vw,38px);line-height:1.12;font-weight:800;letter-spacing:-.9px;color:var(--ink);text-wrap:balance;}
+.pr-lead{margin:0;font-size:clamp(16px,2.2vw,18px);line-height:1.68;color:var(--body);text-wrap:pretty;}
+.pr-intro-c{max-width:680px;margin:0 auto clamp(30px,4vw,46px);text-align:center;}
+
+.pr-card{background:var(--surface);border:1px solid var(--smh-border);border-radius:24px;}
+.pr-lift{transition:transform .18s ease, box-shadow .18s ease;}
+.pr-lift:hover{transform:translateY(-4px);box-shadow:0 26px 56px -30px rgba(8,14,26,.30);}
+
+.pr-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.pr-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.pr-cta-w{width:100%;}
+@media(min-width:520px){.pr-cta-w{width:auto;}}
+
+.pr-plans{display:grid;grid-template-columns:1fr;gap:18px;align-items:stretch;}
+@media(min-width:900px){.pr-plans{grid-template-columns:repeat(3,1fr);gap:22px;}}
+.pr-plan{display:flex;flex-direction:column;height:100%;padding:32px 28px;}
+
+.pr-split-2{display:grid;grid-template-columns:1fr;gap:40px;align-items:center;}
+@media(min-width:940px){.pr-split-2{grid-template-columns:1.02fr 1fr;gap:54px;}}
+
+.pr-trio{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:780px){.pr-trio{grid-template-columns:repeat(3,1fr);gap:20px;}}
+
+.pr-track{display:flex;flex-direction:column;gap:8px;}
+@media(min-width:520px){.pr-track{flex-direction:row;align-items:stretch;gap:6px;}}
+.pr-step{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:7px;}
+.pr-arr-h{display:none;align-items:center;}
+@media(min-width:520px){.pr-arr-h{display:flex;}}
+.pr-arr-v{display:flex;justify-content:center;}
+@media(min-width:520px){.pr-arr-v{display:none;}}
+
+.pr-btn-brand{transition:.15s;}
+.pr-btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.pr-btn-ghost{transition:.15s;}
+.pr-btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+.pr-plan-cta{transition:.15s;}
+
+.pr-cta-w:focus-visible,.pr-plan-cta:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
