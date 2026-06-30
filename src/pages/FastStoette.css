@@ -1,0 +1,49 @@
+/* ============================================================
+   StøtMedHjerte - Fast støtte  (/fast-stoette)
+   Konverteret 1:1 fra CD-prototypen (Fast støtte.dc.html).
+   Side-scoped under .fs-page. Klasser prefiks .fs-.
+   ============================================================ */
+
+.fs-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.fs-page *{box-sizing:border-box;}
+
+@keyframes fsRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fsFloatIn{from{opacity:0;transform:translateY(22px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+.fs-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.fs-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.fs-sec-pad{padding-top:90px;padding-bottom:90px;}}
+
+.fs-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.fs-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.fs-cta-w{width:100%;}
+@media(min-width:520px){.fs-cta-w{width:auto;}}
+
+.fs-hero-split{display:grid;grid-template-columns:1fr;gap:40px;align-items:center;}
+@media(min-width:920px){.fs-hero-split{grid-template-columns:1.02fr .98fr;gap:56px;}}
+
+.fs-three{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:760px){.fs-three{grid-template-columns:repeat(3,1fr);gap:20px;}}
+
+.fs-cal-wk{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:5px;}
+.fs-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.fs-flow-strip{display:flex;gap:7px;}
+
+.fs-dash-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:720px){.fs-dash-grid{grid-template-columns:1fr 1fr 1.5fr;}.fs-dash-span{grid-column:1 / -1;}}
+
+.fs-btn-brand{transition:.15s;}
+.fs-btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.fs-btn-ghost{transition:.15s;}
+.fs-btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+.fs-btn-navy{transition:.15s;}
+.fs-btn-navy:hover{background:rgba(255,255,255,.14);}
+
+.fs-cta-w:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
