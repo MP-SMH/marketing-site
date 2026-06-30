@@ -1,0 +1,71 @@
+/* ============================================================
+   HomeNy — main-sektion-klasser kopieret 1:1 fra Claude Design
+   forsidens forside.css (kun det main bruger).
+   Øvrige tokens (--brand, --ink, --body, --surface, --page,
+   --alt, --label, --brand-hover, --brand-surface, --brand-border,
+   --navy1/2/3, --success) leveres globalt af src/index.css.
+   --smh-border/--smh-muted er ikke globale -> defineres her
+   (som i SiteNav.css).
+   ============================================================ */
+
+:root{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+}
+
+/* ---- entrance + progress + float animations ---- */
+@keyframes smhRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes smhFill{from{width:0;}}
+@keyframes smhFloatA{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes smhFloatB{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+@media (prefers-reduced-motion: reduce){.fb,.dfloat{animation:none !important}}
+
+/* ---- container + section padding ---- */
+.wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.sec-pad{padding-top:104px;padding-bottom:104px;}}
+
+/* ---- grids (breakpoints are intentional, keep them) ---- */
+.hero-grid{display:grid;grid-template-columns:1fr;gap:40px;align-items:center;}
+@media(min-width:900px){.hero-grid{grid-template-columns:1.05fr .95fr;gap:60px;}}
+.g2{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:768px){.g2{grid-template-columns:1fr 1fr;gap:22px;}}
+.g3{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:768px){.g3{grid-template-columns:repeat(3,1fr);gap:22px;}}
+.g4{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:560px){.g4{grid-template-columns:1fr 1fr;gap:16px;}}
+@media(min-width:980px){.g4{grid-template-columns:repeat(4,1fr);gap:18px;}}
+.split{display:grid;grid-template-columns:1fr;gap:36px;align-items:center;}
+@media(min-width:860px){.split{grid-template-columns:1fr 1fr;gap:56px;}}
+.naev{display:grid;grid-template-columns:1fr;gap:32px;align-items:center;}
+@media(min-width:768px){.naev{grid-template-columns:1.1fr .9fr;gap:44px;}}
+.veje-grid{display:grid;grid-template-columns:1fr;gap:22px;}
+@media(min-width:820px){.veje-grid{grid-template-columns:1fr 1fr;}}
+
+/* ---- CTA rows (stack on mobile, inline ≥520px) ---- */
+.cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.cta-row{flex-direction:row;flex-wrap:wrap;}}
+.cta-w{width:100%;}
+@media(min-width:520px){.cta-w{width:auto;}}
+
+/* ---- hero scene ---- */
+.hero-stage{position:relative;}
+.hero-glow{position:absolute;inset:-18px;z-index:0;border-radius:42px;background:radial-gradient(58% 52% at 72% 24%,rgba(224,25,63,.16),transparent 70%),radial-gradient(54% 50% at 20% 84%,rgba(36,59,87,.16),transparent 72%);filter:blur(6px);pointer-events:none;}
+.hero-photo{aspect-ratio:4/3;}
+@media(min-width:560px){.hero-photo{aspect-ratio:16/9;}}
+@media(min-width:900px){.hero-photo{aspect-ratio:21/9;}}
+.fb{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border:1px solid var(--smh-border);box-shadow:0 14px 30px -12px rgba(8,14,26,.30);font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;}
+@media(max-width:560px){.fb-hide-sm{display:none;}}
+.dfloat{position:absolute;z-index:4;}
+
+/* ---- hover utilities (these were inline `style-hover` in the prototype) ---- */
+.btn-brand{transition:.15s;}
+.btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.btn-ghost{transition:.15s;}
+.btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+.lift{transition:.2s;}
+.lift:hover{transform:translateY(-3px);box-shadow:0 22px 50px -26px rgba(8,14,26,.16);}
+.lift-4{transition:.2s;}
+.lift-4:hover{transform:translateY(-4px);box-shadow:0 30px 64px -30px rgba(8,14,26,.22);border-color:#cdd3dd;}
+.link-ink{transition:.15s;}
+.link-ink:hover{color:var(--ink) !important;}

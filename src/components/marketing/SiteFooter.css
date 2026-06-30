@@ -1,0 +1,29 @@
+/* ============================================================
+   SiteFooter — footer-klasser kopieret 1:1 fra Claude Design
+   forsidens stylesheet (kun det Footer bruger).
+   Tokens (--navy1, --brand, --ink, --brand-hover) leveres
+   globalt af src/index.css.
+   ============================================================ */
+
+/* ---- container ---- */
+.wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+
+/* ---- footer grid ---- */
+.foot{display:grid;grid-template-columns:1fr;gap:36px;}
+@media(min-width:768px){.foot{grid-template-columns:1.7fr 1fr 1fr 1fr;gap:36px;}}
+
+/* ---- CTA rows (stack on mobile, inline ≥520px) ---- */
+.cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.cta-row{flex-direction:row;flex-wrap:wrap;}}
+.cta-w{width:100%;}
+@media(min-width:520px){.cta-w{width:auto;}}
+
+/* ---- hover utilities (these were inline `style-hover` in the prototype) ---- */
+.btn-brand{transition:.15s;}
+.btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.btn-white{transition:.15s;}
+.btn-white:hover{background:#E8EDF5;}
+.foot-link{transition:.15s;}
+.foot-link:hover{color:#fff !important;}
+.legal-link{transition:.15s;}
+.legal-link:hover{color:#AEB9CC !important;}

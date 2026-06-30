@@ -45,6 +45,7 @@ import PageNotFound from '@/lib/PageNotFound';
 
 // Page imports
 import Home from './pages/Home';
+import HomeNy from './pages/HomeNy';
 import HjertesagerPage from './pages/HjertesagerPage';
 import ForeningerPage from './pages/ForeningerPage';
 import SaadanVirkerDetPage from './pages/SaadanVirkerDetPage';
@@ -82,6 +83,7 @@ function App() {
           <Routes>
             {/* Public marketing pages */}
             <Route path="/" element={<Home />} />
+            <Route path="/ny" element={<HomeNy showTrustBand={false} />} />
             <Route path="/hjertesager" element={<HjertesagerPage />} />
             <Route path="/foreninger" element={<ForeningerPage />} />
             <Route path="/saadan-virker-det" element={<SaadanVirkerDetPage />} />

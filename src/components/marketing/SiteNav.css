@@ -1,0 +1,50 @@
+/* ============================================================
+   SiteNav — nav-klasser kopieret 1:1 fra Claude Design
+   forsidens forside.css (kun det TopNav bruger).
+   Øvrige tokens (--brand, --ink, --body, --surface, --page,
+   --alt, --label, --brand-hover) leveres globalt af src/index.css.
+   ============================================================ */
+
+:root{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+}
+
+/* ---- container ---- */
+.wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+
+/* ---- top nav: desktop links ≥1000px, burger + drawer below ---- */
+.smh-nav,.smh-cta{display:none;}
+@media(min-width:1000px){
+  .smh-nav{display:flex;align-items:center;gap:2px;margin-left:8px;}
+  .smh-cta{display:flex;align-items:center;gap:10px;margin-left:auto;}
+}
+.smh-burger{display:inline-flex;margin-left:auto;}
+@media(min-width:1000px){.smh-burger{display:none;}}
+.smh-drawer{display:flex;}
+@media(min-width:1000px){.smh-drawer{display:none !important;}}
+
+/* ---- mega-menu (hover-reveal dropdown) ---- */
+.navgrp{position:relative;}
+.navtrigger{display:inline-flex;align-items:center;gap:5px;background:transparent;border:none;font-family:inherit;font-size:14.5px;font-weight:500;color:var(--body);padding:9px 13px;border-radius:999px;cursor:pointer;transition:.15s;}
+.navgrp:hover .navtrigger{background:var(--alt);color:var(--ink);}
+.navtrigger svg{transition:transform .18s ease;}
+.navgrp:hover .navtrigger svg{transform:rotate(180deg);}
+.navpanel{position:absolute;top:100%;left:0;padding-top:12px;opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .16s ease,transform .16s ease,visibility .16s;z-index:60;}
+.navgrp:hover .navpanel{opacity:1;visibility:visible;transform:translateY(0);}
+.navcard{min-width:300px;background:#fff;border:1px solid var(--smh-border);border-radius:18px;box-shadow:0 30px 60px -28px rgba(8,14,26,.28);padding:10px;}
+.navlink{display:flex;flex-direction:column;gap:2px;text-decoration:none;padding:11px 13px;border-radius:12px;transition:background .14s;}
+.navlink:hover{background:var(--alt);}
+.navlink b{font-size:14.5px;font-weight:600;color:var(--ink);letter-spacing:-.2px;}
+.navlink span{font-size:12.5px;color:var(--smh-muted);}
+.drawgrp{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--label);padding:16px 8px 4px;}
+
+/* ---- hover utilities (these were inline `style-hover` in the prototype) ---- */
+.btn-brand{transition:.15s;}
+.btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.btn-ghost{transition:.15s;}
+.btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+.link-ink{transition:.15s;}
+.link-ink:hover{color:var(--ink) !important;}
+.drawer-link{transition:.15s;}
+.drawer-link:hover{background:var(--alt);}

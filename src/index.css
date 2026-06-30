@@ -37,6 +37,12 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    /* SMH brand tokens (Claude Design forside) */
+    --page:#F7F8FB; --alt:#F3F5F8; --surface:#FFFFFF;
+    --navy1:#080E1A; --navy2:#0B1424; --navy3:#132238;
+    --ink:#080E1A; --body:#4B5565; --label:#94A3B8;
+    --brand:#E0193F; --brand-hover:#C8112F; --brand-surface:#FFF1F3;
+    --brand-border:#FFE4E8; --success:#22C55E; --amber:#FCD34D;
   }
 
   .dark {
