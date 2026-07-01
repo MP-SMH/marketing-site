@@ -1,0 +1,65 @@
+/* ============================================================
+   StøtMedHjerte - Sikkerhed  (/sikkerhed)
+   Konverteret 1:1 fra CD-prototypen (Sikkerhed.dc.html).
+   Side-scoped under .sik-page. Klasser prefiks .sik-.
+   ============================================================ */
+
+.sik-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  --cyan:#22D3EE;
+  --cyan-ink:#0E7490;
+  --cyan-surface:#ECFEFF;
+  --cyan-border:#CFF7FE;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.sik-page *{box-sizing:border-box;}
+
+@keyframes sikRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.sik-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.sik-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.sik-sec-pad{padding-top:96px;padding-bottom:96px;}}
+
+.sik-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.sik-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.sik-cta-w{width:100%;}
+@media(min-width:520px){.sik-cta-w{width:auto;}}
+
+.sik-hero{display:grid;grid-template-columns:1fr;gap:42px;align-items:center;}
+@media(min-width:980px){.sik-hero{grid-template-columns:1.04fr .96fr;gap:56px;}}
+.sik-tchips{display:flex;flex-wrap:wrap;gap:9px;}
+
+.sik-laglist{display:grid;grid-template-columns:1fr;gap:18px;}
+.sik-laglist > div{background:var(--surface);border:1px solid var(--smh-border);border-radius:18px;padding:28px 26px;box-shadow:0 18px 48px -34px rgba(8,14,26,.2);display:flex;flex-direction:column;}
+@media(min-width:560px){.sik-laglist{grid-template-columns:1fr 1fr;gap:18px;}}
+@media(min-width:1000px){.sik-laglist{grid-template-columns:repeat(4,1fr);gap:20px;}}
+
+.sik-resp{display:grid;grid-template-columns:1fr;gap:18px;}
+@media(min-width:780px){.sik-resp{grid-template-columns:1fr 1fr;gap:22px;}}
+
+.sik-flow{display:grid;grid-template-columns:1fr;gap:12px;align-items:stretch;}
+@media(min-width:840px){.sik-flow{grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;}}
+.sik-flow-arrow{display:flex;align-items:center;justify-content:center;color:var(--cyan);transform:rotate(90deg);min-height:26px;}
+@media(min-width:840px){.sik-flow-arrow{transform:none;}}
+
+/* koncentrisk sikkerheds-ring */
+.sik-archpanel{position:relative;width:100%;aspect-ratio:16/9;border-radius:22px;overflow:hidden;background:linear-gradient(158deg,#0C1626,#080E1A 62%);border:1px solid rgba(255,255,255,.09);display:flex;padding:16px;container-type:size;}
+.sik-archgrid{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1.5px);background-size:22px 22px;opacity:.5;pointer-events:none;}
+.sik-archglow{position:absolute;inset:0;background:radial-gradient(circle at 50% 56%, color-mix(in srgb, var(--cyan) 24%, transparent), transparent 58%);pointer-events:none;}
+.sik-ring{position:relative;display:flex;flex:1;min-width:0;min-height:0;border-radius:18px;padding:clamp(13px,6.4cqh,30px) clamp(16px,7cqw,46px);}
+.sik-clab{position:absolute;top:7px;left:10px;display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:999px;background:rgba(8,14,26,.62);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(4px);z-index:2;}
+.sik-clab b{width:16px;height:16px;border-radius:50%;background:color-mix(in srgb,var(--cyan) 34%, #0B1424);color:#fff;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sik-clab span{font-size:11px;font-weight:600;color:#D4ECF4;letter-spacing:.2px;white-space:nowrap;}
+@media(max-width:430px){.sik-clab span{display:none;}.sik-clab{padding:3px;}}
+.sik-core{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:11px;background:linear-gradient(160deg,#15273E,#0B1424);min-width:0;min-height:74px;text-align:center;padding:12px;box-shadow:0 0 0 1px color-mix(in srgb,var(--cyan) 50%, transparent), 0 0 38px color-mix(in srgb,var(--cyan) 24%, transparent);}
+
+.sik-btn-brand{transition:.15s;}
+.sik-btn-brand:hover{background:var(--brand-hover);transform:translateY(-1px);}
+.sik-btn-navy{transition:.15s;}
+.sik-btn-navy:hover{background:rgba(255,255,255,.12);}
+
+.sik-cta-w:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;}

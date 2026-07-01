@@ -66,6 +66,7 @@ import SupportPage from './pages/SupportPage';
 import FastStoettePage from './pages/FastStoettePage';
 import TilladelseOgRegnskabPage from './pages/TilladelseOgRegnskabPage';
 import LovgivningOgAnsvarPage from './pages/LovgivningOgAnsvarPage';
+import SikkerhedPage from './pages/SikkerhedPage';
 import StoetterAuthPage from './pages/StoetterAuthPage';
 import ForeningAuthPage from './pages/ForeningAuthPage';
 import OpretForeningPage from './pages/OpretForeningPage';
@@ -111,6 +112,7 @@ function App() {
             <Route path="/fast-stoette" element={<FastStoettePage />} />
             <Route path="/tilladelse-og-regnskab" element={<TilladelseOgRegnskabPage />} />
             <Route path="/lovgivning-og-ansvar" element={<LovgivningOgAnsvarPage />} />
+            <Route path="/sikkerhed" element={<SikkerhedPage />} />
 
             {/* Auth pages (signup/login forms) */}
             <Route path="/login-stoetter" element={<StoetterAuthPage />} />
