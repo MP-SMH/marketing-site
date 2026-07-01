@@ -64,6 +64,7 @@ import PrivatlivspolitikPage from './pages/PrivatlivspolitikPage';
 import CookiepolitikPage from './pages/CookiepolitikPage';
 import SupportPage from './pages/SupportPage';
 import FastStoettePage from './pages/FastStoettePage';
+import TilladelseOgRegnskabPage from './pages/TilladelseOgRegnskabPage';
 import StoetterAuthPage from './pages/StoetterAuthPage';
 import ForeningAuthPage from './pages/ForeningAuthPage';
 import OpretForeningPage from './pages/OpretForeningPage';
@@ -107,6 +108,7 @@ function App() {
             <Route path="/cookiepolitik" element={<CookiepolitikPage />} />
             <Route path="/support" element={<SupportPage />} />
             <Route path="/fast-stoette" element={<FastStoettePage />} />
+            <Route path="/tilladelse-og-regnskab" element={<TilladelseOgRegnskabPage />} />
 
             {/* Auth pages (signup/login forms) */}
             <Route path="/login-stoetter" element={<StoetterAuthPage />} />

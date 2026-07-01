@@ -1,0 +1,78 @@
+/* ============================================================
+   StøtMedHjerte - Tilladelse og regnskab  (/tilladelse-og-regnskab)
+   Konverteret 1:1 fra CD-prototypen (Tilladelse og regnskab.dc.html).
+   Side-scoped under .tor-page. Klasser prefiks .tor-.
+   ============================================================ */
+
+.tor-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  --flow:#16A34A;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.tor-page *{box-sizing:border-box;}
+
+@keyframes torRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes torJnA{0%,40%{opacity:1;}50%,92%{opacity:0;}100%{opacity:1;}}
+@keyframes torJnB{0%,40%{opacity:0;}50%,92%{opacity:1;}100%{opacity:0;}}
+
+.tor-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;}
+
+.tor-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.tor-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.tor-sec-pad{padding-top:90px;padding-bottom:90px;}}
+
+.tor-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.tor-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.tor-cta-w{width:100%;}
+@media(min-width:520px){.tor-cta-w{width:auto;}}
+
+.tor-hero-grid{display:grid;grid-template-columns:1fr;gap:34px;align-items:center;}
+@media(min-width:980px){.tor-hero-grid{grid-template-columns:.9fr 1.1fr;gap:50px;}}
+
+.tor-hdash-body{display:grid;grid-template-columns:1fr;gap:18px;}
+@media(min-width:540px){.tor-hdash-body{grid-template-columns:1.02fr .98fr;gap:22px;}}
+.tor-minirow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+.tor-facts{display:grid;grid-template-columns:1fr;}
+@media(min-width:640px){.tor-facts{grid-template-columns:repeat(3,1fr);}}
+.tor-factcell{padding:24px 26px;border-top:1px solid var(--smh-border);}
+.tor-factcell:first-child{border-top:none;}
+@media(min-width:640px){.tor-factcell{border-top:none;border-left:1px solid var(--smh-border);}.tor-factcell:first-child{border-left:none;}}
+
+.tor-reg-body{display:grid;grid-template-columns:1fr;gap:0;}
+@media(min-width:760px){.tor-reg-body{grid-template-columns:1.34fr .66fr;}}
+.tor-reg-col{padding:clamp(20px,2.6vw,30px);}
+.tor-reg-col + .tor-reg-col{border-top:1px solid var(--smh-border);}
+@media(min-width:760px){.tor-reg-col + .tor-reg-col{border-top:none;border-left:1px solid var(--smh-border);}}
+.tor-statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.tor-bars{display:flex;align-items:flex-end;gap:7px;height:84px;}
+.tor-bars > div{flex:1;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#FFD0D9,#FFB3C0);}
+
+.tor-autorow{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:760px){.tor-autorow{grid-template-columns:repeat(3,1fr);gap:16px;}}
+
+.tor-linkgrid{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:560px){.tor-linkgrid{grid-template-columns:1fr 1fr;gap:18px;}}
+@media(min-width:980px){.tor-linkgrid{grid-template-columns:repeat(4,1fr);}}
+
+.tor-exp-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+
+.tor-link-card{transition:.16s;}
+.tor-link-card:hover{transform:translateY(-3px);border-color:#cdd3dd;box-shadow:0 24px 50px -34px rgba(8,14,26,.28);}
+
+.tor-btn-brand{transition:.15s;}
+.tor-btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.tor-btn-ghost{transition:.15s;}
+.tor-btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+
+.tor-cta-w:focus-visible,.tor-link-card:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
+
+@media (prefers-reduced-motion: reduce){
+  .tor-jn-a,.tor-jn-b{animation:none !important;}
+  .tor-jn-a{opacity:0 !important;}
+  .tor-jn-b{opacity:1 !important;}
+}
