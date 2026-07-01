@@ -1,0 +1,62 @@
+/* ============================================================
+   StøtMedHjerte - Founder  (/founder)
+   Konverteret 1:1 fra CD-prototypen (Founder.dc.html).
+   Side-scoped under .fo-page. Klasser prefiks .fo-.
+   ============================================================ */
+
+.fo-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  --indigo:#4F46E5;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.fo-page *{box-sizing:border-box;}
+
+@keyframes foRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.fo-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.fo-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.fo-sec-pad{padding-top:96px;padding-bottom:96px;}}
+
+.fo-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.fo-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.fo-cta-w{width:100%;}
+@media(min-width:520px){.fo-cta-w{width:auto;}}
+
+.fo-hero-split{display:grid;grid-template-columns:1fr;gap:34px;align-items:center;}
+@media(min-width:920px){.fo-hero-split{grid-template-columns:1.08fr 0.92fr;gap:56px;}}
+
+.fo-split{display:grid;grid-template-columns:1fr;gap:28px;}
+@media(min-width:880px){.fo-split{grid-template-columns:0.8fr 1.2fr;gap:60px;align-items:start;}}
+
+.fo-commit{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:680px){.fo-commit{grid-template-columns:1fr 1fr;gap:18px;}}
+
+.fo-contact-card{display:grid;grid-template-columns:1fr;gap:24px;align-items:center;}
+@media(min-width:760px){.fo-contact-card{grid-template-columns:auto 1fr;gap:32px;}}
+
+.fo-retmap{display:flex;flex-direction:column;gap:14px;}
+@media(min-width:900px){.fo-retmap{flex-direction:row;align-items:center;gap:0;}}
+.fo-ret-origins{display:flex;flex-direction:column;gap:14px;flex:1;}
+.fo-ret-dest{flex:1.04;}
+.fo-merge-d{display:none;}
+@media(min-width:900px){.fo-merge-d{display:block;flex:0 0 134px;width:134px;}}
+.fo-merge-m{display:flex;justify-content:center;padding:2px 0;}
+@media(min-width:900px){.fo-merge-m{display:none;}}
+
+.fo-portrait{background:linear-gradient(160deg,#EEF2F8,#FFF1F3);}
+.fo-portrait img{width:100%;height:100%;object-fit:cover;display:block;}
+
+.fo-btn-brand{transition:.15s;}
+.fo-btn-brand:hover{background:var(--brand-hover);transform:translateY(-1px);}
+.fo-btn-ghost{transition:.15s;}
+.fo-btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+.fo-btn-navy{transition:.15s;}
+.fo-btn-navy:hover{background:rgba(255,255,255,.12);}
+.fo-mail-btn{transition:.15s;}
+.fo-mail-btn:hover{border-color:#cdd3dd;background:var(--alt);}
+
+.fo-cta-w:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}

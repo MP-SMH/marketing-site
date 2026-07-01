@@ -56,6 +56,7 @@ import DenReneModelPage from './pages/DenReneModelPage';
 import DonationerPage from './pages/DonationerPage';
 import OmOsPage from './pages/OmOsPage';
 import VoresMissionPage from './pages/VoresMissionPage';
+import FounderPage from './pages/FounderPage';
 import BlogPage from './pages/BlogPage';
 import FAQPage from './pages/FAQPage';
 import KontaktPage from './pages/KontaktPage';
@@ -103,6 +104,7 @@ function App() {
             <Route path="/den-rene-model" element={<DenReneModelPage />} />
             <Route path="/om-os" element={<OmOsPage />} />
             <Route path="/vores-mission" element={<VoresMissionPage />} />
+            <Route path="/founder" element={<FounderPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/kontakt" element={<KontaktPage />} />
