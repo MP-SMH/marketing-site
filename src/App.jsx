@@ -44,7 +44,6 @@ import { AuthProvider } from '@/lib/AuthContext';
 import PageNotFound from '@/lib/PageNotFound';
 
 // Page imports
-import Home from './pages/Home';
 import HomeNy from './pages/HomeNy';
 import ForForeningerPage from './pages/ForForeningerPage';
 import ForStoetterPage from './pages/ForStoetterPage';
@@ -91,8 +90,7 @@ function App() {
           <ScrollToTop />
           <Routes>
             {/* Public marketing pages */}
-            <Route path="/" element={<Home />} />
-            <Route path="/ny" element={<HomeNy showTrustBand={false} />} />
+            <Route path="/" element={<HomeNy showTrustBand={false} />} />
             <Route path="/hjertesager" element={<HjertesagerPage />} />
             <Route path="/foreninger" element={<ForeningerPage />} />
             <Route path="/for-foreninger" element={<ForForeningerPage />} />

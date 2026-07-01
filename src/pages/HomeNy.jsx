@@ -85,7 +85,7 @@ const PROBLEMS = [
 ];
 
 const FEATURES = [
-  { title: "Hjertesager", body: "Opret indsamlinger med mål, progress-bar og en delbar side, frivillige kan sprede på få sekunder.", fill: true, d: '<path d="M12 21s-7.5-4.7-10-9.3C.4 8.3 2 4.5 5.6 4.5c2 0 3.4 1.1 4.4 2.6C11 5.6 12.4 4.5 14.4 4.5 18 4.5 19.6 8.3 18 11.7 15.5 16.3 12 21 12 21z"/>' },
+  { title: "Hjertesager", body: "Opret indsamlinger med mål, progress-bar og en delbar side, frivillige kan sprede på få sekunder.", d: '<path d="M12 21s-7.5-4.7-10-9.3C.4 8.3 2 4.5 5.6 4.5c2 0 3.4 1.1 4.4 2.6C11 5.6 12.4 4.5 14.4 4.5 18 4.5 19.6 8.3 18 11.7 15.5 16.3 12 21 12 21z"/>' },
   { title: "Donationer", body: "Støtter bidrager trygt via MobilePay direkte til foreningens egen konto, uden ny profil.", d: '<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/><path d="M6 15h4"/>' },
   { title: "Fast støtte", body: "Lad støtter give et fast månedligt bidrag, så foreningen får et mere forudsigeligt grundlag.", d: '<path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>' },
   { title: "Tilladelse og regnskab", body: "Hold styr på journalnummer fra Indsamlingsnævnet og saml dokumentationen, I skal bruge.", d: '<path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-3.5 7.5-8.6 9a1 1 0 0 1-.8 0C6.5 19.5 3 17 3 12V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.4 1.4 0 0 1 1.6 0C13.5 3.8 16 5 18 5a1 1 0 0 1 1 1z"/>' },
