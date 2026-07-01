@@ -1,0 +1,37 @@
+/* ============================================================
+   StøtMedHjerte - Support  (/support)
+   Konverteret 1:1 fra CD-prototypen (Support.dc.html).
+   Side-scoped under .sup-page. Klasser prefiks .sup-.
+   ============================================================ */
+
+.sup-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.sup-page *{box-sizing:border-box;}
+
+@keyframes supRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.sup-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.sup-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.sup-sec-pad{padding-top:96px;padding-bottom:96px;}}
+
+.sup-field{width:100%;border:1px solid var(--smh-border);border-radius:14px;background:var(--surface);font-family:inherit;font-size:16px;color:var(--ink);padding:15px 18px 15px 52px;min-height:54px;outline:none;transition:border-color .15s, box-shadow .15s;}
+.sup-field::placeholder{color:var(--label);}
+.sup-field:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-surface);}
+
+.sup-cat-grid{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:600px){.sup-cat-grid{grid-template-columns:1fr 1fr;gap:18px;}}
+@media(min-width:960px){.sup-cat-grid{grid-template-columns:repeat(3,1fr);}}
+
+.sup-cat-card{transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
+.sup-cat-card:hover{transform:translateY(-4px);box-shadow:0 22px 50px -28px rgba(8,14,26,.2);border-color:#dfe3ea;}
+
+.sup-btn-brand{transition:.15s;}
+.sup-btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+
+.sup-cat-card:focus-visible,.sup-cta:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
