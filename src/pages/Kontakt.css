@@ -1,0 +1,62 @@
+/* ============================================================
+   StøtMedHjerte - Kontakt  (/kontakt)
+   Konverteret 1:1 fra CD-prototypen (Kontakt.dc.html).
+   Side-scoped under .kon-page. Klasser prefiks .kon-.
+   Formular via useState (controlled inputs, ingen <form>).
+   ============================================================ */
+
+.kon-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.kon-page *{box-sizing:border-box;}
+
+@keyframes konRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.kon-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.kon-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.kon-sec-pad{padding-top:96px;padding-bottom:96px;}}
+
+.kon-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.kon-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.kon-cta-w{width:100%;}
+@media(min-width:520px){.kon-cta-w{width:auto;}}
+
+.kon-hero-split{display:grid;grid-template-columns:1fr;gap:34px;align-items:center;}
+@media(min-width:920px){.kon-hero-split{grid-template-columns:1.04fr .96fr;gap:52px;}}
+
+.kon-split{display:grid;grid-template-columns:1fr;gap:24px;align-items:start;}
+@media(min-width:920px){.kon-split{grid-template-columns:1.35fr .9fr;gap:32px;}}
+
+.kon-ovr-split{display:grid;grid-template-columns:1fr;gap:26px;align-items:center;}
+@media(min-width:920px){.kon-ovr-split{grid-template-columns:.92fr 1.08fr;gap:44px;}}
+
+.kon-methods{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:600px){.kon-methods{grid-template-columns:1fr 1fr;}}
+
+.kon-form-grid{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:640px){.kon-form-grid{grid-template-columns:1fr 1fr;}}
+.kon-col-2{grid-column:1 / -1;}
+
+.kon-field{width:100%;min-height:50px;padding:13px 16px;border-radius:14px;border:1px solid var(--smh-border);background:var(--surface);font-family:inherit;font-size:15.5px;color:var(--ink);transition:border-color .15s,box-shadow .15s;outline:none;}
+.kon-field::placeholder{color:#9AA8B4;}
+.kon-field:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(224,25,63,.10);}
+textarea.kon-field{min-height:120px;resize:vertical;line-height:1.5;}
+
+.kon-method-card{transition:.15s;}
+.kon-method-card:hover{border-color:#cdd3dd;transform:translateY(-2px);box-shadow:0 18px 40px -28px rgba(8,14,26,.26);}
+.kon-short-card{transition:.15s;}
+.kon-short-card:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);}
+
+.kon-btn-brand{transition:.15s;}
+.kon-btn-brand:hover{background:var(--brand-hover);transform:translateY(-1px);}
+.kon-btn-ghost{transition:.15s;}
+.kon-btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+.kon-submit{transition:.15s;}
+.kon-submit:hover{background:var(--brand-hover);transform:translateY(-1px);}
+
+.kon-cta-w:focus-visible,.kon-method-card:focus-visible,.kon-short-card:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
