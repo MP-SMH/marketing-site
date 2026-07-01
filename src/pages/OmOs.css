@@ -1,0 +1,50 @@
+/* ============================================================
+   StøtMedHjerte - Om os  (/om-os)
+   Konverteret 1:1 fra CD-prototypen (Om os.dc.html).
+   Side-scoped under .om-page. Klasser prefiks .om-.
+   ============================================================ */
+
+.om-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.om-page *{box-sizing:border-box;}
+
+@keyframes omRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.om-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.om-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.om-sec-pad{padding-top:104px;padding-bottom:104px;}}
+
+.om-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.om-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.om-cta-w{width:100%;}
+@media(min-width:520px){.om-cta-w{width:auto;}}
+
+.om-two{display:grid;grid-template-columns:1fr;gap:26px;}
+@media(min-width:880px){.om-two{grid-template-columns:300px 1fr;gap:60px;align-items:start;}}
+
+.om-facts{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:600px){.om-facts{grid-template-columns:1fr 1fr;}}
+
+.om-infra-top{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:680px){.om-infra-top{grid-template-columns:1fr 1fr 1fr;}}
+
+.om-links{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:720px){.om-links{grid-template-columns:1fr 1fr;}}
+
+.om-link-card{transition:.16s;}
+.om-link-card:hover{border-color:#cdd3dd;transform:translateY(-2px);box-shadow:0 20px 44px -28px rgba(8,14,26,.28);}
+
+.om-btn-brand{transition:.15s;}
+.om-btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.om-btn-ghost{transition:.15s;}
+.om-btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+.om-btn-navy{transition:.15s;}
+.om-btn-navy:hover{background:rgba(255,255,255,.14);}
+
+.om-cta-w:focus-visible,.om-link-card:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
