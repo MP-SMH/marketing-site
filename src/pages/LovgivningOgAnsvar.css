@@ -1,0 +1,85 @@
+/* ============================================================
+   StøtMedHjerte - Lovgivning og ansvar  (/lovgivning-og-ansvar)
+   Konverteret 1:1 fra CD-prototypen (Lovgivning og ansvar.dc.html).
+   Side-scoped under .lov-page. Klasser prefiks .lov-.
+   reveal-animationer statiske (altid synlige).
+   ============================================================ */
+
+.lov-page{
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+  --green-surface:#ECFDF3;
+  --green-border:#BBF7D0;
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.lov-page *{box-sizing:border-box;}
+
+@keyframes lovRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.lov-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;}
+
+.lov-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.lov-sec-pad{padding-top:60px;padding-bottom:60px;}
+@media(min-width:768px){.lov-sec-pad{padding-top:90px;padding-bottom:90px;}}
+
+.lov-eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--brand);margin-bottom:14px;}
+.lov-h2{margin:0 0 16px;font-size:clamp(25px,3.6vw,38px);line-height:1.12;font-weight:800;letter-spacing:-.9px;color:var(--ink);text-wrap:balance;}
+.lov-lead{margin:0;font-size:clamp(16px,2.2vw,18px);line-height:1.68;color:var(--body);text-wrap:pretty;}
+.lov-intro{max-width:680px;margin:0 0 clamp(28px,4vw,40px);}
+.lov-intro-c{max-width:680px;margin:0 auto clamp(28px,4vw,40px);text-align:center;}
+
+.lov-cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.lov-cta-row{flex-direction:row;flex-wrap:wrap;}}
+.lov-cta-w{width:100%;}
+@media(min-width:520px){.lov-cta-w{width:auto;}}
+
+.lov-card{background:var(--surface);border:1px solid var(--smh-border);border-radius:18px;}
+.lov-lift{transition:transform .18s ease, box-shadow .18s ease;}
+.lov-lift:hover{transform:translateY(-4px);box-shadow:0 26px 56px -32px rgba(8,14,26,.26);}
+
+.lov-hero-grid{display:grid;grid-template-columns:1fr;gap:38px;align-items:center;}
+@media(min-width:960px){.lov-hero-grid{grid-template-columns:1.02fr 1fr;gap:56px;}}
+
+.lov-grid-2x2{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:540px){.lov-grid-2x2{grid-template-columns:1fr 1fr;gap:16px;}}
+
+.lov-split-2{display:grid;grid-template-columns:1fr;gap:36px;align-items:center;}
+@media(min-width:940px){.lov-split-2{grid-template-columns:1fr 1fr;gap:56px;}}
+.lov-split-2.lov-stretch{align-items:stretch;}
+.lov-split-2.lov-stretch > *{height:100%;}
+
+.lov-split-rev{display:grid;grid-template-columns:1fr;gap:36px;align-items:center;}
+@media(min-width:940px){.lov-split-rev{grid-template-columns:1fr 1fr;gap:56px;}}
+
+.lov-track{display:flex;flex-direction:column;gap:8px;}
+@media(min-width:560px){.lov-track{flex-direction:row;align-items:stretch;gap:6px;}}
+.lov-step{flex:1;min-width:0;}
+.lov-arr-h{display:none;align-items:center;}
+@media(min-width:560px){.lov-arr-h{display:flex;}}
+.lov-arr-v{display:flex;justify-content:center;}
+@media(min-width:560px){.lov-arr-v{display:none;}}
+
+.lov-hsag{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(min-width:680px){.lov-hsag{grid-template-columns:repeat(4,1fr);}}
+.lov-bus-v{display:flex;justify-content:center;}
+.lov-bus-h{display:none;}
+@media(min-width:680px){.lov-bus-v{display:none;}.lov-bus-h{display:block;}}
+
+.lov-tbl{display:none;}
+@media(min-width:620px){.lov-tbl{display:block;}}
+.lov-tbl-m{display:block;display:flex;flex-direction:column;gap:12px;}
+@media(min-width:620px){.lov-tbl-m{display:none;}}
+.lov-trow{display:grid;grid-template-columns:1.6fr 1fr 1.2fr .9fr .8fr;gap:10px;padding:13px 18px;border-top:1px solid var(--smh-border);align-items:center;}
+
+.lov-cta-cards{display:grid;grid-template-columns:1fr;gap:18px;}
+@media(min-width:720px){.lov-cta-cards{grid-template-columns:repeat(3,1fr);gap:20px;}}
+
+.lov-btn-brand{transition:.15s;}
+.lov-btn-brand:hover{background:var(--brand-hover);transform:translateY(-2px);}
+.lov-btn-ghost{transition:.15s;}
+.lov-btn-ghost:hover{border-color:#cdd3dd;background:var(--alt);}
+
+.lov-cta-w:focus-visible,.lov-lift:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
