@@ -6,7 +6,7 @@
 //  så navigation virker i SPA'en. Rutemål er identiske med CD.
 // ============================================================
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./SiteNav.css";
 
@@ -161,9 +161,22 @@ function Wordmark({ color = "var(--ink)", tm = "var(--smh-muted)", size = 19 }) 
    ============================================================ */
 export default function SiteNav() {
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState({});
   const close = () => setOpen(false);
+  const toggleGroup = (g) => setExpanded((m) => ({ ...m, [g]: !m[g] }));
+
+  // Laas baggrunds-scroll naar drawer er aaben, nulstil accordion ved luk
+  useEffect(() => {
+    if (open) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = prev; };
+    } else {
+      setExpanded({});
+    }
+  }, [open]);
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(247,248,251,.85)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--smh-border)" }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(247,248,251,.85)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--smh-border)" }}>
       <nav className="wrap" style={{ minHeight: 66, display: "flex", alignItems: "center", gap: 16, paddingTop: 10, paddingBottom: 10 }}>
         <Link to={ROUTES.home} style={{ textDecoration: "none", flexShrink: 0 }}><Wordmark /></Link>
 
@@ -201,22 +214,38 @@ export default function SiteNav() {
         </button>
       </nav>
 
-      {/* mobile drawer */}
+      {/* mobile drawer - accordion, fixed top + bottom */}
       {open && (
-        <div className="smh-drawer" style={{ flexDirection: "column", gap: 2, borderTop: "1px solid var(--smh-border)", background: "var(--page)", padding: "8px 20px 22px", maxHeight: "78vh", overflowY: "auto" }}>
-          {DRAWER.map((sec) => (
-            <React.Fragment key={sec.group}>
-              <div className="drawgrp">{sec.group}</div>
-              {sec.links.map((l) => (
-                <Link key={l.t} to={l.href} onClick={close} className="drawer-link"
-                  style={{ textDecoration: "none", color: "var(--ink)", fontSize: 16, fontWeight: 500, padding: "12px 8px", borderRadius: 14 }}>{l.t}</Link>
-              ))}
-            </React.Fragment>
-          ))}
-          <div style={{ height: 1, background: "var(--smh-border)", margin: "12px 0" }} />
-          <Link to={ROUTES.hjertesager} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "var(--ink)", fontSize: 16, fontWeight: 600, padding: 15, borderRadius: 999, border: "1px solid var(--smh-border)", background: "var(--surface)", minHeight: 52, display: "flex", alignItems: "center", justifyContent: "center" }}>Find hjertesag</Link>
-          <Link to={ROUTES.opretForening + "#form"} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "#fff", fontSize: 16, fontWeight: 600, padding: 15, borderRadius: 999, background: "var(--brand)", minHeight: 52, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(224,25,63,.22)", marginTop: 4 }}>Opret forening</Link>
-          <Link to={ROUTES.logInd} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "var(--body)", fontSize: 15, fontWeight: 600, padding: 12, marginTop: 4 }}>Log ind</Link>
+        <div className="smh-drawer" style={{ position: "fixed", inset: 0, height: "100dvh", zIndex: 60, display: "flex", flexDirection: "column", background: "var(--page)" }}>
+          <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 66, padding: "10px 20px", background: "var(--page)", borderBottom: "1px solid var(--smh-border)" }}>
+            <Link to={ROUTES.home} onClick={close} style={{ textDecoration: "none" }}><Wordmark /></Link>
+            <button onClick={close} aria-label="Luk menu" style={{ width: 46, height: 46, borderRadius: 14, border: "1px solid var(--smh-border)", background: "var(--surface)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)" }}>
+              <Ic size={22} sw={2.2} d='<path d="M18 6 6 18M6 6l12 12"/>' />
+            </button>
+          </div>
+
+          <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "12px 20px 20px" }}>
+            {DRAWER.map((sec, i) => {
+              const isOpen = !!expanded[sec.group];
+              return (
+                <div key={sec.group} style={{ borderTop: i === 0 ? "none" : "1px solid #EDEFF3", marginTop: i === 0 ? 0 : 6, paddingTop: i === 0 ? 0 : 6 }}>
+                  <button onClick={() => toggleGroup(sec.group)} aria-expanded={isOpen} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 54, padding: "6px 8px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}>
+                    <span style={{ fontSize: 17, fontWeight: 600, color: "var(--ink)", letterSpacing: "-.2px" }}>{sec.group}</span>
+                    <Ic d={PATH.chevron} size={20} sw={2.4} color="#6B7280" style={{ transition: "transform .18s", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+                  </button>
+                  {isOpen && sec.links.map((l) => (
+                    <Link key={l.t} to={l.href} onClick={close} className="drawer-link" style={{ textDecoration: "none", display: "flex", alignItems: "center", minHeight: 48, color: "#1A2233", fontSize: 16, fontWeight: 400, padding: "9px 8px 9px 28px", borderRadius: 10 }}>{l.t}</Link>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ flexShrink: 0, padding: "14px 20px calc(18px + env(safe-area-inset-bottom))", borderTop: "1px solid var(--smh-border)", background: "var(--page)" }}>
+            <Link to={ROUTES.opretForening + "#form"} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "#fff", fontSize: 16, fontWeight: 600, padding: 15, borderRadius: 999, background: "var(--brand)", minHeight: 54, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(224,25,63,.22)" }}>Opret forening</Link>
+            <Link to={ROUTES.hjertesager} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "var(--brand)", fontSize: 16, fontWeight: 600, padding: 15, borderRadius: 999, border: "1px solid var(--brand)", background: "var(--surface)", minHeight: 54, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 10 }}>Find hjertesag</Link>
+            <Link to={ROUTES.logInd} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "var(--body)", fontSize: 15, fontWeight: 600, padding: 10, marginTop: 6, display: "block" }}>Log ind</Link>
+          </div>
         </div>
       )}
     </header>

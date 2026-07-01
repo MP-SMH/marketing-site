@@ -11,12 +11,29 @@
 /* ---- footer grid ---- */
 .foot{display:grid;grid-template-columns:1fr;gap:36px;}
 @media(min-width:768px){.foot{grid-template-columns:1.7fr 1fr 1fr 1fr;gap:36px;}}
+/* mobil (<768px): intro fuld bredde, Platform+Viden 2 kol, Virksomhed fuld bredde */
+@media(max-width:767px){
+  .foot{grid-template-columns:1fr 1fr;gap:26px 20px;}
+  .foot>*:nth-child(1){grid-column:1 / -1;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .foot>*:nth-child(4){grid-column:1 / -1;}
+}
 
 /* ---- CTA rows (stack on mobile, inline ≥520px) ---- */
 .cta-row{display:flex;flex-direction:column;gap:12px;}
 @media(min-width:520px){.cta-row{flex-direction:row;flex-wrap:wrap;}}
 .cta-w{width:100%;}
 @media(min-width:520px){.cta-w{width:auto;}}
+
+/* ---- meta row: two grouped rows on mobile, single row on desktop ---- */
+.foot-meta{flex-direction:column;gap:8px;}
+.foot-meta .meta-line{display:flex;flex-wrap:wrap;gap:6px 20px;align-items:center;}
+@media(min-width:640px){
+  .foot-meta{flex-direction:row;flex-wrap:wrap;gap:10px 26px;}
+  .foot-meta .meta-line{display:contents;}
+}
+/* ---- legal row: stack on mobile ---- */
+.foot-legal{flex-direction:column;align-items:flex-start;gap:16px;}
+@media(min-width:640px){.foot-legal{flex-direction:row;align-items:center;gap:14px;}}
 
 /* ---- hover utilities (these were inline `style-hover` in the prototype) ---- */
 .btn-brand{transition:.15s;}

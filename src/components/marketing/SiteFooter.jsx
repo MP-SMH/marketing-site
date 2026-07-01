@@ -96,14 +96,16 @@ export default function SiteFooter() {
             </div>
           ))}
         </div>
-        <div style={{ padding: "26px 0", borderBottom: "1px solid rgba(255,255,255,.08)", display: "flex", flexWrap: "wrap", gap: "10px 26px", fontSize: 14, color: "#AEB9CC" }}>
-          <span style={{ fontWeight: 600, color: "#E8EDF5" }}>Heartland Collective ApS</span>
-          <span>CVR 36909722</span>
-          <span>Hillerød, Danmark</span>
-          <a href="mailto:hej@stotmedhjerte.dk" className="foot-link" style={{ textDecoration: "none", color: "#AEB9CC" }}>hej@stotmedhjerte.dk</a>
-          <a href="tel:+4571961212" className="foot-link" style={{ textDecoration: "none", color: "#AEB9CC" }}>71 96 12 12</a>
+        <div style={{ margin: "26px 0", padding: 18, background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 14 }}>
+          <div style={{ fontSize: 14.5, fontWeight: 600, color: "#E8EDF5", marginBottom: 14 }}>Heartland Collective ApS</div>
+          <div className="foot-facts" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "11px 28px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}><span style={{ color: "#6B7A92" }}>CVR</span><span style={{ color: "#AEB9CC" }}>36909722</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}><span style={{ color: "#6B7A92" }}>Adresse</span><span style={{ color: "#AEB9CC" }}>Hillerød, Danmark</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}><span style={{ color: "#6B7A92" }}>Email</span><a href="mailto:hej@stotmedhjerte.dk" className="foot-link" style={{ textDecoration: "none", color: "#AEB9CC" }}>hej@stotmedhjerte.dk</a></div>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}><span style={{ color: "#6B7A92" }}>Telefon</span><a href="tel:+4571961212" className="foot-link" style={{ textDecoration: "none", color: "#AEB9CC" }}>71 96 12 12</a></div>
+          </div>
         </div>
-        <div style={{ padding: "24px 0 32px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 14 }}>
+        <div className="foot-legal" style={{ padding: "24px 0 32px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 14 }}>
           <span style={{ fontSize: 13.5, color: "#6B7A92" }}>© 2026 StøtMedHjerte. Alle rettigheder forbeholdes.</span>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 18 }}>
             {legal.map((t) => (
