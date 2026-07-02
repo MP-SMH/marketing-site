@@ -69,6 +69,7 @@ import LovgivningOgAnsvarPage from './pages/LovgivningOgAnsvarPage';
 import SikkerhedPage from './pages/SikkerhedPage';
 import ForeningAuthPage from './pages/ForeningAuthPage';
 import OpretForeningPage from './pages/OpretForeningPage';
+import OpretForeningLanding from './pages/OpretForeningLanding';
 
 // Scroll-to-top ved route-changes
 function ScrollToTop() {
@@ -115,7 +116,8 @@ function App() {
 
             {/* Auth pages (signup/login forms) */}
             <Route path="/log-ind" element={<ForeningAuthPage />} />
-            <Route path="/opret-forening" element={<OpretForeningPage />} />
+            <Route path="/opret-forening" element={<OpretForeningLanding />} />
+            <Route path="/opret-forening/start" element={<OpretForeningPage />} />
             {/* 404 fallback */}
             <Route path="*" element={<PageNotFound />} />
           </Routes>
