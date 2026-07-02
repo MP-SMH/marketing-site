@@ -1,0 +1,148 @@
+/* ===================================================================
+   OpretForeningOnboarding.css
+   Side-scoped styling for onboarding-wizarden (rute /opret-forening/start).
+   Klasse-præfiks: .ofo-
+   Globale tokens (--page, --alt, --surface, --ink, --body, --label,
+   --brand, --brand-hover, --brand-surface, --brand-border, --success)
+   forventes defineret centralt. De to side-scopede tokens defineres her.
+   =================================================================== */
+
+.ofo-page{
+  /* Side-scopede tokens (kontrakt) */
+  --smh-border:#E5E7EB;
+  --smh-muted:#6B7280;
+
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:var(--page);
+  color:var(--ink);
+  font-family:Inter, system-ui, sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.ofo-page *{box-sizing:border-box;}
+.ofo-wrap{max-width:1120px;margin:0 auto;padding-left:20px;padding-right:20px;width:100%;}
+
+/* ---- Minimal top-bar (ingen mega-menu) ---- */
+.ofo-topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(247,248,251,.9);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--smh-border);
+}
+.ofo-topbar-inner{
+  min-height:62px;display:flex;align-items:center;gap:12px;
+  padding-top:11px;padding-bottom:11px;
+}
+.ofo-back{
+  display:inline-flex;align-items:center;gap:6px;
+  min-height:44px;padding:8px 15px 8px 11px;
+  border-radius:999px;border:1px solid var(--smh-border);
+  background:var(--surface);color:var(--ink);
+  font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:.15s;
+}
+.ofo-back:hover{background:var(--alt);border-color:#cdd3dd;}
+.ofo-back:focus-visible{outline:3px solid rgba(224,25,63,.4);outline-offset:2px;}
+.ofo-wordmark{
+  text-decoration:none;margin:0 auto;
+  font-weight:550;font-size:18px;letter-spacing:-.4px;color:var(--ink);
+}
+.ofo-wordmark sup{font-size:9px;vertical-align:super;color:var(--smh-muted);font-weight:500;margin-left:1px;}
+.ofo-cancel{
+  display:inline-flex;align-items:center;gap:6px;
+  min-height:44px;padding:8px 15px;
+  border-radius:999px;border:1px solid var(--smh-border);
+  background:var(--surface);color:var(--smh-muted);text-decoration:none;
+  font-size:14.5px;font-weight:600;transition:.15s;
+}
+.ofo-cancel:hover{background:var(--alt);color:var(--ink);}
+.ofo-cancel:focus-visible{outline:3px solid rgba(224,25,63,.4);outline-offset:2px;}
+
+/* ---- Main ---- */
+.ofo-main{flex:1;width:100%;padding-top:clamp(28px,5vw,52px);padding-bottom:clamp(44px,7vw,80px);}
+
+/* ---- Wizard-ramme (mørkt kort) ---- */
+.ofo-frame{
+  position:relative;max-width:820px;margin:0 auto;
+  border-radius:28px;padding:clamp(8px,1.2vw,12px);
+  background:linear-gradient(160deg,#0B1424,#16273F);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 50px 110px -50px rgba(8,14,26,.55);
+}
+.ofo-frame-header{padding:clamp(16px,2.2vw,22px) clamp(16px,2.2vw,22px) clamp(18px,2.4vw,22px);}
+.ofo-frame-head-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
+.ofo-kicker{font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#9AA8BE;}
+.ofo-stepcount{font-size:13px;font-weight:600;color:#E8EDF5;margin-top:3px;}
+.ofo-securebadge{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;
+  background:rgba(255,255,255,.08);font-size:11.5px;font-weight:700;color:#9AA8BE;
+}
+.ofo-frame-progress{height:5px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:18px;}
+.ofo-frame-progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--brand),#F2547A);transition:width .3s ease;}
+.ofo-white{background:#fff;border-radius:20px;padding:clamp(20px,3vw,30px);box-shadow:0 24px 50px -30px rgba(0,0,0,.45);}
+
+/* ---- Rail ---- */
+.ofo-rail{display:flex;align-items:flex-start;}
+.ofo-rail-node{display:flex;flex-direction:column;align-items:center;gap:6px;width:56px;flex-shrink:0;}
+.ofo-rail-conn{flex:1;height:2px;margin:16px 3px 0;border-radius:2px;}
+
+/* ---- Felter ---- */
+.ofo-field{
+  width:100%;min-height:48px;padding:12px 15px;
+  border-radius:13px;border:1px solid var(--smh-border);background:var(--surface);
+  font-family:inherit;font-size:15px;color:var(--ink);
+  transition:border-color .15s, box-shadow .15s;outline:none;
+}
+.ofo-field::placeholder{color:#9AA8B4;}
+.ofo-field:focus, .ofo-field:focus-visible{border-color:var(--brand);box-shadow:0 0 0 4px rgba(224,25,63,.10);}
+.ofo-label{display:block;font-size:13px;font-weight:600;color:var(--body);margin-bottom:7px;}
+
+/* ---- Knapper ---- */
+.ofo-primary{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:9px;
+  padding:15px;min-height:52px;border:none;border-radius:999px;
+  background:var(--brand);color:#fff;font-size:15.5px;font-weight:600;font-family:inherit;cursor:pointer;
+  box-shadow:0 14px 30px rgba(224,25,63,.26);transition:background .15s;
+}
+.ofo-primary:hover{background:var(--brand-hover);}
+.ofo-primary:disabled{opacity:.75;cursor:default;}
+.ofo-primary:focus-visible{outline:3px solid rgba(224,25,63,.4);outline-offset:2px;}
+.ofo-linkbtn{background:none;border:none;padding:0;font-family:inherit;font-size:13px;font-weight:700;color:var(--brand);cursor:pointer;}
+.ofo-linkbtn:focus-visible{outline:2px solid rgba(224,25,63,.5);outline-offset:2px;border-radius:4px;}
+.ofo-showpw{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;padding:6px 8px;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--brand);cursor:pointer;}
+
+/* ---- OTP ---- */
+.ofo-otp-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;}
+.ofo-otp-box{
+  width:100%;min-width:0;height:54px;text-align:center;
+  font-size:20px;font-weight:700;color:var(--ink);font-family:inherit;
+  border-radius:12px;background:var(--surface);outline:none;
+}
+.ofo-otp-box:focus-visible{box-shadow:0 0 0 4px rgba(224,25,63,.10);}
+
+/* ---- Grids ---- */
+.ofo-2col{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:560px){.ofo-2col{grid-template-columns:1fr 1fr;}}
+.ofo-plans{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:18px;}
+@media(min-width:680px){.ofo-plans{grid-template-columns:repeat(3,1fr);}}
+
+/* ---- Slim footer ---- */
+.ofo-foot{border-top:1px solid var(--smh-border);background:var(--page);}
+.ofo-foot-inner{padding:20px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 20px;}
+.ofo-foot-copy{font-size:13px;color:var(--smh-muted);}
+.ofo-foot a{text-decoration:none;color:var(--smh-muted);font-size:13px;font-weight:500;transition:.15s;}
+.ofo-foot a:hover{color:var(--ink);}
+.ofo-foot a:focus-visible{outline:2px solid rgba(224,25,63,.5);outline-offset:2px;border-radius:4px;}
+
+/* ---- Modal ---- */
+.ofo-modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(8,14,26,.55);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.ofo-modal{
+  max-width:460px;width:100%;background:#fff;border-radius:22px;padding:28px;
+  box-shadow:0 40px 90px -30px rgba(8,14,26,.6);
+}
+
+@keyframes ofoSpin{to{transform:rotate(360deg);}}

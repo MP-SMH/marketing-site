@@ -14,11 +14,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Check, CheckCircle2, AlertCircle, AlertTriangle, Eye, EyeOff, ChevronDown } from 'lucide-react';
 import zxcvbn from 'zxcvbn';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { SMH_API_URL } from '@/lib/supabaseClient';
 import { useSystemStatus } from '@/hooks/useSystemStatus';
 import { fetchActiveConsents, ConsentFetchError } from '@/lib/consents';
 import ConsentModal from '@/components/ConsentModal';
+import './OpretForeningOnboarding.css';
 
 // Brand color tokens
 const BRAND_TEAL = '#0891B2';
@@ -109,6 +110,14 @@ export default function OpretForeningPage() {
 
   // Modal state: hvilken consent-type er åben (null = ingen modal aktiv)
   const [activeModalType, setActiveModalType] = useState(null);
+
+  // --- S66 O3: additive state (roerer ikke eksisterende hooks) ---
+  // Trin 4 MobilePay MSN (visuelt only, afventer partner-noegler)
+  const [msn, setMsn] = useState('');
+  const [msnError, setMsnError] = useState('');
+  // Trin 5 abonnement (visuelt only, afventer Frisbii-checkout)
+  const [billing, setBilling] = useState('aarlig');
+  const [selectedPlan, setSelectedPlan] = useState('samlet');
 
   // Fetch consent_versions ved mount, cancel ved unmount via AbortController
   useEffect(() => {
@@ -421,10 +430,15 @@ export default function OpretForeningPage() {
         setCvrLookupState({
           status: 'active',
           foreningsnavn: data.foreningsnavn,
+          postnummer: data.postnummer,
         });
         // Per beslutning B: kun auto-fill hvis tomt (respekter brugerens input)
         if (!foreningsnavn.trim()) {
           setForeningsnavn(data.foreningsnavn);
+        }
+        // S66 F1: auto-fill postnr fra CVR (redigerbart, kun hvis tomt + leveret)
+        if (data.postnummer && !postnummer.trim()) {
+          setPostnummer(data.postnummer);
         }
       } else if (data.valid && !data.active) {
         // Ophoert/inaktiv forening - bloker signup (compliance)
@@ -572,723 +586,358 @@ export default function OpretForeningPage() {
   // ===========================================================================
   // Render
   // ===========================================================================
+  // --- S66 O3 (Edit D): CD .ofo-design wired til eksisterende state/handlers ---
+  const ofoH = { margin: '0 0 8px', fontSize: 'clamp(20px,2.6vw,24px)', fontWeight: 800, letterSpacing: '-.5px', color: 'var(--ink)' };
+  const ofoP = { margin: '0 0 20px', fontSize: 14.5, lineHeight: 1.6, color: 'var(--body)' };
+  const ofoFieldErr = { marginTop: 7, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--brand)' };
+  const ofoCvrRow = (color) => ({ marginTop: 9, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, fontWeight: 600, color });
+  const OFO_PLANS = [
+    { id: 'donationer', name: 'Donationer', a: 149, m: 179, desc: 'Engangsbidrag fra støtter via MobilePay.' },
+    { id: 'fast', name: 'Fast støtte', a: 199, m: 239, desc: 'Månedlige faste bidrag fra støtter.' },
+    { id: 'samlet', name: 'Samlet', a: 278, m: 334, rec: true, desc: 'Begge produkter samlet, med 20% pakkerabat.' },
+  ];
+  const ofoRail = [['E-mail', 1], ['Bekræft', 2], ['Forening', 3], ['MobilePay', 4], ['Abonnement', 5]];
+  const ofoPct = (step / 5) * 100;
+  const pwMeter = [
+    { color: '#EF4444', label: 'Meget svag' },
+    { color: '#F97316', label: 'Svag' },
+    { color: '#EAB308', label: 'Mellem' },
+    { color: '#14B8A6', label: 'God' },
+    { color: '#0891B2', label: 'Stærk' },
+  ];
+  const pwScore = password.length === 0 ? -1 : computePasswordScore(password);
+
   return (
-    <div style={pageStyle}>
-      <style>{ANIMATIONS_AND_INPUTS}</style>
-
-      {/* Background grid */}
-      <div style={gridStyle} />
-
-      {/* Animated orbs (Pulse signature) */}
-      <div style={orb1Style} />
-      <div style={orb2Style} />
-      <div style={orb3Style} />
-
-      {/* Particles */}
-      {[...Array(6)].map((_, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            left: `${15 + i * 14}%`,
-            bottom: '-5%',
-            width: 3 + (i % 3),
-            height: 3 + (i % 3),
-            borderRadius: '50%',
-            background: `rgba(8,145,178,${0.15 + (i % 3) * 0.1})`,
-            animation: `login-particles ${8 + i * 2}s linear infinite`,
-            animationDelay: `${i * 1.5}s`,
-            zIndex: 1,
-          }}
-        />
-      ))}
-
-      {/* Top nav: wordmark + system status */}
-      <nav style={navStyle}>
-        <div style={wordmarkStyle} onClick={() => navigate('/')}>
-          <span style={wordmarkDotStyle} />
-          <span>StøtMedHjerte</span>
+    <div className="ofo-page">
+      {/* Minimal top-bar */}
+      <header className="ofo-topbar">
+        <div className="ofo-wrap ofo-topbar-inner">
+          <button type="button" className="ofo-back" onClick={() => (step === 1 ? navigate('/opret-forening') : setStep(step - 1))} aria-label="Tilbage">
+            <ArrowLeft size={18} /> Tilbage
+          </button>
+          <Link to="/" className="ofo-wordmark">StøtMedHjerte<sup>™</sup></Link>
+          <Link to="/opret-forening" className="ofo-cancel" aria-label="Afbryd oprettelse">Afbryd</Link>
         </div>
-        <div style={statusBadgeStyle}>
-          <span
-            style={{
-              ...statusDotStyle,
-              background: status.color,
-              boxShadow: `0 0 8px ${status.color}`,
-            }}
-          />
-          {status.label}
-        </div>
-      </nav>
+      </header>
 
-      {/* Back button */}
-      <button
-        onClick={() => (step === 1 ? navigate('/') : setStep(step - 1))}
-        style={backButtonStyle}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-          e.currentTarget.style.color = '#fff';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-          e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
-        }}
-      >
-        <ArrowLeft size={14} /> {step === 1 ? 'Til forsiden' : 'Tilbage'}
-      </button>
-
-      {/* Card container */}
-      <main style={mainStyle}>
-        <div className="login-card" style={cardWrapperStyle}>
-          <div style={cardStyle}>
-            {/* Step indicator */}
-            <div style={stepIndicatorStyle}>
-              <span style={stepDotStyle(step >= 1)} />
-              <span style={stepLineStyle(step >= 2)} />
-              <span style={stepDotStyle(step >= 2)} />
-              <span style={stepLineStyle(step >= 3)} />
-              <span style={stepDotStyle(step >= 3)} />
-              <span style={stepCounterStyle}>STEP {step} / 3</span>
-            </div>
-
-            {/* Icon */}
-            <div style={iconWrapperStyle}>
-              <div style={iconCircleStyle}>
-                {step === 2 ? (
-                  <Mail size={26} color="#3B82F6" />
-                ) : (
-                  <Users size={26} color="#3B82F6" />
-                )}
+      {/* Wizard */}
+      <main className="ofo-wrap ofo-main">
+        <div className="ofo-frame">
+          <div className="ofo-frame-header">
+            <div className="ofo-frame-head-row">
+              <div>
+                <div className="ofo-kicker">Opret forening</div>
+                <div className="ofo-stepcount">Trin {step} af 5</div>
               </div>
+              <span className="ofo-securebadge"><ShieldCheck size={13} /> Sikker oprettelse</span>
             </div>
-
-            {/* Heading section */}
-            <div style={headerStyle}>
-              <div style={eyebrowStyle}>OPRET FORENING</div>
-              <h1 style={headingStyle}>
-                {step === 1 && 'Bekræft din email-adresse'}
-                {step === 2 && 'Indtast bekræftelseskode'}
-                {step === 3 && 'Fortæl os om foreningen'}
-              </h1>
-              <p style={subheadStyle}>
-                {step === 1 && 'Vi sender en 8-cifret kode til din email for at verificere at du ejer adressen.'}
-                {step === 2 && (
-                  <>
-                    Vi har sendt en kode til <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{email}</strong>. Indtast koden nedenfor for at fortsætte.
-                  </>
-                )}
-                {step === 3 && 'Udfyld foreningens oplysninger for at færdiggøre opretelsen.'}
-              </p>
+            {/* Rail */}
+            <div className="ofo-rail">
+              {(() => {
+                const out = [];
+                ofoRail.forEach((st, idx) => {
+                  const n = st[1];
+                  const done = step > n;
+                  const cur = step === n;
+                  out.push(
+                    <div key={'n' + n} className="ofo-rail-node">
+                      {done ? (
+                        <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--success)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Check size={15} /></span>
+                      ) : (
+                        <span style={{ width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13.5, fontWeight: 800, ...(cur ? { background: 'var(--brand)', color: '#fff', boxShadow: '0 8px 20px rgba(224,25,63,.4)' } : { background: 'rgba(255,255,255,.06)', border: '1.5px solid rgba(255,255,255,.16)', color: '#9AA8BE' }) }}>{n}</span>
+                      )}
+                      <span style={{ fontSize: 10, fontWeight: 600, textAlign: 'center', lineHeight: 1.2, color: (done || cur) ? '#E8EDF5' : '#9AA8BE' }}>{st[0]}</span>
+                    </div>
+                  );
+                  if (idx < ofoRail.length - 1) {
+                    out.push(<span key={'c' + n} className="ofo-rail-conn" style={{ background: step > n ? 'var(--success)' : 'rgba(255,255,255,.16)' }} />);
+                  }
+                });
+                return out;
+              })()}
             </div>
+            <div className="ofo-frame-progress"><div className="ofo-frame-progress-fill" style={{ width: ofoPct + '%' }} /></div>
+          </div>
 
-            {/* ====================================================== */}
-            {/* STEP 1: Email + send OTP */}
-            {/* ====================================================== */}
+          <div className="ofo-white">
+            {/* ---- Trin 1: e-mail ---- */}
             {step === 1 && (
               <form onSubmit={handleSendOtp}>
-                <div style={fieldStyle}>
-                  <label style={labelStyle} htmlFor="email">Email</label>
-                  <input
-                    id="email"
-                    type="email"
-                    className="signup-input"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="navn@forening.dk"
-                    autoComplete="email"
-                    autoFocus
-                    disabled={emailLoading}
-                    required
-                  />
-                </div>
-
-                {emailError && (
-                  <div style={errorStyle}>
-                    <span style={errorDotStyle} />
-                    {emailError}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={emailLoading || !email}
-                  style={primaryButtonStyle(!emailLoading && !!email)}
-                  onMouseEnter={(e) => {
-                    if (!emailLoading && email) {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 8px 32px rgba(8,145,178,0.45)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow =
-                      !emailLoading && email ? '0 4px 24px rgba(8,145,178,0.35)' : 'none';
-                  }}
-                >
-                  {emailLoading ? (
-                    <>
-                      <Loader size={16} className="spin" /> Sender kode...
-                    </>
-                  ) : (
-                    <>
-                      Send bekræftelseskode <ArrowRight size={15} />
-                    </>
-                  )}
+                <h2 style={ofoH}>Opret din konto</h2>
+                <p style={ofoP}>Vi sender en engangskode til jeres arbejds-e-mail, så vi ved, at det er jer.</p>
+                <label style={{ display: 'block' }}>
+                  <span className="ofo-label">Arbejds-e-mail</span>
+                  <input className="ofo-field" type="email" inputMode="email" placeholder="navn@forening.dk" value={email} onChange={(e) => setEmail(e.target.value)} disabled={emailLoading} autoFocus required style={emailError ? { borderColor: 'var(--brand)' } : undefined} />
+                </label>
+                {emailError ? <div style={{ margin: '8px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{emailError}</div> : null}
+                <button type="submit" className="ofo-primary" disabled={emailLoading || !email} style={{ marginTop: 18 }}>
+                  {emailLoading ? <><Loader size={16} style={{ animation: 'ofoSpin .7s linear infinite' }} /> Sender kode ...</> : <>Send bekræftelseskode <ArrowRight size={17} /></>}
                 </button>
               </form>
             )}
 
-            {/* ====================================================== */}
-            {/* STEP 2: OTP-indtastning */}
-            {/* ====================================================== */}
+            {/* ---- Trin 2: OTP (auto-verify via handleOtpChange) ---- */}
             {step === 2 && (
               <div>
-                {/* OTP input grid */}
-                <div style={otpGridStyle}>
+                <h2 style={ofoH}>Indtast bekræftelseskode</h2>
+                <p style={ofoP}>Vi har sendt en 8-cifret kode til <strong style={{ color: 'var(--ink)' }}>{email}</strong>. Indtast koden nedenfor.</p>
+                <div className="ofo-otp-grid">
                   {otpDigits.map((digit, index) => (
-                    <input
-                      key={index}
-                      ref={(el) => (otpInputRefs.current[index] = el)}
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpChange(index, e.target.value)}
-                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                      onPaste={index === 0 ? handleOtpPaste : undefined}
-                      disabled={otpLoading}
-                      style={otpInputStyle(otpError !== '')}
-                    />
+                    <input key={index} ref={(el) => (otpInputRefs.current[index] = el)} className="ofo-otp-box" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={1} value={digit} onChange={(e) => handleOtpChange(index, e.target.value)} onKeyDown={(e) => handleOtpKeyDown(index, e)} onPaste={index === 0 ? handleOtpPaste : undefined} disabled={otpLoading} style={{ border: '1px solid ' + (otpError ? 'var(--brand)' : 'var(--smh-border)') }} />
                   ))}
                 </div>
-
-                {/* Error besked */}
-                {otpError && (
-                  <div style={{ ...errorStyle, marginTop: 0 }}>
-                    <span style={errorDotStyle} />
-                    {otpError}
-                  </div>
-                )}
-
-                {/* Loading-indikator */}
-                {otpLoading && (
-                  <div style={otpVerifyingStyle}>
-                    <Loader size={14} className="spin" />
-                    <span>Verificerer kode...</span>
-                  </div>
-                )}
-
-                {/* Resend-knap */}
-                <div style={resendRowStyle}>
-                  {resendCooldown > 0 ? (
-                    <span style={resendCooldownTextStyle}>
-                      Send ny kode om {resendCooldown}s
-                    </span>
-                  ) : (
-                    <button
-                      onClick={handleResendOtp}
-                      disabled={emailLoading}
-                      style={resendButtonStyle}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = '#22d3ee')}
-                    >
-                      {emailLoading ? 'Sender...' : 'Send ny kode'}
-                    </button>
-                  )}
+                {otpError ? <div style={{ margin: '12px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{otpError}</div> : null}
+                {otpLoading ? <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--smh-muted)' }}><Loader size={14} style={{ animation: 'ofoSpin .7s linear infinite' }} />Verificerer kode ...</div> : null}
+                <div style={{ marginTop: 18, textAlign: 'center' }}>
+                  {resendCooldown > 0
+                    ? <span style={{ fontSize: 13, color: 'var(--smh-muted)' }}>Send ny kode om {resendCooldown}s</span>
+                    : <button type="button" className="ofo-linkbtn" onClick={handleResendOtp} disabled={emailLoading}>{emailLoading ? 'Sender ...' : 'Send ny kode'}</button>}
                 </div>
               </div>
             )}
 
-            {/* ====================================================== */}
-            {/* STEP 3: Forening-data formular (Patch 5a + 5b + 5c)    */}
-            {/* ====================================================== */}
+            {/* ---- Trin 3: foreningsoplysninger ---- */}
             {step === 3 && (
-              <div style={{ padding: '20px 0' }}>
-                {consentLoading && (
-                  <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.5)' }}>
-                    <Loader size={20} className="spin" style={{ marginBottom: 12 }} />
-                    <div style={{ fontSize: 14 }}>Indlæser samtykke-tekster...</div>
+              <div>
+                <h2 style={ofoH}>Foreningsoplysninger</h2>
+                <p style={ofoP}>Indtast foreningens CVR-nummer, så henter vi de officielle oplysninger. Udfyld derefter kontaktperson og adgangskode.</p>
+                {consentLoading ? (
+                  <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--smh-muted)' }}>
+                    <Loader size={20} style={{ animation: 'ofoSpin .7s linear infinite', marginBottom: 10 }} />
+                    <div style={{ fontSize: 14 }}>Indlæser samtykke-tekster ...</div>
                   </div>
-                )}
-
-                {consentError && !consentLoading && (
-                  <div style={{ padding: '24px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 12, marginBottom: 16 }}>
-                    <div style={{ fontSize: 14, color: '#fca5a5', marginBottom: 12 }}>{consentError}</div>
-                    <button
-                      type="button"
-                      onClick={() => window.location.reload()}
-                      style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff', fontSize: 13, cursor: 'pointer' }}
-                    >
-                      Genindlæs siden
-                    </button>
+                ) : consentError ? (
+                  <div style={{ padding: 20, borderRadius: 14, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 16 }}>
+                    <div style={{ fontSize: 14, color: 'var(--brand-hover)', marginBottom: 12 }}>{consentError}</div>
+                    <button type="button" className="ofo-linkbtn" onClick={() => window.location.reload()}>Genindlæs siden</button>
                   </div>
-                )}
+                ) : consentVersions ? (
+                  <>
+                    {submitError ? <div style={{ margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{submitError}</div> : null}
 
-                {!consentLoading && !consentError && consentVersions && (() => {
-                  const fieldsCount = 7;
-                  const filled = [
-                    foreningsnavn.trim().length >= 2,
-                    /^\d{8}$/.test(cvrNummer),
-                    /^\d{4}$/.test(postnummer),
-                    kontaktNavn.trim().length >= 2,
-                    /^\d{8}$/.test(kontaktTlf),
-                    kontaktRolle === 'Formand' || kontaktRolle === 'Kasserer',
-                    password.length >= MIN_PASSWORD_LENGTH && computePasswordScore(password) >= MIN_PASSWORD_SCORE,
-                  ].filter(Boolean).length;
-                  const percent = Math.round((filled / fieldsCount) * 100);
-                  const allFilled = filled === fieldsCount;
-                  const allConsents = consentTermsChecked && consentGdprChecked && consentPiiChecked;
-                  return (
-                    <form onSubmit={handleStep3Submit} noValidate>
+                    {/* CVR-nummer: eneste org-input, resten auto-hentes */}
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ display: 'block' }}>
+                        <span className="ofo-label">CVR-nummer *</span>
+                        <input className="ofo-field" value={cvrNummer} onChange={(e) => { setCvrNummer(e.target.value.replace(/\D/g, '').slice(0, 8)); if (cvrLookupState.status !== 'idle') { setCvrLookupState({ status: 'idle' }); setForeningsnavn(''); setPostnummer(''); } }} onBlur={handleCvrBlur} disabled={submitLoading} placeholder="12345678" inputMode="numeric" maxLength={8} style={{ fontFamily: 'ui-monospace, monospace', ...(fieldErrors.cvrNummer ? { borderColor: 'var(--brand)' } : {}) }} />
+                      </label>
+                      {!fieldErrors.cvrNummer && cvrLookupState.status === 'loading' ? <div style={ofoCvrRow('var(--smh-muted)')}><Loader size={14} style={{ animation: 'ofoSpin .7s linear infinite' }} />Slår op i CVR-registret ...</div> : null}
+                      {!fieldErrors.cvrNummer && cvrLookupState.status === 'inactive' ? <div style={ofoCvrRow('#B45309')}><AlertTriangle size={15} />Inaktiv eller ophørt forening. Kan ikke oprettes.</div> : null}
+                      {!fieldErrors.cvrNummer && cvrLookupState.status === 'not_found' ? <div style={ofoCvrRow('var(--brand)')}><AlertCircle size={15} />CVR ikke registreret. Tjek tallet.</div> : null}
+                      {!fieldErrors.cvrNummer && cvrLookupState.status === 'error' ? <div style={ofoCvrRow('#B45309')}><AlertTriangle size={15} />Kunne ikke verificere CVR lige nu. Du kan fortsætte.</div> : null}
+                      {fieldErrors.cvrNummer ? <div style={ofoFieldErr}>{fieldErrors.cvrNummer}</div> : null}
+                    </div>
 
-                      {submitError && (
-                        <div style={{ padding: '12px 16px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 10, marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#EF4444', marginTop: 7, flexShrink: 0 }} />
-                          <div style={{ fontSize: 13, color: '#FCA5A5', lineHeight: 1.5 }}>{submitError}</div>
+                    {/* Bekraeftelseskort: vises naar CVR er aktiv */}
+                    {cvrLookupState.status === 'active' ? (
+                      <div style={{ marginBottom: 20, padding: '16px 18px', borderRadius: 16, background: '#F0FDF4', border: '1px solid var(--success)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                          <Check size={16} color="#15803D" />
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#15803D' }}>Forening bekræftet i CVR-registret</span>
                         </div>
-                      )}
-
-
-                        <div style={{ marginBottom: 6 }}>
-                          <div style={stepCardTitleStyle}>Foreningsoplysninger</div>
-                          <div style={stepCardSubtitleStyle}>Stamdata og kontaktinfo</div>
+                        <div style={{ marginBottom: 14 }}>
+                          <span style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--smh-muted)', letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: 3 }}>Foreningsnavn</span>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink)' }}>{foreningsnavn || cvrLookupState.foreningsnavn}</div>
                         </div>
+                        <label style={{ display: 'block', maxWidth: 220 }}>
+                          <span className="ofo-label">Postnummer *</span>
+                          <input className="ofo-field" value={postnummer} onChange={(e) => setPostnummer(e.target.value.replace(/\D/g, '').slice(0, 4))} disabled={submitLoading} placeholder="Fx 3400" inputMode="numeric" maxLength={4} style={{ background: '#fff', fontFamily: 'ui-monospace, monospace', ...(fieldErrors.postnummer ? { borderColor: 'var(--brand)' } : {}) }} />
+                        </label>
+                        {!postnummer.trim() && !fieldErrors.postnummer ? <div style={{ marginTop: 7, fontSize: 12, color: 'var(--smh-muted)' }}>CVR gav ikke et postnummer, udfyld det manuelt.</div> : null}
+                        {fieldErrors.postnummer ? <div style={ofoFieldErr}>{fieldErrors.postnummer}</div> : null}
+                      </div>
+                    ) : null}
 
-                        <div style={{ margin: '16px 0 18px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{filled} af {fieldsCount} felter</span>
-                            <span style={{ fontSize: 13, fontWeight: 600, color: allFilled ? '#10B981' : '#0891B2' }}>{percent}%</span>
+                    {/* Kontaktperson + adgang */}
+                    <div className="ofo-2col">
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <label style={{ display: 'block' }}>
+                          <span className="ofo-label">Kontaktperson *</span>
+                          <input className="ofo-field" value={kontaktNavn} onChange={(e) => setKontaktNavn(e.target.value)} disabled={submitLoading} placeholder="F.eks. Anders Hansen" maxLength={200} autoComplete="name" style={fieldErrors.kontaktNavn ? { borderColor: 'var(--brand)' } : undefined} />
+                        </label>
+                        {fieldErrors.kontaktNavn ? <div style={ofoFieldErr}>{fieldErrors.kontaktNavn}</div> : null}
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block' }}>
+                          <span className="ofo-label">Direkte telefon *</span>
+                          <div style={{ display: 'flex', alignItems: 'stretch', borderRadius: 13, border: '1px solid ' + (fieldErrors.kontaktTlf ? 'var(--brand)' : 'var(--smh-border)'), background: 'var(--surface)', overflow: 'hidden' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', padding: '0 13px', background: 'var(--alt)', color: 'var(--body)', fontSize: 15, fontWeight: 600, borderRight: '1px solid var(--smh-border)' }}>+45</span>
+                            <input className="ofo-field" inputMode="numeric" placeholder="12 34 56 78" value={kontaktTlf} onChange={(e) => setKontaktTlf(e.target.value.replace(/\D/g, '').slice(0, 8))} disabled={submitLoading} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }} />
                           </div>
-                          <div style={progressBarTrackStyle}>
-                            <div style={progressBarFillStyle(percent, allFilled)} />
-                          </div>
-                        </div>
+                        </label>
+                        {fieldErrors.kontaktTlf ? <div style={ofoFieldErr}>{fieldErrors.kontaktTlf}</div> : null}
+                      </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 4 }}>
-
-                          <div style={{ gridColumn: 'span 2' }}>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Foreningsnavn *{foreningsnavn.trim().length > 0 && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
-                            <input
-                              type="text"
-                              className="signup-input"
-                              value={foreningsnavn}
-                              onChange={(e) => setForeningsnavn(e.target.value)}
-                              disabled={submitLoading}
-                              placeholder="F.eks. Hillerød Fodboldklub"
-                              maxLength={200}
-                              style={{ height: 42, ...(fieldErrors.foreningsnavn ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
-                            />
-                            {fieldErrors.foreningsnavn && (
-                              <div style={fieldErrorStyle}>
-                                <div style={fieldErrorDotStyle} />
-                                <div>{fieldErrors.foreningsnavn}</div>
-                              </div>
-                            )}
-                          </div>
-
-                          <div>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>CVR-nummer *{cvrLookupState.status === 'loading' && <Loader size={12} style={{ color: 'rgba(255,255,255,0.6)', flexShrink: 0, animation: 'spin 1s linear infinite' }} />}{cvrLookupState.status === 'active' && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}{(cvrLookupState.status === 'inactive' || cvrLookupState.status === 'not_found') && <AlertCircle size={12} style={{ color: '#E0193F', flexShrink: 0 }} />}{cvrLookupState.status === 'error' && <AlertTriangle size={12} style={{ color: '#EAB308', flexShrink: 0 }} />}</label>
-                            <input
-                              type="text"
-                              className="signup-input"
-                              value={cvrNummer}
-                              onChange={(e) => {
-                                setCvrNummer(e.target.value.replace(/\D/g, '').slice(0, 8));
-                                // Reset lookup-state ved aendring
-                                if (cvrLookupState.status !== 'idle') {
-                                  setCvrLookupState({ status: 'idle' });
-                                }
-                              }}
-                              onBlur={handleCvrBlur}
-                              disabled={submitLoading}
-                              placeholder="12345678"
-                              inputMode="numeric"
-                              maxLength={8}
-                              style={{ height: 42, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.cvrNummer ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
-                            />
-                            {fieldErrors.cvrNummer && (
-                              <div style={fieldErrorStyle}>
-                                <div style={fieldErrorDotStyle} />
-                                <div>{fieldErrors.cvrNummer}</div>
-                              </div>
-                            )}
-                            {/* P1-CVR-001: CVR lookup status tekst (ikon er i input) */}
-                            {!fieldErrors.cvrNummer && cvrLookupState.status === 'active' && (
-                              <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.4, color: '#22C55E' }}>
-                                <strong style={{ whiteSpace: 'nowrap' }}>Godkendt:</strong>{' '}
-                                <span style={{ color: 'rgba(255,255,255,0.85)' }}>{cvrLookupState.foreningsnavn}</span>
-                              </div>
-                            )}
-                            {!fieldErrors.cvrNummer && cvrLookupState.status === 'inactive' && (
-                              <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.4, color: '#E0193F' }}>
-                                Inaktiv eller CVR ophoert
-                              </div>
-                            )}
-                            {!fieldErrors.cvrNummer && cvrLookupState.status === 'not_found' && (
-                              <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.4, color: '#E0193F' }}>
-                                CVR ikke registreret
-                              </div>
-                            )}
-                            {!fieldErrors.cvrNummer && cvrLookupState.status === 'error' && (
-                              <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.4, color: '#EAB308' }}>
-                                Kunne ikke verificere CVR lige nu
-                              </div>
-                            )}
-                          </div>
-
-                          <div>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Postnummer *{/^\d{4}$/.test(postnummer) && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
-                            <input
-                              type="text"
-                              className="signup-input"
-                              value={postnummer}
-                              onChange={(e) => setPostnummer(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                              disabled={submitLoading}
-                              placeholder="3400"
-                              inputMode="numeric"
-                              maxLength={4}
-                              style={{ height: 42, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.postnummer ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
-                            />
-                            {fieldErrors.postnummer && (
-                              <div style={fieldErrorStyle}>
-                                <div style={fieldErrorDotStyle} />
-                                <div>{fieldErrors.postnummer}</div>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Divider mellem forenings-info og kontaktperson */}
-                          <div style={{ gridColumn: 'span 2', height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0' }} />
-
-                          <div style={{ gridColumn: 'span 2' }}>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Kontaktperson *{kontaktNavn.trim().length > 0 && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
-                            <input
-                              type="text"
-                              className="signup-input"
-                              value={kontaktNavn}
-                              onChange={(e) => setKontaktNavn(e.target.value)}
-                              disabled={submitLoading}
-                              placeholder="F.eks. Anders Hansen"
-                              maxLength={200}
-                              autoComplete="name"
-                              style={{ height: 42, ...(fieldErrors.kontaktNavn ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
-                            />
-                            {fieldErrors.kontaktNavn && (
-                              <div style={fieldErrorStyle}>
-                                <div style={fieldErrorDotStyle} />
-                                <div>{fieldErrors.kontaktNavn}</div>
-                              </div>
-                            )}
-                          </div>
-
-                          <div>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Telefon *{/^\d{8}$/.test(kontaktTlf) && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
-                            {/* P1-CVR-001 Step 5: +45 prefix matcher smh-app design */}
-                            <div style={{ display: 'flex', gap: 6 }}>
-                              <div style={{
-                                height: 42,
-                                width: 52,
-                                flexShrink: 0,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: 14,
-                                color: 'rgba(255,255,255,0.4)',
-                                background: 'rgba(255,255,255,0.03)',
-                                border: '1px solid rgba(255,255,255,0.08)',
-                                borderRadius: 8,
-                                fontFamily: 'ui-monospace, monospace',
-                              }}>+45</div>
-                              <input
-                                type="tel"
-                                className="signup-input"
-                                value={kontaktTlf}
-                                onChange={(e) => setKontaktTlf(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                                disabled={submitLoading}
-                                placeholder="12345678"
-                                inputMode="numeric"
-                                maxLength={8}
-                                autoComplete="tel"
-                                style={{ height: 42, flex: 1, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.kontaktTlf ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
-                              />
-                            </div>
-                            {fieldErrors.kontaktTlf && (
-                              <div style={fieldErrorStyle}>
-                                <div style={fieldErrorDotStyle} />
-                                <div>{fieldErrors.kontaktTlf}</div>
-                              </div>
-                            )}
-                          </div>
-
+                      <div>
+                        <label style={{ display: 'block' }}>
+                          <span className="ofo-label">Rolle i foreningen *</span>
                           <div style={{ position: 'relative' }}>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Rolle i foreningen *{kontaktRolle && kontaktRolle.trim().length > 0 && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
-                            <button
-                              type="button"
-                              onClick={() => !submitLoading && setRoleOpen(!roleOpen)}
-                              disabled={submitLoading}
-                              style={customDropdownButtonStyle(!!kontaktRolle, roleOpen, !!fieldErrors.kontaktRolle)}
-                            >
-                              <span>{kontaktRolle || 'Vælg rolle...'}</span>
-                              <ChevronDown size={14} color="rgba(255,255,255,0.5)" style={{ transform: roleOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-                            </button>
-                            {roleOpen && (
-                              <>
-                                <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onMouseDown={() => setRoleOpen(false)} />
-                                <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 20, background: '#1E293B', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: 4, boxShadow: '0 8px 30px rgba(0,0,0,0.3)' }}>
-                                  {ROLES.map((r) => (
-                                    <button
-                                      key={r}
-                                      type="button"
-                                      onMouseDown={() => { setKontaktRolle(r); setRoleOpen(false); }}
-                                      style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 8,
-                                        width: '100%',
-                                        padding: '9px 12px',
-                                        fontSize: 13,
-                                        color: kontaktRolle === r ? '#0891B2' : 'rgba(255,255,255,0.7)',
-                                        background: kontaktRolle === r ? 'rgba(8,145,178,0.08)' : 'transparent',
-                                        border: 'none',
-                                        borderRadius: 7,
-                                        cursor: 'pointer',
-                                        fontFamily: 'inherit',
-                                        textAlign: 'left',
-                                        fontWeight: kontaktRolle === r ? 600 : 400,
-                                      }}
-                                    >
-                                      {kontaktRolle === r && <Check size={12} color="#0891B2" strokeWidth={3} />}
-                                      {r}
-                                    </button>
-                                  ))}
-                                </div>
-                              </>
-                            )}
-                            {fieldErrors.kontaktRolle && (
-                              <div style={fieldErrorStyle}>
-                                <div style={fieldErrorDotStyle} />
-                                <div>{fieldErrors.kontaktRolle}</div>
-                              </div>
-                            )}
+                            <select className="ofo-field" value={kontaktRolle} onChange={(e) => setKontaktRolle(e.target.value)} disabled={submitLoading} style={{ appearance: 'none', WebkitAppearance: 'none', cursor: 'pointer', paddingRight: 38, color: kontaktRolle ? 'var(--ink)' : '#9AA8B4', ...(fieldErrors.kontaktRolle ? { borderColor: 'var(--brand)' } : {}) }}>
+                              <option value="" disabled>Vælg rolle</option>
+                              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                            </select>
+                            <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--smh-muted)', display: 'flex' }}><ChevronDown size={16} /></span>
                           </div>
+                        </label>
+                        {fieldErrors.kontaktRolle ? <div style={ofoFieldErr}>{fieldErrors.kontaktRolle}</div> : null}
+                      </div>
 
-                          <div style={{ gridColumn: 'span 2' }}>
-                            <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>Adgangskode *{!validateStep3Password(password) && <Check size={12} style={{ color: '#22C55E', flexShrink: 0 }} />}</label>
-                            <div style={{ position: 'relative' }}>
-                              <input
-                                type={showPassword ? 'text' : 'password'}
-                                className="signup-input"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                disabled={submitLoading}
-                                placeholder="Mindst 10 tegn"
-                                autoComplete="new-password"
-                                maxLength={128}
-                                style={{ height: 42, paddingRight: 44, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.password ? { borderColor: 'rgba(239,68,68,0.4)' } : {}) }}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'transparent', border: 'none', padding: 0, opacity: 0.5 }}
-                                tabIndex={-1}
-                                aria-label={showPassword ? 'Skjul adgangskode' : 'Vis adgangskode'}
-                              >
-                                {showPassword ? <EyeOff size={16} color="rgba(255,255,255,0.7)" /> : <Eye size={16} color="rgba(255,255,255,0.7)" />}
-                              </button>
-                            </div>
-
-                            {(() => {
-                              const score = password.length === 0 ? -1 : computePasswordScore(password);
-                              const meterStates = [
-                                { color: '#EF4444', label: 'Meget svag' },
-                                { color: '#F97316', label: 'Svag' },
-                                { color: '#EAB308', label: 'Mellem' },
-                                { color: '#14B8A6', label: 'God' },
-                                { color: '#0891B2', label: 'Stærk' },
-                              ];
-                              return (
-                                <div style={{ marginTop: 10 }}>
-                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, marginBottom: 6 }}>
-                                    {meterStates.map((s, i) => (
-                                      <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                        <div style={{ height: 4, borderRadius: 2, background: s.color, opacity: i === score ? 1 : 0.18, transition: 'opacity 0.2s' }} />
-                                        <div style={{ fontSize: 10, textAlign: 'center', color: i === score ? s.color : 'rgba(255,255,255,0.35)', fontWeight: i === score ? 600 : 400, transition: 'color 0.2s' }}>{s.label}</div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                                    {(() => {
-                                      if (score === -1) {
-                                        return <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Min. 10 tegn, niveau "God" eller bedre</div>;
-                                      }
-                                      const messages = [
-                                        { color: '#FCA5A5', text: 'Tilføj flere tegn' },
-                                        { color: '#FDBA74', text: 'Brug forskellige tegn' },
-                                        { color: '#FDE047', text: 'Næsten - tilføj 1-2 tegn' },
-                                        { color: '#14B8A6', text: 'Din kode er stærk nok', showCheck: true },
-                                        { color: '#67E8F9', text: 'Perfekt sikkerhedsniveau', showCheck: true },
-                                      ];
-                                      const m = messages[score];
-                                      return (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                          {m.showCheck && <Check size={13} color={m.color} strokeWidth={2.5} />}
-                                          <div style={{ fontSize: 12, color: m.color, fontWeight: 500 }}>{m.text}</div>
-                                        </div>
-                                      );
-                                    })()}
-                                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{password.length}/128</div>
-                                  </div>
-                                </div>
-                              );
-                            })()}
-
-                            {fieldErrors.password && (
-                              <div style={fieldErrorStyle}>
-                                <div style={fieldErrorDotStyle} />
-                                <div>{fieldErrors.password}</div>
-                              </div>
-                            )}
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <label style={{ display: 'block' }}>
+                          <span className="ofo-label">Adgangskode *</span>
+                          <div style={{ position: 'relative' }}>
+                            <input className="ofo-field" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} disabled={submitLoading} placeholder="Mindst 10 tegn" autoComplete="new-password" maxLength={128} style={{ paddingRight: 66, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.password ? { borderColor: 'var(--brand)' } : {}) }} />
+                            <button type="button" className="ofo-showpw" onClick={() => setShowPassword(!showPassword)} tabIndex={-1}>{showPassword ? 'Skjul' : 'Vis'}</button>
                           </div>
-
-                        </div>
-
-                        <div style={{ marginTop: 24, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>Samtykker</div>
-
-                          {[
-                            { key: 'terms', type: 'platform_terms', title: 'Vilkår og betingelser', accepted: consentTermsChecked },
-                            { key: 'gdpr',  type: 'gdpr_terms',     title: 'GDPR databehandling',  accepted: consentGdprChecked },
-                            { key: 'pii',   type: 'pii_consent',    title: 'Persondata-behandling', accepted: consentPiiChecked },
-                          ].map((c) => (
-                            <div key={c.key} style={agreementCardStyle(c.accepted)}>
-                              {c.accepted ? (
-                                <Check size={18} color="#10B981" strokeWidth={2.5} />
-                              ) : (
-                                <ShieldCheck size={18} color="#0891B2" strokeWidth={2} />
-                              )}
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{c.title}</div>
-                                <div style={{ fontSize: 11, color: c.accepted ? '#10B981' : 'rgba(255,255,255,0.4)' }}>
-                                  {c.accepted ? 'Accepteret' : 'Læs og accepter for at fortsætte'}
-                                </div>
-                              </div>
-                              {c.accepted ? (
-                                <button
-                                  type="button"
-                                  onClick={() => openConsentModal(c.type)}
-                                  style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 8px', fontFamily: 'inherit' }}
-                                >
-                                  Vis igen
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => openConsentModal(c.type)}
-                                  style={{ padding: '6px 12px', background: 'rgba(8,145,178,0.1)', border: '1px solid rgba(8,145,178,0.3)', borderRadius: 8, color: '#0891B2', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}
-                                >
-                                  Læs <ArrowRight size={11} />
-                                </button>
-                              )}
-                            </div>
+                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, marginTop: 10 }}>
+                          {pwMeter.map((m, i) => (
+                            <div key={i} style={{ height: 4, borderRadius: 2, background: m.color, opacity: i === pwScore ? 1 : 0.18, transition: 'opacity .2s' }} />
                           ))}
-
-                          <button
-                            type="button"
-                            onClick={() => !submitLoading && setConsentMarketingChecked(!consentMarketingChecked)}
-                            disabled={submitLoading}
-                            style={{ ...agreementCardStyle(false), width: '100%', textAlign: 'left', cursor: submitLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
-                          >
-                            <div style={consentCheckboxStyle(consentMarketingChecked)}>
-                              {consentMarketingChecked && <Check size={11} color="#fff" strokeWidth={3.5} />}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                Marketing-emails
-                                <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.06)', padding: '2px 6px', borderRadius: 3, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Frivilligt</span>
-                              </div>
-                              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Tilmeld nyhedsbrev og tips</div>
-                            </div>
-                          </button>
                         </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                          <span style={{ fontSize: 12, color: pwScore >= 3 ? '#15803D' : 'var(--smh-muted)' }}>Mindst 10 tegn, niveau God eller bedre.</span>
+                          {pwScore >= 0 ? <span style={{ fontSize: 12, fontWeight: 700, color: pwMeter[pwScore].color }}>{pwMeter[pwScore].label}</span> : null}
+                        </div>
+                        {fieldErrors.password ? <div style={ofoFieldErr}>{fieldErrors.password}</div> : null}
+                      </div>
+                    </div>
 
-                        <div style={{ marginTop: 24, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                          <button
-                            type="submit"
-                            disabled={!canSubmitStep3()}
-                            style={primaryButtonStyle(canSubmitStep3())}
-                          >
-                            {submitLoading ? (
-                              <>
-                                <Loader size={18} className="spin" />
-                                <span style={{ marginLeft: 8 }}>Opretter foreningen...</span>
-                              </>
-                            ) : (
-                              <>
-                                <span>Opret foreningen</span>
-                                <ArrowRight size={18} style={{ marginLeft: 8 }} />
-                              </>
-                            )}
-                          </button>
-
-                          <div style={{ marginTop: 14, padding: '12px 14px', background: 'rgba(8,145,178,0.06)', border: '1px solid rgba(8,145,178,0.18)', borderRadius: 10, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                            <ShieldCheck size={16} color="#0891B2" style={{ marginTop: 1, flexShrink: 0 }} />
-                            <div>
-                              <div style={{ fontSize: 12, fontWeight: 600, color: '#0891B2', marginBottom: 2 }}>Dine data er beskyttet</div>
-                              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>Vi krypterer dine oplysninger og deler dem aldrig. Du kan altid trække dit samtykke tilbage.</div>
-                            </div>
+                    {/* Samtykke: dine 3 obligatoriske + 1 marketing */}
+                    <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid var(--smh-border)' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--smh-muted)', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12 }}>Samtykker</div>
+                      {[
+                        { type: 'platform_terms', title: 'Vilkår og betingelser', accepted: consentTermsChecked },
+                        { type: 'gdpr_terms', title: 'GDPR databehandling', accepted: consentGdprChecked },
+                        { type: 'pii_consent', title: 'Persondata-behandling', accepted: consentPiiChecked },
+                      ].map((c) => (
+                        <div key={c.type} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', borderRadius: 13, border: '1px solid ' + (c.accepted ? 'var(--success)' : 'var(--smh-border)'), background: c.accepted ? '#F0FDF4' : 'var(--surface)', marginBottom: 8 }}>
+                          {c.accepted ? <Check size={18} color="#15803D" /> : <ShieldCheck size={18} color="var(--brand)" />}
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{c.title}</div>
+                            <div style={{ fontSize: 11, color: c.accepted ? '#15803D' : 'var(--smh-muted)' }}>{c.accepted ? 'Accepteret' : 'Læs og accepter for at fortsætte'}</div>
                           </div>
+                          <button type="button" className="ofo-linkbtn" onClick={() => openConsentModal(c.type)}>{c.accepted ? 'Vis igen' : 'Læs'}</button>
                         </div>
+                      ))}
+                      <button type="button" onClick={() => !submitLoading && setConsentMarketingChecked(!consentMarketingChecked)} disabled={submitLoading} style={{ display: 'flex', alignItems: 'center', gap: 11, width: '100%', textAlign: 'left', padding: '12px 14px', borderRadius: 13, border: '1px solid var(--smh-border)', background: 'var(--surface)', cursor: 'pointer', fontFamily: 'inherit' }}>
+                        <span style={{ flexShrink: 0, width: 20, height: 20, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', ...(consentMarketingChecked ? { background: 'var(--brand)', border: '1.5px solid var(--brand)', color: '#fff' } : { background: 'var(--surface)', border: '1.5px solid var(--smh-border)' }) }}>
+                          {consentMarketingChecked ? <Check size={12} color="#fff" /> : null}
+                        </span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>Marketing-emails <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--smh-muted)', background: 'var(--alt)', padding: '2px 6px', borderRadius: 4, letterSpacing: '.06em', textTransform: 'uppercase' }}>Frivilligt</span></div>
+                          <div style={{ fontSize: 11, color: 'var(--smh-muted)' }}>Tilmeld nyhedsbrev og tips.</div>
+                        </div>
+                      </button>
+                    </div>
 
-                    </form>
-                  );
-                })()}
+                    <button type="button" className="ofo-primary" onClick={() => { if (canSubmitStep3()) setStep(4); }} disabled={!canSubmitStep3()} style={{ marginTop: 22 }}>
+                      Fortsæt til MobilePay <ArrowRight size={17} />
+                    </button>
+                  </>
+                ) : null}
               </div>
             )}
 
-            {/* Modal til konsent-tekster (portal til document.body) */}
-            <ConsentModal
-              isOpen={activeModalType !== null}
-              onClose={closeConsentModal}
-              version={activeModalType && consentVersions ? consentVersions[activeModalType] : null}
-              onAccept={handleConsentAccept}
-            />
+            {/* ---- Trin 4: MobilePay MSN (visuelt only) ---- */}
+            {step === 4 && (
+              <div>
+                <h2 style={ofoH}>Kobl foreningens MobilePay</h2>
+                <p style={ofoP}>Bidrag fra jeres støtter går direkte ind på foreningens egen MobilePay-konto. Indtast foreningens MobilePay-nummer.</p>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '15px 16px', borderRadius: 16, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 22 }}>
+                  <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 11, background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShieldCheck size={20} /></span>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>Verificeret udbetaling</div>
+                    <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--body)' }}>Bidragene går direkte til foreningen. StøtMedHjerte tager ingen andel.</div>
+                  </div>
+                </div>
+                <label style={{ display: 'block' }}>
+                  <span className="ofo-label">MobilePay-nummer (MSN)</span>
+                  <div style={{ display: 'flex', alignItems: 'stretch', borderRadius: 13, border: '1px solid ' + (msnError ? 'var(--brand)' : (msn.length >= 5 ? 'var(--success)' : 'var(--smh-border)')), background: 'var(--surface)', overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', padding: '0 14px', background: '#5A78FF' }}>
+                      <span style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, letterSpacing: '-.2px', whiteSpace: 'nowrap' }}>MobilePay</span>
+                    </div>
+                    <input className="ofo-field" type="text" inputMode="numeric" placeholder="fx 123456" value={msn} onChange={(e) => { setMsn(e.target.value.replace(/\D/g, '').slice(0, 8)); if (msnError) setMsnError(''); }} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }} />
+                  </div>
+                </label>
+                <span style={{ display: 'block', marginTop: 8, fontSize: 12.5, lineHeight: 1.5, color: 'var(--smh-muted)' }}>Det 5-8 cifrede MobilePay-nummer, jeres støtter sender bidrag til. I finder det i MobilePay til erhverv.</span>
+                {msnError ? <div style={{ margin: '12px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{msnError}</div> : null}
+                <button type="button" className="ofo-primary" onClick={() => { if (msn.length < 5) { setMsnError('Indtast et gyldigt MobilePay-nummer (mindst 5 cifre).'); return; } setMsnError(''); setStep(5); }} style={{ marginTop: 22 }}>
+                  Fortsæt til abonnement <ArrowRight size={17} />
+                </button>
+              </div>
+            )}
 
-            {/* Login link */}
-            <div style={loginLinkRowStyle}>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
-                Allerede oprettet?{' '}
-              </span>
-              <span
-                onClick={() => navigate('/log-ind')}
-                style={loginLinkStyle}
-                onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = '#22d3ee')}
-              >
-                Log ind
-              </span>
-            </div>
-          </div>
-
-          {/* Trust badge under card */}
-          <div style={trustBadgeRowStyle}>
-            <ShieldCheck size={12} color="rgba(255,255,255,0.3)" />
-            <span style={trustBadgeTextStyle}>Sikker krypteret forbindelse</span>
+            {/* ---- Trin 5: abonnement -> submit (din handleStep3Submit) ---- */}
+            {step === 5 && (
+              <form onSubmit={handleStep3Submit}>
+                <h2 style={ofoH}>Vælg jeres abonnement</h2>
+                <p style={ofoP}>Foreningen vælger sit eget abonnement til StøtMedHjerte. Det gælder brugen af platformen, ikke bidrag fra jeres støtter. Årlig betaling giver den laveste pris.</p>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+                  <div style={{ display: 'inline-flex', padding: 4, borderRadius: 999, background: 'var(--alt)', border: '1px solid var(--smh-border)' }}>
+                    {['aarlig', 'maanedlig'].map((k) => (
+                      <button key={k} type="button" onClick={() => setBilling(k)} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 18px', minHeight: 42, border: 'none', borderRadius: 999, fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer', ...(billing === k ? { background: '#fff', color: 'var(--ink)', boxShadow: '0 2px 8px rgba(8,14,26,.1)' } : { background: 'transparent', color: 'var(--smh-muted)' }) }}>
+                        {k === 'aarlig' ? 'Årlig' : 'Månedlig'}
+                        {k === 'aarlig' ? <span style={{ fontSize: 11, fontWeight: 800, padding: '2px 7px', borderRadius: 999, background: 'var(--brand-surface)', color: 'var(--brand-hover)' }}>Spar 20%</span> : null}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <p style={{ margin: '0 0 22px', textAlign: 'center', fontSize: 12.5, color: 'var(--smh-muted)' }}>{billing === 'aarlig' ? 'Årlig binding er 12 måneder. Laveste pris pr. måned.' : 'Månedlig betaling. Ingen binding, lidt højere pris pr. måned.'}</p>
+                <div className="ofo-plans">
+                  {OFO_PLANS.map((p) => {
+                    const price = billing === 'aarlig' ? p.a : p.m;
+                    const sav = p.m - p.a;
+                    const rec = p.rec;
+                    const sel = selectedPlan === p.id;
+                    const fill = rec || sel;
+                    return (
+                      <div key={p.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 20, padding: '24px 20px 20px', border: rec ? '2px solid var(--brand)' : '1px solid var(--smh-border)', boxShadow: rec ? '0 24px 50px -30px rgba(224,25,63,.35)' : '0 16px 40px -32px rgba(8,14,26,.18)' }}>
+                        {rec ? <span style={{ position: 'absolute', top: -11, left: '50%', transform: 'translateX(-50%)', padding: '5px 12px', borderRadius: 999, background: 'var(--brand)', color: '#fff', fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap' }}>Anbefalet</span> : null}
+                        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink)', marginBottom: 10 }}>{p.name}</div>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                          <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-1.4px', color: 'var(--ink)' }}>{price}</span>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--smh-muted)' }}>kr./md.</span>
+                        </div>
+                        <div style={{ marginTop: 5, minHeight: 18, fontSize: 12.5, fontWeight: 600, color: billing === 'aarlig' ? '#15803D' : 'var(--smh-muted)' }}>{billing === 'aarlig' ? 'Spar ' + sav + ' kr./md. mod månedlig' : 'Faktureres månedligt'}</div>
+                        <div style={{ margin: '14px 0', fontSize: 13, lineHeight: 1.5, color: 'var(--body)', flex: 1 }}>{p.desc}</div>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--smh-muted)', marginBottom: 16 }}><ShieldCheck size={13} />{billing === 'aarlig' ? '12 mdr. binding' : 'Ingen binding'}</div>
+                        <button type="button" onClick={() => setSelectedPlan(p.id)} style={{ width: '100%', padding: 12, minHeight: 48, borderRadius: 999, fontFamily: 'inherit', fontSize: 14.5, fontWeight: 700, cursor: 'pointer', ...(fill ? { background: 'var(--brand)', color: '#fff', border: 'none' } : { background: '#fff', color: 'var(--ink)', border: '1px solid var(--smh-border)' }) }}>
+                          {sel ? 'Valgt' : 'Vælg ' + p.name}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p style={{ margin: '0 0 22px', padding: '14px 16px', borderRadius: 14, background: 'var(--alt)', border: '1px solid var(--smh-border)', fontSize: 12.5, lineHeight: 1.55, color: 'var(--smh-muted)', textAlign: 'center' }}>Abonnementet er foreningens betaling for at bruge platformen. Alle bidrag går direkte til foreningens egen MobilePay-konto, og StøtMedHjerte tager ikke en andel af bidragene.</p>
+                {submitError ? <div style={{ margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{submitError}</div> : null}
+                <button type="submit" className="ofo-primary" disabled={submitLoading}>
+                  {submitLoading ? <><Loader size={18} style={{ animation: 'ofoSpin .7s linear infinite' }} /> Opretter foreningen ...</> : <>Opret forening <Check size={17} /></>}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer style={footerStyle}>
-        <div style={footerLeftStyle}>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
-          KRYPTERET FORBINDELSE · TLS 1.3
+      {/* Slim footer */}
+      <footer className="ofo-foot">
+        <div className="ofo-wrap ofo-foot-inner">
+          <span className="ofo-foot-copy">© 2026 StøtMedHjerte</span>
+          <Link to="/sikkerhed">Sikkerhed</Link>
+          <Link to="/tilladelse-og-regnskab">Vilkår</Link>
+          <Link to="/support">Support</Link>
         </div>
-        <div style={footerRightStyle}>BYGGET I DANMARK · © 2026</div>
       </footer>
+
+      {/* Consent-modal (din ConsentModal, uroert wiring) */}
+      <ConsentModal
+        isOpen={activeModalType !== null}
+        onClose={closeConsentModal}
+        version={activeModalType && consentVersions ? consentVersions[activeModalType] : null}
+        onAccept={handleConsentAccept}
+      />
     </div>
   );
 }
