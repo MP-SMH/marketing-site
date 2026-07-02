@@ -1260,7 +1260,7 @@ export default function OpretForeningPage() {
                 Allerede oprettet?{' '}
               </span>
               <span
-                onClick={() => navigate('/login-forening')}
+                onClick={() => navigate('/log-ind')}
                 style={loginLinkStyle}
                 onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = '#22d3ee')}

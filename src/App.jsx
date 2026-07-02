@@ -19,8 +19,7 @@
  *    /betingelser, /privatlivspolitik, /cookiepolitik, /support
  *
  *  Auth (signup/login forms):
- *    /opret-forening, /login-forening (B2B forening admin)
- *    /opret-stoetter, /login-stoetter (B2C stoetter)
+ *    /opret-forening (ny forening), /log-ind (eksisterende forening)
  *
  *  Auth-required (kommer P3+):
  *    /min-profil, /min-profil/abonnementer, /min-profil/foreninger
@@ -68,10 +67,8 @@ import FastStoettePage from './pages/FastStoettePage';
 import TilladelseOgRegnskabPage from './pages/TilladelseOgRegnskabPage';
 import LovgivningOgAnsvarPage from './pages/LovgivningOgAnsvarPage';
 import SikkerhedPage from './pages/SikkerhedPage';
-import StoetterAuthPage from './pages/StoetterAuthPage';
 import ForeningAuthPage from './pages/ForeningAuthPage';
 import OpretForeningPage from './pages/OpretForeningPage';
-import OpretStoetterPage from './pages/OpretStoetterPage';
 
 // Scroll-to-top ved route-changes
 function ScrollToTop() {
@@ -117,9 +114,7 @@ function App() {
             <Route path="/sikkerhed" element={<SikkerhedPage />} />
 
             {/* Auth pages (signup/login forms) */}
-            <Route path="/login-stoetter" element={<StoetterAuthPage />} />
-            <Route path="/login-forening" element={<ForeningAuthPage />} />
-            <Route path="/opret-stoetter" element={<OpretStoetterPage />} />
+            <Route path="/log-ind" element={<ForeningAuthPage />} />
             <Route path="/opret-forening" element={<OpretForeningPage />} />
             {/* 404 fallback */}
             <Route path="*" element={<PageNotFound />} />
