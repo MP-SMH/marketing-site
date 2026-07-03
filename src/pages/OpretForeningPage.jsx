@@ -92,6 +92,8 @@ export default function OpretForeningPage() {
   const [postnummer, setPostnummer] = useState('');
   const [kontaktNavn, setKontaktNavn] = useState('');
   const [kontaktRolle, setKontaktRolle] = useState('Formand');
+  // S66 E2-fix: ROLES (var i den fjernede style-tail, hoerer til her)
+  const ROLES = ['Formand', 'Kasserer'];
   const [kontaktTlf, setKontaktTlf] = useState('');
   const [roleOpen, setRoleOpen] = useState(false);
   const [password, setPassword] = useState('');
