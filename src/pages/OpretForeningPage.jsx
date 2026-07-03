@@ -54,6 +54,85 @@ function mapConsentErrorToMessage(err) {
   }
 }
 
+// =====================================================
+// S66 E2-fix: valideringshjaelpere (laa i den fjernede style-tail,
+// men bruges live i trin 3). Genindsat byte-eksakt fra commit 1fd5792.
+// =====================================================
+const CVR_REGEX = /^\d{8}$/;
+const POSTNUMMER_REGEX = /^\d{4}$/;
+const TLF_REGEX = /^\d{8}$/;
+const MIN_PASSWORD_LENGTH = 10;
+const MIN_PASSWORD_SCORE = 3;
+
+const computePasswordScore = (password) => {
+  if (!password || password.length === 0) return -1;
+  if (password.length < 4) return 0;
+  try {
+    const result = zxcvbn(password);
+    return result.score;
+  } catch {
+    return 0;
+  }
+};
+
+const validateStep3Field = (name, value) => {
+  const trimmed = (value || '').trim();
+
+  if (name === 'foreningsnavn') {
+    if (trimmed.length < 2) return 'Foreningsnavnet skal være mindst 2 tegn';
+    if (trimmed.length > 200) return 'Foreningsnavnet må højst være 200 tegn';
+    return null;
+  }
+
+  if (name === 'cvrNummer') {
+    if (!CVR_REGEX.test(trimmed)) return 'CVR-nummer skal være præcis 8 cifre';
+    return null;
+  }
+
+  if (name === 'postnummer') {
+    if (!POSTNUMMER_REGEX.test(trimmed)) return 'Postnummer skal være præcis 4 cifre';
+    return null;
+  }
+
+  if (name === 'kontaktNavn') {
+    if (trimmed.length < 2) return 'Navn skal være mindst 2 tegn';
+    if (trimmed.length > 200) return 'Navn må højst være 200 tegn';
+    return null;
+  }
+
+  if (name === 'kontaktRolle') {
+    if (trimmed !== 'Formand' && trimmed !== 'Kasserer') {
+      return 'Vælg enten Formand eller Kasserer';
+    }
+    return null;
+  }
+
+  if (name === 'kontaktTlf') {
+    if (!TLF_REGEX.test(trimmed)) return 'Telefonnummer skal være præcis 8 cifre';
+    return null;
+  }
+
+  return null;
+};
+
+const validateStep3Password = (password) => {
+  if (!password || password.length < MIN_PASSWORD_LENGTH) {
+    return `Adgangskode skal være mindst ${MIN_PASSWORD_LENGTH} tegn`;
+  }
+  if (password.length > 128) {
+    return 'Adgangskode må højst være 128 tegn';
+  }
+  try {
+    const result = zxcvbn(password);
+    if (result.score < MIN_PASSWORD_SCORE) {
+      return 'Adgangskoden er for svag - tilføj flere tegn eller gør den mindre forudsigelig';
+    }
+  } catch {
+    return 'Adgangskoden kunne ikke valideres';
+  }
+  return null;
+};
+
 export default function OpretForeningPage() {
   const navigate = useNavigate();
   const status = useSystemStatus();
