@@ -926,24 +926,24 @@ export default function OpretForeningPage() {
             {step === 4 && (
               <div>
                 <h2 style={ofoH}>Underskriv samarbejdsaftalen</h2>
-                <p style={ofoP}>Foreningen indgaar en samarbejdsaftale med StøtMedHjerte. Laes aftalen igennem og accepter for at fortsaette.</p>
+                <p style={ofoP}>Foreningen indgår en samarbejdsaftale med StøtMedHjerte. Læs aftalen igennem og accepter for at fortsætte.</p>
                 <a href={`${SMH_API_URL}/api/forening/aftale/skabelon`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '15px 16px', borderRadius: 16, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 22, textDecoration: 'none' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                     <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 11, background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FileText size={20} /></span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>Laes samarbejdsaftalen</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>Læs samarbejdsaftalen</span>
                   </span>
                   <ExternalLink size={17} color="var(--smh-muted)" />
                 </a>
                 <div style={{ padding: '14px 16px', borderRadius: 14, background: 'var(--alt)', border: '1px solid var(--smh-border)', marginBottom: 18 }}>
-                  <div style={{ fontSize: 12.5, color: 'var(--smh-muted)', marginBottom: 3 }}>Du accepterer paa vegne af foreningen som:</div>
+                  <div style={{ fontSize: 12.5, color: 'var(--smh-muted)', marginBottom: 3 }}>Du accepterer på vegne af foreningen som:</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>{kontaktNavn || '(dit navn)'}, {kontaktRolle}</div>
                 </div>
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 11, cursor: 'pointer' }}>
                   <input type="checkbox" checked={aftaleAccepteret} onChange={(e) => setAftaleAccepteret(e.target.checked)} style={{ marginTop: 3, width: 18, height: 18, flexShrink: 0, accentColor: 'var(--brand)' }} />
-                  <span style={{ fontSize: 13.5, lineHeight: 1.5, color: 'var(--ink)' }}>Jeg har laest og accepterer samarbejdsaftalen paa vegne af foreningen.</span>
+                  <span style={{ fontSize: 13.5, lineHeight: 1.5, color: 'var(--ink)' }}>Jeg har læst og accepterer samarbejdsaftalen på vegne af foreningen.</span>
                 </label>
                 <button type="button" className="ofo-primary" onClick={() => { if (aftaleAccepteret) setStep(5); }} disabled={!aftaleAccepteret} style={{ marginTop: 22, opacity: aftaleAccepteret ? 1 : 0.5 }}>
-                  Fortsaet til MobilePay <ArrowRight size={17} />
+                  Fortsæt til MobilePay <ArrowRight size={17} />
                 </button>
               </div>
             )}
