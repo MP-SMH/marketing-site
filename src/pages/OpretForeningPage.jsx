@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Check, CheckCircle2, AlertCircle, AlertTriangle, Eye, EyeOff, ChevronDown } from 'lucide-react';
+import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Check, CheckCircle2, AlertCircle, AlertTriangle, Eye, EyeOff, ChevronDown, FileText, ExternalLink } from 'lucide-react';
 import zxcvbn from 'zxcvbn';
 import { useNavigate, Link } from 'react-router-dom';
 import { SMH_API_URL } from '@/lib/supabaseClient';
@@ -183,6 +183,7 @@ export default function OpretForeningPage() {
   const [consentGdprChecked, setConsentGdprChecked] = useState(false);
   const [consentPiiChecked, setConsentPiiChecked] = useState(false);
   const [consentMarketingChecked, setConsentMarketingChecked] = useState(false);
+  const [aftaleAccepteret, setAftaleAccepteret] = useState(false);
 
   // Step 3 submit state
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -677,8 +678,8 @@ export default function OpretForeningPage() {
     { id: 'fast', name: 'Fast støtte', a: 199, m: 239, desc: 'Månedlige faste bidrag fra støtter.' },
     { id: 'samlet', name: 'Samlet', a: 278, m: 334, rec: true, desc: 'Begge produkter samlet, med 20% pakkerabat.' },
   ];
-  const ofoRail = [['E-mail', 1], ['Bekræft', 2], ['Forening', 3], ['MobilePay', 4], ['Abonnement', 5]];
-  const ofoPct = (step / 5) * 100;
+  const ofoRail = [['E-mail', 1], ['Bekræft', 2], ['Forening', 3], ['Aftale', 4], ['MobilePay', 5], ['Abonnement', 6]];
+  const ofoPct = (step / 6) * 100;
   const pwMeter = [
     { color: '#EF4444', label: 'Meget svag' },
     { color: '#F97316', label: 'Svag' },
@@ -921,8 +922,34 @@ export default function OpretForeningPage() {
               </div>
             )}
 
-            {/* ---- Trin 4: MobilePay MSN (visuelt only) ---- */}
+            {/* ---- Trin 4: Samarbejdsaftale (accept, Variant B) ---- */}
             {step === 4 && (
+              <div>
+                <h2 style={ofoH}>Underskriv samarbejdsaftalen</h2>
+                <p style={ofoP}>Foreningen indgaar en samarbejdsaftale med StøtMedHjerte. Laes aftalen igennem og accepter for at fortsaette.</p>
+                <a href={`${SMH_API_URL}/api/forening/aftale/skabelon`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '15px 16px', borderRadius: 16, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 22, textDecoration: 'none' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                    <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 11, background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FileText size={20} /></span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>Laes samarbejdsaftalen</span>
+                  </span>
+                  <ExternalLink size={17} color="var(--smh-muted)" />
+                </a>
+                <div style={{ padding: '14px 16px', borderRadius: 14, background: 'var(--alt)', border: '1px solid var(--smh-border)', marginBottom: 18 }}>
+                  <div style={{ fontSize: 12.5, color: 'var(--smh-muted)', marginBottom: 3 }}>Du accepterer paa vegne af foreningen som:</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>{kontaktNavn || '(dit navn)'}, {kontaktRolle}</div>
+                </div>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 11, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={aftaleAccepteret} onChange={(e) => setAftaleAccepteret(e.target.checked)} style={{ marginTop: 3, width: 18, height: 18, flexShrink: 0, accentColor: 'var(--brand)' }} />
+                  <span style={{ fontSize: 13.5, lineHeight: 1.5, color: 'var(--ink)' }}>Jeg har laest og accepterer samarbejdsaftalen paa vegne af foreningen.</span>
+                </label>
+                <button type="button" className="ofo-primary" onClick={() => { if (aftaleAccepteret) setStep(5); }} disabled={!aftaleAccepteret} style={{ marginTop: 22, opacity: aftaleAccepteret ? 1 : 0.5 }}>
+                  Fortsaet til MobilePay <ArrowRight size={17} />
+                </button>
+              </div>
+            )}
+
+            {/* ---- Trin 5: MobilePay MSN (visuelt only) ---- */}
+            {step === 5 && (
               <div>
                 <h2 style={ofoH}>Kobl foreningens MobilePay</h2>
                 <p style={ofoP}>Bidrag fra jeres støtter går direkte ind på foreningens egen MobilePay-konto. Indtast foreningens MobilePay-nummer.</p>
@@ -944,14 +971,14 @@ export default function OpretForeningPage() {
                 </label>
                 <span style={{ display: 'block', marginTop: 8, fontSize: 12.5, lineHeight: 1.5, color: 'var(--smh-muted)' }}>Det 5-8 cifrede MobilePay-nummer, jeres støtter sender bidrag til. I finder det i MobilePay til erhverv.</span>
                 {msnError ? <div style={{ margin: '12px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{msnError}</div> : null}
-                <button type="button" className="ofo-primary" onClick={() => { if (msn.length < 5) { setMsnError('Indtast et gyldigt MobilePay-nummer (mindst 5 cifre).'); return; } setMsnError(''); setStep(5); }} style={{ marginTop: 22 }}>
+                <button type="button" className="ofo-primary" onClick={() => { if (msn.length < 5) { setMsnError('Indtast et gyldigt MobilePay-nummer (mindst 5 cifre).'); return; } setMsnError(''); setStep(6); }} style={{ marginTop: 22 }}>
                   Fortsæt til abonnement <ArrowRight size={17} />
                 </button>
               </div>
             )}
 
-            {/* ---- Trin 5: abonnement -> submit (din handleStep3Submit) ---- */}
-            {step === 5 && (
+            {/* ---- Trin 6: abonnement -> submit (din handleStep3Submit) ---- */}
+            {step === 6 && (
               <form onSubmit={handleStep3Submit}>
                 <h2 style={ofoH}>Vælg jeres abonnement</h2>
                 <p style={ofoP}>Foreningen vælger sit eget abonnement til StøtMedHjerte. Det gælder brugen af platformen, ikke bidrag fra jeres støtter. Årlig betaling giver den laveste pris.</p>
