@@ -915,7 +915,7 @@ export default function OpretForeningPage() {
                     </div>
 
                     <button type="button" className="ofo-primary" onClick={() => { if (canSubmitStep3()) setStep(4); }} disabled={!canSubmitStep3()} style={{ marginTop: 22 }}>
-                      Fortsæt til MobilePay <ArrowRight size={17} />
+                      Fortsæt til samarbejdsaftale <ArrowRight size={17} />
                     </button>
                   </>
                 ) : null}
@@ -1012,7 +1012,7 @@ export default function OpretForeningPage() {
                         <div style={{ margin: '14px 0', fontSize: 13, lineHeight: 1.5, color: 'var(--body)', flex: 1 }}>{p.desc}</div>
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--smh-muted)', marginBottom: 16 }}><ShieldCheck size={13} />{billing === 'aarlig' ? '12 mdr. binding' : 'Ingen binding'}</div>
                         <button type="button" onClick={() => setSelectedPlan(p.id)} style={{ width: '100%', padding: 12, minHeight: 48, borderRadius: 999, fontFamily: 'inherit', fontSize: 14.5, fontWeight: 700, cursor: 'pointer', ...(fill ? { background: 'var(--brand)', color: '#fff', border: 'none' } : { background: '#fff', color: 'var(--ink)', border: '1px solid var(--smh-border)' }) }}>
-                          {sel ? 'Valgt' : 'Vælg ' + p.name}
+                          {sel ? <><Check size={16} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} />Valgt</> : 'Vælg ' + p.name}
                         </button>
                       </div>
                     );
