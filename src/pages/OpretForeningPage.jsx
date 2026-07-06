@@ -184,6 +184,7 @@ export default function OpretForeningPage() {
   const [consentPiiChecked, setConsentPiiChecked] = useState(false);
   const [consentMarketingChecked, setConsentMarketingChecked] = useState(false);
   const [aftaleAccepteret, setAftaleAccepteret] = useState(false);
+  const [aftaleTemplateUuid, setAftaleTemplateUuid] = useState(null);
 
   // Step 3 submit state
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -224,6 +225,16 @@ export default function OpretForeningPage() {
     return () => {
       abortController.abort();
     };
+  }, []);
+
+  // S69: hent aktiv aftale-skabelons template_uuid (audit-defensible: forening kan ikke oprettes uden)
+  useEffect(() => {
+    const ac = new AbortController();
+    fetch(`${SMH_API_URL}/api/forening/aftale/skabelon`, { signal: ac.signal })
+      .then((r) => r.json())
+      .then((d) => { if (d?.template_uuid) setAftaleTemplateUuid(d.template_uuid); })
+      .catch(() => { /* template_uuid forbliver null -> videre-knap blokeres */ });
+    return () => ac.abort();
   }, []);
 
   // Modal handlers
@@ -552,6 +563,9 @@ export default function OpretForeningPage() {
       kontaktperson_navn: kontaktNavn.trim(),
       kontaktperson_rolle: kontaktRolle,
       kontaktperson_tlf: kontaktTlf.trim(),
+      aftale_template_uuid: aftaleTemplateUuid,
+      aftale_signer_name: kontaktNavn.trim(),
+      aftale_signer_role: kontaktRolle,
       postnummer: postnummer.trim(),
       consent_terms_id: consentVersions.platform_terms?.id,
       consent_gdpr_id: consentVersions.gdpr_terms?.id,
@@ -942,7 +956,7 @@ export default function OpretForeningPage() {
                   <input type="checkbox" checked={aftaleAccepteret} onChange={(e) => setAftaleAccepteret(e.target.checked)} style={{ marginTop: 3, width: 18, height: 18, flexShrink: 0, accentColor: 'var(--brand)' }} />
                   <span style={{ fontSize: 13.5, lineHeight: 1.5, color: 'var(--ink)' }}>Jeg har læst og accepterer samarbejdsaftalen på vegne af foreningen.</span>
                 </label>
-                <button type="button" className="ofo-primary" onClick={() => { if (aftaleAccepteret) setStep(5); }} disabled={!aftaleAccepteret} style={{ marginTop: 22, opacity: aftaleAccepteret ? 1 : 0.5 }}>
+                <button type="button" className="ofo-primary" onClick={() => { if (aftaleAccepteret && aftaleTemplateUuid) setStep(5); }} disabled={!aftaleAccepteret || !aftaleTemplateUuid} style={{ marginTop: 22, opacity: aftaleAccepteret ? 1 : 0.5 }}>
                   Fortsæt til MobilePay <ArrowRight size={17} />
                 </button>
               </div>
