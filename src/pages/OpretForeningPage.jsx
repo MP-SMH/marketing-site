@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Check, CheckCircle2, AlertCircle, AlertTriangle, Eye, EyeOff, ChevronDown, FileText, ExternalLink } from 'lucide-react';
+import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Check, CheckCircle2, AlertCircle, AlertTriangle, Eye, EyeOff, ChevronDown, FileText, ChevronRight } from 'lucide-react';
 import zxcvbn from 'zxcvbn';
 import { useNavigate, Link } from 'react-router-dom';
 import { SMH_API_URL } from '@/lib/supabaseClient';
@@ -185,6 +185,8 @@ export default function OpretForeningPage() {
   const [consentMarketingChecked, setConsentMarketingChecked] = useState(false);
   const [aftaleAccepteret, setAftaleAccepteret] = useState(false);
   const [aftaleTemplateUuid, setAftaleTemplateUuid] = useState(null);
+  const [aftaleVersion, setAftaleVersion] = useState(null);
+  const [aftaleModalOpen, setAftaleModalOpen] = useState(false);
 
   // Step 3 submit state
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -232,7 +234,15 @@ export default function OpretForeningPage() {
     const ac = new AbortController();
     fetch(`${SMH_API_URL}/api/forening/aftale/skabelon`, { signal: ac.signal })
       .then((r) => r.json())
-      .then((d) => { if (d?.template_uuid) setAftaleTemplateUuid(d.template_uuid); })
+      .then((d) => {
+        if (d?.template_uuid) setAftaleTemplateUuid(d.template_uuid);
+        if (d?.content) setAftaleVersion({
+          title: d.title,
+          version: d.version,
+          content_markdown: d.content,
+          effective_from: null,
+        });
+      })
       .catch(() => { /* template_uuid forbliver null -> videre-knap blokeres */ });
     return () => ac.abort();
   }, []);
@@ -941,13 +951,13 @@ export default function OpretForeningPage() {
               <div>
                 <h2 style={ofoH}>Underskriv samarbejdsaftalen</h2>
                 <p style={ofoP}>Foreningen indgår en samarbejdsaftale med StøtMedHjerte. Læs aftalen igennem og accepter for at fortsætte.</p>
-                <a href={`${SMH_API_URL}/api/forening/aftale/skabelon`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '15px 16px', borderRadius: 16, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 22, textDecoration: 'none' }}>
+                <button type="button" onClick={() => setAftaleModalOpen(true)} disabled={!aftaleVersion} style={{ width: '100%', font: 'inherit', textAlign: 'left', cursor: aftaleVersion ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '15px 16px', borderRadius: 16, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 22 }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                     <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 11, background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FileText size={20} /></span>
                     <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>Læs samarbejdsaftalen</span>
                   </span>
-                  <ExternalLink size={17} color="var(--smh-muted)" />
-                </a>
+                  <ChevronRight size={17} color="var(--smh-muted)" />
+                </button>
                 <div style={{ padding: '14px 16px', borderRadius: 14, background: 'var(--alt)', border: '1px solid var(--smh-border)', marginBottom: 18 }}>
                   <div style={{ fontSize: 12.5, color: 'var(--smh-muted)', marginBottom: 3 }}>Du accepterer på vegne af foreningen som:</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>{kontaktNavn || '(dit navn)'}, {kontaktRolle}</div>
@@ -1025,8 +1035,8 @@ export default function OpretForeningPage() {
                         <div style={{ marginTop: 5, minHeight: 18, fontSize: 12.5, fontWeight: 600, color: billing === 'aarlig' ? '#15803D' : 'var(--smh-muted)' }}>{billing === 'aarlig' ? 'Spar ' + sav + ' kr./md. mod månedlig' : 'Faktureres månedligt'}</div>
                         <div style={{ margin: '14px 0', fontSize: 13, lineHeight: 1.5, color: 'var(--body)', flex: 1 }}>{p.desc}</div>
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--smh-muted)', marginBottom: 16 }}><ShieldCheck size={13} />{billing === 'aarlig' ? '12 mdr. binding' : 'Ingen binding'}</div>
-                        <button type="button" onClick={() => setSelectedPlan(p.id)} style={{ width: '100%', padding: 12, minHeight: 48, borderRadius: 999, fontFamily: 'inherit', fontSize: 14.5, fontWeight: 700, cursor: 'pointer', ...(fill ? { background: 'var(--brand)', color: '#fff', border: 'none' } : { background: '#fff', color: 'var(--ink)', border: '1px solid var(--smh-border)' }) }}>
-                          {sel ? <><Check size={16} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} />Valgt</> : 'Vælg ' + p.name}
+                        <button type="button" onClick={() => setSelectedPlan(p.id)} style={{ width: '100%', padding: 12, minHeight: 48, borderRadius: 999, fontFamily: 'inherit', fontSize: 14.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, ...(fill ? { background: 'var(--brand)', color: '#fff', border: 'none' } : { background: '#fff', color: 'var(--ink)', border: '1px solid var(--smh-border)' }) }}>
+                          {sel ? <><Check size={16} />Valgt</> : 'Vælg ' + p.name}
                         </button>
                       </div>
                     );
@@ -1059,6 +1069,13 @@ export default function OpretForeningPage() {
         onClose={closeConsentModal}
         version={activeModalType && consentVersions ? consentVersions[activeModalType] : null}
         onAccept={handleConsentAccept}
+      />
+      <ConsentModal
+        isOpen={aftaleModalOpen}
+        onClose={() => setAftaleModalOpen(false)}
+        version={aftaleVersion}
+        onAccept={() => { setAftaleAccepteret(true); setAftaleModalOpen(false); }}
+        acceptLabel="Accepter samarbejdsaftalen"
       />
     </div>
   );

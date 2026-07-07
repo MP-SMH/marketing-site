@@ -20,7 +20,6 @@ import ReactMarkdown from 'react-markdown';
 import { X, ArrowRight } from 'lucide-react';
 
 const BRAND_RED = '#E0193F';
-const BRAND_TEAL = '#0891B2';
 
 export default function ConsentModal({
   isOpen,
@@ -108,7 +107,7 @@ export default function ConsentModal({
   const backdropStyle = {
     position: 'fixed',
     inset: 0,
-    background: 'rgba(15,23,42,0.85)',
+    background: 'rgba(8,14,26,0.55)',
     backdropFilter: 'blur(12px)',
     WebkitBackdropFilter: 'blur(12px)',
     display: 'flex',
@@ -121,10 +120,10 @@ export default function ConsentModal({
 
   const dialogStyle = {
     position: 'relative',
-    background: 'linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(30,41,59,0.96) 100%)',
-    border: '1px solid rgba(255,255,255,0.12)',
+    background: '#FFFFFF',
+    border: '1px solid #E5E7EB',
     borderRadius: 18,
-    boxShadow: '0 32px 80px rgba(0,0,0,0.65)',
+    boxShadow: '0 24px 60px -20px rgba(8,14,26,0.25)',
     width: '100%',
     maxWidth: 560,
     maxHeight: '88vh',
@@ -140,7 +139,7 @@ export default function ConsentModal({
     right: -100,
     width: 320,
     height: 320,
-    background: `radial-gradient(circle, rgba(8,145,178,0.18) 0%, transparent 60%)`,
+    background: 'transparent',
     pointerEvents: 'none',
     zIndex: 0,
   };
@@ -165,7 +164,7 @@ export default function ConsentModal({
     margin: 0,
     fontSize: 20,
     fontWeight: 600,
-    color: '#fff',
+    color: '#080E1A',
     lineHeight: 1.25,
     letterSpacing: '-0.02em',
   };
@@ -173,9 +172,9 @@ export default function ConsentModal({
   const metaStyle = {
     marginTop: 8,
     paddingTop: 8,
-    borderTop: '1px solid rgba(255,255,255,0.06)',
+    borderTop: '1px solid #E5E7EB',
     fontSize: 11,
-    color: 'rgba(255,255,255,0.45)',
+    color: '#4B5565',
     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
     letterSpacing: '0.04em',
     textTransform: 'uppercase',
@@ -185,9 +184,9 @@ export default function ConsentModal({
     flexShrink: 0,
     width: 34,
     height: 34,
-    border: '1px solid rgba(255,255,255,0.08)',
-    background: 'rgba(255,255,255,0.06)',
-    color: 'rgba(255,255,255,0.7)',
+    border: '1px solid #E5E7EB',
+    background: '#F3F5F8',
+    color: '#4B5565',
     borderRadius: 10,
     cursor: 'pointer',
     display: 'flex',
@@ -199,7 +198,7 @@ export default function ConsentModal({
   const dividerStyle = {
     height: 1,
     margin: '0 32px',
-    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%)',
+    background: 'linear-gradient(90deg, transparent 0%, #E5E7EB 50%, transparent 100%)',
     flexShrink: 0,
   };
 
@@ -207,7 +206,7 @@ export default function ConsentModal({
     padding: '22px 32px 28px',
     overflowY: 'auto',
     flex: 1,
-    color: 'rgba(255,255,255,0.85)',
+    color: '#4B5565',
     fontSize: 14.5,
     lineHeight: 1.75,
     position: 'relative',
@@ -216,7 +215,7 @@ export default function ConsentModal({
 
   const footerStyle = {
     padding: '22px 32px 26px',
-    background: 'rgba(8,15,30,0.65)',
+    background: '#F7F8FB',
     display: 'flex',
     justifyContent: 'center',
     flexShrink: 0,
@@ -236,7 +235,7 @@ export default function ConsentModal({
     fontWeight: 600,
     cursor: 'pointer',
     fontFamily: 'inherit',
-    boxShadow: '0 8px 32px rgba(224,25,63,0.55)',
+    boxShadow: '0 8px 24px rgba(224,25,63,0.25)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -246,29 +245,30 @@ export default function ConsentModal({
   };
 
   // Markdown styles
-  const mdH1Style = { fontSize: 18, fontWeight: 600, color: '#fff', marginTop: 24, marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.08)', letterSpacing: '-0.01em' };
-  const mdH2Style = { fontSize: 16, fontWeight: 600, color: '#fff', marginTop: 22, marginBottom: 10, paddingBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.06)', letterSpacing: '-0.01em' };
-  const mdH3Style = { fontSize: 14.5, fontWeight: 600, color: '#fff', marginTop: 18, marginBottom: 8 };
+  const mdH1Style = { fontSize: 18, fontWeight: 600, color: '#080E1A', marginTop: 24, marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid #E5E7EB', letterSpacing: '-0.01em' };
+  const mdH2Style = { fontSize: 16, fontWeight: 600, color: '#080E1A', marginTop: 22, marginBottom: 10, paddingBottom: 6, borderBottom: '1px solid #E5E7EB', letterSpacing: '-0.01em' };
+  const mdH3Style = { fontSize: 14.5, fontWeight: 600, color: '#080E1A', marginTop: 18, marginBottom: 8 };
   const mdPStyle = { margin: '0 0 14px 0' };
   const mdUlStyle = { margin: '0 0 14px 0', paddingLeft: 22 };
   const mdOlStyle = { margin: '0 0 14px 0', paddingLeft: 22 };
   const mdLiStyle = { marginBottom: 6 };
-  const mdAStyle = { color: BRAND_TEAL, textDecoration: 'underline' };
-  const mdStrongStyle = { color: '#fff', fontWeight: 600 };
+  const mdAStyle = { color: '#E0193F', textDecoration: 'underline' };
+  const mdStrongStyle = { color: '#080E1A', fontWeight: 600 };
   const mdEmStyle = { fontStyle: 'italic' };
   const mdCodeStyle = {
     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
     fontSize: 13,
-    background: 'rgba(255,255,255,0.06)',
+    background: '#F3F5F8',
+    color: '#080E1A',
     padding: '2px 7px',
     borderRadius: 4,
   };
-  const mdHrStyle = { border: 'none', borderTop: '1px solid rgba(255,255,255,0.1)', margin: '24px 0' };
+  const mdHrStyle = { border: 'none', borderTop: '1px solid #E5E7EB', margin: '24px 0' };
   const mdBlockquoteStyle = {
-    borderLeft: `3px solid ${BRAND_TEAL}`,
+    borderLeft: '3px solid #E0193F',
     paddingLeft: 18,
     margin: '0 0 14px 0',
-    color: 'rgba(255,255,255,0.7)',
+    color: '#4B5565',
     fontStyle: 'italic',
   };
 
@@ -301,7 +301,7 @@ export default function ConsentModal({
                   {version.title}
                 </h2>
                 <div style={metaStyle}>
-                  Version {version.version} · {formatDate(version.effective_from)}
+                  Version {version.version}{formatDate(version.effective_from) ? ` · ${formatDate(version.effective_from)}` : ''}
                 </div>
               </div>
               <button
@@ -311,14 +311,14 @@ export default function ConsentModal({
                 style={closeIconStyle}
                 aria-label="Luk"
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                  e.currentTarget.style.color = '#fff';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)';
+                  e.currentTarget.style.background = '#E5E7EB';
+                  e.currentTarget.style.color = '#080E1A';
+                  e.currentTarget.style.borderColor = '#D1D5DB';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                  e.currentTarget.style.background = '#F3F5F8';
+                  e.currentTarget.style.color = '#4B5565';
+                  e.currentTarget.style.borderColor = '#E5E7EB';
                 }}
               >
                 <X size={18} />
@@ -362,11 +362,11 @@ export default function ConsentModal({
                   style={ctaStyle}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 12px 40px rgba(224,25,63,0.65)';
+                    e.currentTarget.style.boxShadow = '0 12px 32px rgba(224,25,63,0.35)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(224,25,63,0.55)';
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(224,25,63,0.25)';
                   }}
                 >
                   <span>{acceptLabel}</span>
