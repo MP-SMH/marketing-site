@@ -125,6 +125,8 @@
 @media(min-width:560px){.ofo-2col{grid-template-columns:1fr 1fr;}}
 .ofo-plans{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:18px;}
 @media(min-width:680px){.ofo-plans{grid-template-columns:repeat(3,1fr);}}
+.ofo-binding-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:22px;}
+@media(min-width:680px){.ofo-binding-grid{grid-template-columns:1fr 1fr;}}
 
 /* ---- Slim footer ---- */
 .ofo-foot{border-top:1px solid var(--smh-border);background:var(--page);}

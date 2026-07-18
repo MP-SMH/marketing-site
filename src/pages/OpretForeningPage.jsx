@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Users, ArrowLeft, ShieldCheck, ArrowRight, Loader, Mail, Check, CheckCircle2, AlertCircle, AlertTriangle, Eye, EyeOff, ChevronDown, FileText, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ArrowRight, Loader, Check, AlertCircle, AlertTriangle, ChevronDown, FileText, ChevronRight } from 'lucide-react';
 import zxcvbn from 'zxcvbn';
 import { useNavigate, Link } from 'react-router-dom';
 import { SMH_API_URL } from '@/lib/supabaseClient';
@@ -197,12 +197,8 @@ export default function OpretForeningPage() {
   const [activeModalType, setActiveModalType] = useState(null);
 
   // --- S66 O3: additive state (roerer ikke eksisterende hooks) ---
-  // Trin 4 MobilePay MSN (visuelt only, afventer partner-noegler)
-  const [msn, setMsn] = useState('');
-  const [msnError, setMsnError] = useState('');
-  // Trin 5 abonnement (visuelt only, afventer Frisbii-checkout)
-  const [billing, setBilling] = useState('aarlig');
-  const [selectedPlan, setSelectedPlan] = useState('samlet');
+  // Trin 6 binding-valg (persisteres juridisk via signup-payload)
+  const [binding, setBinding] = useState('');
 
   // Fetch consent_versions ved mount, cancel ved unmount via AbortController
   useEffect(() => {
@@ -561,6 +557,11 @@ export default function OpretForeningPage() {
 
     if (!canSubmitStep3()) return;
 
+    if (binding !== '12mdr' && binding !== 'maanedlig') {
+      setSubmitError('Vælg en betalingsperiode for at oprette foreningen.');
+      return;
+    }
+
     setSubmitLoading(true);
     setSubmitError('');
     setFieldErrors({});
@@ -583,6 +584,8 @@ export default function OpretForeningPage() {
       consent_marketing_id: consentMarketingChecked
         ? consentVersions.marketing_consent?.id || null
         : null,
+      abonnement_binding: binding,
+      abonnement_maanedspris: binding === '12mdr' ? 149 : 179,
     };
 
     try {
@@ -697,11 +700,6 @@ export default function OpretForeningPage() {
   const ofoP = { margin: '0 0 20px', fontSize: 14.5, lineHeight: 1.6, color: 'var(--body)' };
   const ofoFieldErr = { marginTop: 7, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--brand)' };
   const ofoCvrRow = (color) => ({ marginTop: 9, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, fontWeight: 600, color });
-  const OFO_PLANS = [
-    { id: 'donationer', name: 'Donationer', a: 149, m: 179, desc: 'Engangsbidrag fra støtter via MobilePay.' },
-    { id: 'fast', name: 'Fast støtte', a: 199, m: 239, desc: 'Månedlige faste bidrag fra støtter.' },
-    { id: 'samlet', name: 'Samlet', a: 278, m: 334, rec: true, desc: 'Begge produkter samlet, med 20% pakkerabat.' },
-  ];
   const ofoRail = [['E-mail', 1], ['Bekræft', 2], ['Forening', 3], ['Aftale', 4], ['MobilePay', 5], ['Abonnement', 6]];
   const ofoPct = (step / 6) * 100;
   const pwMeter = [
@@ -984,18 +982,8 @@ export default function OpretForeningPage() {
                     <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--body)' }}>Bidragene går direkte til foreningen. StøtMedHjerte tager ingen andel.</div>
                   </div>
                 </div>
-                <label style={{ display: 'block' }}>
-                  <span className="ofo-label">MobilePay-nummer (MSN)</span>
-                  <div style={{ display: 'flex', alignItems: 'stretch', borderRadius: 13, border: '1px solid ' + (msnError ? 'var(--brand)' : (msn.length >= 5 ? 'var(--success)' : 'var(--smh-border)')), background: 'var(--surface)', overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', padding: '0 14px', background: '#5A78FF' }}>
-                      <span style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, letterSpacing: '-.2px', whiteSpace: 'nowrap' }}>MobilePay</span>
-                    </div>
-                    <input className="ofo-field" type="text" inputMode="numeric" placeholder="fx 123456" value={msn} onChange={(e) => { setMsn(e.target.value.replace(/\D/g, '').slice(0, 8)); if (msnError) setMsnError(''); }} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }} />
-                  </div>
-                </label>
-                <span style={{ display: 'block', marginTop: 8, fontSize: 12.5, lineHeight: 1.5, color: 'var(--smh-muted)' }}>Det 5-8 cifrede MobilePay-nummer, jeres støtter sender bidrag til. I finder det i MobilePay til erhverv.</span>
-                {msnError ? <div style={{ margin: '12px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{msnError}</div> : null}
-                <button type="button" className="ofo-primary" onClick={() => { if (msn.length < 5) { setMsnError('Indtast et gyldigt MobilePay-nummer (mindst 5 cifre).'); return; } setMsnError(''); setStep(6); }} style={{ marginTop: 22 }}>
+                <p style={{ margin: '0 0 22px', fontSize: 14, lineHeight: 1.6, color: 'var(--body)' }}>I kobler foreningens egen MobilePay til i næste skridt, når foreningen er oprettet.</p>
+                <button type="button" className="ofo-primary" onClick={() => setStep(6)} style={{ marginTop: 22 }}>
                   Fortsæt til abonnement <ArrowRight size={17} />
                 </button>
               </div>
@@ -1004,41 +992,26 @@ export default function OpretForeningPage() {
             {/* ---- Trin 6: abonnement -> submit (din handleStep3Submit) ---- */}
             {step === 6 && (
               <form onSubmit={handleStep3Submit}>
-                <h2 style={ofoH}>Vælg jeres abonnement</h2>
-                <p style={ofoP}>Foreningen vælger sit eget abonnement til StøtMedHjerte. Det gælder brugen af platformen, ikke bidrag fra jeres støtter. Årlig betaling giver den laveste pris.</p>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
-                  <div style={{ display: 'inline-flex', padding: 4, borderRadius: 999, background: 'var(--alt)', border: '1px solid var(--smh-border)' }}>
-                    {['aarlig', 'maanedlig'].map((k) => (
-                      <button key={k} type="button" onClick={() => setBilling(k)} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 18px', minHeight: 42, border: 'none', borderRadius: 999, fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer', ...(billing === k ? { background: '#fff', color: 'var(--ink)', boxShadow: '0 2px 8px rgba(8,14,26,.1)' } : { background: 'transparent', color: 'var(--smh-muted)' }) }}>
-                        {k === 'aarlig' ? 'Årlig' : 'Månedlig'}
-                        {k === 'aarlig' ? <span style={{ fontSize: 11, fontWeight: 800, padding: '2px 7px', borderRadius: 999, background: 'var(--brand-surface)', color: 'var(--brand-hover)' }}>Spar 20%</span> : null}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <p style={{ margin: '0 0 22px', textAlign: 'center', fontSize: 12.5, color: 'var(--smh-muted)' }}>{billing === 'aarlig' ? 'Årlig binding er 12 måneder. Laveste pris pr. måned.' : 'Månedlig betaling. Ingen binding, lidt højere pris pr. måned.'}</p>
-                <div className="ofo-plans">
-                  {OFO_PLANS.map((p) => {
-                    const price = billing === 'aarlig' ? p.a : p.m;
-                    const sav = p.m - p.a;
-                    const rec = p.rec;
-                    const sel = selectedPlan === p.id;
-                    const fill = rec || sel;
+                <h2 style={ofoH}>Vælg jeres betalingsperiode</h2>
+                <p style={ofoP}>Foreningen betaler et fast abonnement for at bruge StøtMedHjerte. Vælg om I vil betale med 12 måneders binding til en lavere månedspris, eller betale månedligt uden binding.</p>
+                <div className="ofo-binding-grid">
+                  {[
+                    { key: '12mdr', price: 149, heading: '12 måneders binding', note: 'Foreningen binder sig i 12 måneder. Lavere månedspris.' },
+                    { key: 'maanedlig', price: 179, heading: 'Ingen binding', note: 'Foreningen betaler månedligt og kan opsige frit. Højere månedspris.' },
+                  ].map((o) => {
+                    const sel = binding === o.key;
                     return (
-                      <div key={p.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 20, padding: '24px 20px 20px', border: rec ? '2px solid var(--brand)' : '1px solid var(--smh-border)', boxShadow: rec ? '0 24px 50px -30px rgba(224,25,63,.35)' : '0 16px 40px -32px rgba(8,14,26,.18)' }}>
-                        {rec ? <span style={{ position: 'absolute', top: -11, left: '50%', transform: 'translateX(-50%)', padding: '5px 12px', borderRadius: 999, background: 'var(--brand)', color: '#fff', fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap' }}>Anbefalet</span> : null}
-                        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink)', marginBottom: 10 }}>{p.name}</div>
+                      <button key={o.key} type="button" onClick={() => setBinding(o.key)} aria-pressed={sel} style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left', background: '#fff', borderRadius: 20, padding: '24px 20px', cursor: 'pointer', fontFamily: 'inherit', border: sel ? '2px solid var(--brand)' : '1px solid var(--smh-border)', boxShadow: '0 16px 40px -32px rgba(8,14,26,.18)' }}>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink)' }}>{o.heading}</div>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                          <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-1.4px', color: 'var(--ink)' }}>{price}</span>
+                          <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-1.4px', color: 'var(--ink)' }}>{o.price}</span>
                           <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--smh-muted)' }}>kr./md.</span>
                         </div>
-                        <div style={{ marginTop: 5, minHeight: 18, fontSize: 12.5, fontWeight: 600, color: billing === 'aarlig' ? '#15803D' : 'var(--smh-muted)' }}>{billing === 'aarlig' ? 'Spar ' + sav + ' kr./md. mod månedlig' : 'Faktureres månedligt'}</div>
-                        <div style={{ margin: '14px 0', fontSize: 13, lineHeight: 1.5, color: 'var(--body)', flex: 1 }}>{p.desc}</div>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--smh-muted)', marginBottom: 16 }}><ShieldCheck size={13} />{billing === 'aarlig' ? '12 mdr. binding' : 'Ingen binding'}</div>
-                        <button type="button" onClick={() => setSelectedPlan(p.id)} style={{ width: '100%', padding: 12, minHeight: 48, borderRadius: 999, fontFamily: 'inherit', fontSize: 14.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, ...(fill ? { background: 'var(--brand)', color: '#fff', border: 'none' } : { background: '#fff', color: 'var(--ink)', border: '1px solid var(--smh-border)' }) }}>
-                          {sel ? <><Check size={16} />Valgt</> : 'Vælg ' + p.name}
-                        </button>
-                      </div>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: 'var(--smh-muted)', flex: 1 }}><ShieldCheck size={13} />{o.note}</div>
+                        <div style={{ width: '100%', padding: 12, minHeight: 48, borderRadius: 999, fontSize: 14.5, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, ...(sel ? { background: 'var(--brand)', color: '#fff' } : { background: '#fff', color: 'var(--ink)', border: '1px solid var(--smh-border)' }) }}>
+                          {sel ? <><Check size={16} />Valgt</> : 'Vælg'}
+                        </div>
+                      </button>
                     );
                   })}
                 </div>
