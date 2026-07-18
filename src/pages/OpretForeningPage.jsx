@@ -731,7 +731,7 @@ export default function OpretForeningPage() {
             <div className="ofo-frame-head-row">
               <div>
                 <div className="ofo-kicker">Opret forening</div>
-                <div className="ofo-stepcount">Trin {step} af 5</div>
+                <div className="ofo-stepcount">Trin {step} af {ofoRail.length}</div>
               </div>
               <span className="ofo-securebadge"><ShieldCheck size={13} /> Sikker oprettelse</span>
             </div>
@@ -768,9 +768,9 @@ export default function OpretForeningPage() {
             {step === 1 && (
               <form onSubmit={handleSendOtp}>
                 <h2 style={ofoH}>Opret din konto</h2>
-                <p style={ofoP}>Vi sender en engangskode til jeres arbejds-e-mail, så vi ved, at det er jer.</p>
+                <p style={ofoP}>Vi sender en engangskode til jeres e-mail, så vi ved, at det er jer.</p>
                 <label style={{ display: 'block' }}>
-                  <span className="ofo-label">Arbejds-e-mail</span>
+                  <span className="ofo-label">E-mail</span>
                   <input className="ofo-field" type="email" inputMode="email" placeholder="navn@forening.dk" value={email} onChange={(e) => setEmail(e.target.value)} disabled={emailLoading} autoFocus required style={emailError ? { borderColor: 'var(--brand)' } : undefined} />
                 </label>
                 {emailError ? <div style={{ margin: '8px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{emailError}</div> : null}
