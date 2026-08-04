@@ -1,0 +1,82 @@
+/* ============================================================
+   StøtMedHjerte - shared.css
+   Responsive-regler + hover-tilstande til de DELTE komponenter
+   (SiteNav + SiteFooter) samt de fælles layout-hjælpere de bruger.
+
+   Kan IKKE ligge inline (media queries + :hover + pseudo). Byte-tro
+   med prototypernes <style>-blok. Indlæs på hver side EFTER tokens.css.
+
+   Rækkefølge på hver side:
+     <link rel="stylesheet" href="tokens.css">
+     <link rel="stylesheet" href="shared.css">
+     ... side-CSS ...
+     <script src="SiteNav.js" defer></script>
+   ============================================================ */
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--page);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:var(--ink);}
+::selection{background:var(--brand-surface);color:var(--brand-hover);}
+
+/* ---- fælles layout-hjælpere ---- */
+.wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.cta-row{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:520px){.cta-row{flex-direction:row;flex-wrap:wrap;}}
+.cta-w{width:100%;}
+@media(min-width:520px){.cta-w{width:auto;}}
+
+/* ============================================================
+   NAV (mega-menu)
+   Desktop-nav + CTA vises fra 1000px; burger + drawer under.
+   ============================================================ */
+.smh-nav,.smh-cta{display:none;}
+@media(min-width:1000px){
+  .smh-nav{display:flex;align-items:center;gap:2px;margin-left:8px;}
+  .smh-cta{display:flex;align-items:center;gap:10px;margin-left:auto;}
+}
+.smh-burger{display:inline-flex;margin-left:auto;}
+@media(min-width:1000px){.smh-burger{display:none;}}
+.smh-drawer{display:flex;}
+@media(min-width:1000px){.smh-drawer{display:none !important;}}
+
+/* mega-menu grupper */
+.navgrp{position:relative;}
+.navtrigger{display:inline-flex;align-items:center;gap:5px;background:transparent;border:none;font-family:inherit;font-size:14.5px;font-weight:500;color:var(--body);padding:9px 13px;border-radius:999px;cursor:pointer;transition:.15s;}
+.navgrp:hover .navtrigger{background:var(--alt);color:var(--ink);}
+.navtrigger svg{transition:transform .18s ease;}
+.navgrp:hover .navtrigger svg{transform:rotate(180deg);}
+.navpanel{position:absolute;top:100%;left:0;padding-top:12px;opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .16s ease,transform .16s ease,visibility .16s;z-index:60;}
+.navgrp:hover .navpanel{opacity:1;visibility:visible;transform:translateY(0);}
+.navcard{min-width:300px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 30px 60px -28px rgba(8,14,26,.28);padding:10px;}
+.navlink{display:flex;flex-direction:column;gap:2px;text-decoration:none;padding:11px 13px;border-radius:12px;transition:background .14s;}
+.navlink:hover{background:var(--alt);}
+.navlink b{font-size:14.5px;font-weight:600;color:var(--ink);letter-spacing:-.2px;}
+.navlink span{font-size:12.5px;color:var(--muted);}  /* FLAG kontrast: --muted ~4.8:1, se CONFLICTS.md K7 */
+
+/* drawer gruppetitler */
+.drawgrp{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--label);padding:16px 8px 4px;} /* FLAG kontrast: --label ~2.9:1 */
+
+/* nav hover-tilstande (kan ikke være inline) */
+.smh-cta a[href^="Log"]:hover{color:var(--ink);}
+.smh-cta a[href^="Hjertesager"]:hover{border-color:#cdd3dd;background:var(--alt);}
+.smh-cta a[href^="Opret"]:hover{background:var(--brand-hover);transform:translateY(-1px);}
+.smh-drawer a:hover{background:var(--alt);}
+
+/* ============================================================
+   FOOTER
+   4-kolonne fra 768px, stables på mobil.
+   ============================================================ */
+.foot{display:grid;grid-template-columns:1fr;gap:36px;}
+@media(min-width:768px){.foot{grid-template-columns:1.7fr 1fr 1fr 1fr;gap:36px;}}
+
+/* footer hover-tilstande (on-navy links -> hvid) */
+footer a[style*="#AEB9CC"]:hover{color:#fff;}
+footer a[style*="#6B7A92"]:hover{color:#AEB9CC;}
+footer .cta-w[href^="Hjertesager"]:hover{background:#E8EDF5;}
+footer .cta-w[href^="Opret"]:hover{background:var(--brand-hover);}
+
+/* ---- reduceret bevægelse ---- */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  .navtrigger,.navtrigger svg,.navpanel{transition:none;}
+}

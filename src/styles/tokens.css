@@ -1,0 +1,189 @@
+/* ============================================================
+   StøtMedHjerte - GLOBALT DESIGN-TOKEN-ARK
+   Én kilde til alle farver, typografi, spacing, radius, shadows
+   og breakpoints for hele marketing-sitet.
+
+   Format: statisk reference (1a). Komponenter og sider refererer
+   farver via var(--token); den fulde HEX står her. Alle rå farver
+   der optræder inline i prototyperne er katalogiseret nederst, så
+   ingen navngivet farve står uden HEX ved siden af (jf. kontrakt).
+
+   1:1 med prototypernes :root. Intet opfundet.
+   ============================================================ */
+
+@font-face{font-family:'Inter';font-style:normal;font-weight:400 800;font-display:swap;src:url('/assets/fonts/inter-var-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Inter';font-style:normal;font-weight:400 800;font-display:swap;src:url('/assets/fonts/inter-var-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+
+
+:root{
+  /* ============================================================
+     KONTRASTREGEL (laast). WCAG 2.1 AA med skaerpelse paa lille tekst:
+       Al tekst .............. min 4,5:1
+       Tekst under 14px ...... min 5,5:1
+       Grafik uden tekst ..... min 3,0:1
+     Hver farve nedenfor baerer sin FAKTISKE maalte vaerdi, ikke et skoen.
+     Maalt mod de tre lyse flader: S=--surface #FFFFFF, P=--page #F7F8FB,
+     A=--alt #F3F5F8. Navy-farver maales med hvid tekst ovenpaa.
+     ============================================================ */
+
+  /* ---------- FLADER (baggrunde, ikke tekst) ---------- */
+  --page:#F7F8FB;      /* sidebaggrund */
+  --alt:#F3F5F8;       /* alternerende graa sektioner */
+  --surface:#FFFFFF;   /* hvide kort / paneler */
+
+  /* ---------- NAVY (trust-sektioner + footer) ---------- */
+  --navy1:#080E1A;     /* footer + navy-baggrund. Hvid tekst: 19,30:1 */
+  --navy2:#0B1424;     /* kort/paneler i navy.    Hvid tekst: 18,43:1 */
+  --navy3:#132238;     /* lysere navy, glow.      Hvid tekst: 15,99:1 */
+
+  /* ---------- TEKST ---------- */
+  --ink:#080E1A;       /* overskrifter + broedtekst.  S 19,30  P 18,16  A 17,67 */
+  --body:#4B5565;      /* broedtekst.                 S  7,54  P  7,09  A  6,90 */
+  --muted:#55606F;     /* sekundaer tekst.            S  6,38  P  6,01  A  5,84
+                          Haevet fra #6B7280, som kun naaede 4,83 paa hvid og
+                          derfor brood skaerpelsen paa tekst under 14px. */
+  --label:#566072;     /* smaa labels og kickers.     S  5,89  P  5,55  A  5,40
+                          Haevet fra #94A3B8, som maalte 2,56 og var ulaeselig.
+                          OBS: 5,40 paa --alt ligger under 5,5-skaerpelsen.
+                          Labels er typisk 11-13px, saa paa alt-sektioner er
+                          kravet ikke opfyldt. #566072 giver 5,80 paa alt og
+                          loeser det, hvis vi vil vaere helt rene. */
+
+  /* ---------- IKONSTREG (grafik, ikke tekst) ---------- */
+  --icon-line:#94A3B8; /* KUN dekorativ ikonstreg.    S  2,56  P  2,41  A  2,35
+                          Maa ALDRIG bruges til tekst. Bemaerk at 2,56 ogsaa
+                          ligger under grafikkravet paa 3,0, saa farven kun er
+                          gyldig for rent dekorative streger, der sidder ved
+                          siden af en tekst som allerede baerer betydningen.
+                          Skal et ikon selv baere betydning, brug #7E8CA2,
+                          som maaler S 3,41  P 3,21  A 3,12. */
+
+  /* ---------- BRAND / CTA (sparsomt: kun handling + accent) ---------- */
+  --brand:#E0193F;         /* knap-fyld. Hvid tekst ovenpaa: 4,79:1 (AA, sanktioneret undtagelse) */
+  --brand-hover:#C8112F;   /* knap hover. 5,87 paa hvid. Ikke tekstfarve paa lys flade under 14px */
+  --brand-ink:#A00C24;     /* brand som TEKST/link-hover.  S  8,16  P  7,68  A  7,47 */
+  --brand-surface:#FFF1F3; /* lys roed flade. --brand-ink ovenpaa: 7,43:1 */
+  --brand-border:#FFE4E8;  /* lys roed kant (dekorativ) */
+
+  /* ---------- LINJER + STATUS ---------- */
+  --border:#E5E7EB;      /* divider/kant. 1,24 paa hvid. Rent dekorativ, baerer aldrig betydning alene */
+  --success:#22C55E;     /* groen flade: progress-fyld, badge-baggrund. 2,12 paa hvid.
+                            Under grafikkravet 3,0, saa den maa ikke staa alene som
+                            betydningsbaerende ikon paa hvid. Som FLADE med moerk tekst
+                            eller som fyld i en bjaelke med kant er den i orden. */
+  --success-ink:#10682F; /* groen som TEKST.             S  6,90  P  6,49  A  6,32 */
+  --amber:#FCD34D;       /* gul accent. 1,44 paa hvid. Kun dekorativ flade, aldrig tekst */
+}
+
+/* ============================================================
+   TYPOGRAFI
+   Font: Inter, hostet lokalt. Google Fonts er fjernet fra hele sitet af
+   hensyn til GDPR, da et kald til fonts.gstatic.com sender den besøgendes
+   IP-adresse til tredjepart uden samtykke.
+
+   Filerne ligger i assets/fonts/ som woff2 og indlæses med @font-face
+   nedenfor. Der bruges den variable Inter begrænset til akse 400..800,
+   fordi sitet bruger vægt 400, 500, 550, 600, 700 og 800. Vægt 550 findes
+   kun i den variable font, derfor ikke statiske filer.
+   Fallback: system-ui, sans-serif.
+
+   Vægte i brug:
+     500  ordmærke-basis, drawer-links
+     550  ordmærke (StøtMedHjerte)
+     600  knapper, nav-triggere, links
+     700  labels, kickers, tal
+     800  overskrifter (H1/H2), store tal
+
+   Skala (clamp = mobil -> desktop):
+     H1      clamp(32px, 5.4vw, 54px)  / line 1.06 / ls -1.2px / 800
+     H2      clamp(26px, 4.2vw, 42px)  / line 1.1-1.14 / ls -.9 til -1px / 800
+     Lead    clamp(16px, 2.4vw, 18.5px)/ line 1.6-1.65 / 400-500
+     Body    15-16px / line 1.6
+     Kicker  13px / 700 / ls 1px / UPPERCASE
+     Label   11-13px / 500-700
+     Nav     14.5px / 500 (trigger), 600 (CTA)
+     Knap    14.5-16px / 600
+   Ordmærke bevarer ALTID ™ som lille hævet tegn (font-size 10px,
+   vertical-align super). Logo er ordmærket, INTET hjerteikon.
+   ============================================================ */
+
+/* ============================================================
+   SPACING
+   wrap: max-width 1200px, vandret padding 20px.
+   Sektions-padding (lodret):
+     .sec-pad     60px mobil  -> 104px fra 768px
+     .sec-pad-sm  52px mobil  -> 88px  fra 768px
+   Typiske gaps: 12 / 14 / 16 / 18 / 22 / 32 / 36 / 40 / 56 / 60px.
+   ============================================================ */
+
+/* ============================================================
+   RADIUS
+     999px  pills, knapper, badges, avatar
+     26px   store kort (priskort, feature-kort)
+     24px   billed-rammer, paneler
+     18px   nav-dropdown, mini-kort
+     16px   mellemkort, inputs (store)
+     14px   dashboard-kort, inputs
+     12px   knapper i mockups, chips, drawer-links
+     9-11px små ikon-flader
+   ============================================================ */
+
+/* ============================================================
+   SHADOWS (bløde, diffuse - mobilepay-inspireret)
+     Knap (brand):     0 12px 30px rgba(224,25,63,.22)
+     Knap (brand hov): 0 16px 38px rgba(224,25,63,.28)
+     Nav-dropdown:     0 30px 60px -28px rgba(8,14,26,.28)
+     Fremhævet kort:   0 30px 60px -26px rgba(224,25,63,.30)
+     Blødt kort-hover: 0 22px 50px -26px rgba(8,14,26,.16)
+     Dashboard:        0 50px 110px -50px rgba(8,14,26,.34)
+     Flydende badge:   0 14px 30px -12px rgba(8,14,26,.30)
+   ============================================================ */
+
+/* ============================================================
+   BREAKPOINTS (mobil-først, min-width)
+     520px  CTA-rækker vandret
+     560px  2-kolonne grids (g4), dashboard-sidebar
+     768px  primær desktop-tærskel: 2-3 kolonner, sektions-padding op
+     820px  dashboard 2-kolonne, veje-grid
+     860px  split 2-kolonne
+     900px  hero 2-kolonne, systemflow vandret
+     980px  4-kolonne grids, foreningssplit
+    1000px  nav skifter fra burger til mega-menu
+   Ingen vandret scroll på nogen bredde. Touch-mål min 44-48px.
+   ============================================================ */
+
+/* ============================================================
+   RÅ FARVER I PROTOTYPERNE (ikke tokens, men brugt inline)
+   Katalogiseret så hver farve har en HEX og en placering.
+
+   On-navy tekst-skala (footer + navy-sektioner), maalt mod --navy1 #080E1A:
+     #E8EDF5  firmanavn i footer                              16,42:1  OK
+     #AEB9CC  footer-links + broedtekst                        9,76:1  OK
+     #9AA8BE  footer-beskrivelse + tm                          8,01:1  OK
+     #8FA0BC  kicker "Modellen" (For foreninger, navy)         7,28:1  OK
+              (paa den lysere --navy3 falder den til 6,03:1, stadig OK)
+     #6B7A92  footer gruppetitler + copyright + juridiske      4,43:1  FEJLER
+              Under minimumskravet paa 4,5, og da teksten er 12-13px
+              gaelder skaerpelsen 5,5. #7F8DA4 maaler 5,74:1 og loeser det.
+              Ikke rettet: ligger uden for denne opgaves afgraensning,
+              og roerer footeren paa alle sider.
+
+   Kant/hover:
+     #cdd3dd  ghost-knap hover-kant (afledt nabo til --border)
+
+   Graf-accent (For foreninger dashboard, se CONFLICTS.md K5):
+     #7C3AED  lilla anden-serie (rå hex, ikke token)          FLAG - beslut
+
+   Alpha/overlay (afledt af tokens):
+     rgba(247,248,251,.85)  sticky header-baggrund   = --page @ 85%
+     rgba(224,25,63,.22)    brand knap-skygge         = --brand @ 22%
+     rgba(224,25,63,.24)    brand knap-skygge (CTA)   = --brand @ 24%
+     rgba(224,25,63,.28)    brand knap-skygge (hover) = --brand @ 28%
+     rgba(224,25,63,.30)    fremhævet priskort-skygge = --brand @ 30%
+     rgba(224,25,63,.16)    graf-gradient top         = --brand @ 16%
+     rgba(8,14,26,.28)      nav-dropdown-skygge       = --navy1 @ 28%
+     rgba(8,14,26,.30)      flydende badge-skygge     = --navy1 @ 30%
+     rgba(8,14,26,.34)      dashboard-skygge          = --navy1 @ 34%
+     rgba(255,255,255,.06)  footer top-divider        = hvid @ 6%
+     rgba(255,255,255,.08)  footer sektion-dividers   = hvid @ 8%
+   ============================================================ */
