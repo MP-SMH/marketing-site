@@ -98,3 +98,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hjertesagsside: en spalte paa smalle skaerme. Stoet-kortet foerst. */
+@media (max-width: 900px) {
+  .hs-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 32px !important;
+  }
+  .hs-grid > aside {
+    order: -1;
+  }
+  .hs-grid > aside > div {
+    position: static !important;
+  }
+}
