@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { SMH_API_URL } from '../lib/supabaseClient';
 import SiteNav from '@/components/marketing/SiteNav';
 import SiteFooter from '@/components/marketing/SiteFooter';
+import HjertesagCheckout from './HjertesagCheckout';
+import { CTA_STOR, CTA_MEDIUM, CTA_RADIUS, CTA_PADDING, CTA_SKRIFT, CTA_SKRIFT_SEKUNDAER, CTA_VAEGT, CTA_SPAERRING } from '../lib/cta';
 
 /**
  * Offentlig hjertesagsside. Rute: /hjertesag/:slug
@@ -63,14 +65,15 @@ const S = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: 7,
-    padding: 12,
-    minHeight: 46,
+    padding: CTA_PADDING,
+    height: CTA_MEDIUM,
     border: '1px solid var(--border)',
-    borderRadius: 14,
+    borderRadius: CTA_RADIUS,
     background: 'var(--surface)',
     color: 'var(--ink)',
-    fontSize: 14,
-    fontWeight: 600,
+    fontSize: CTA_SKRIFT_SEKUNDAER,
+    fontWeight: CTA_VAEGT,
+    letterSpacing: CTA_SPAERRING,
     fontFamily: 'inherit',
     cursor: 'pointer',
   },
@@ -246,6 +249,9 @@ export default function HjertesagPage() {
   const [udvidet, setUdvidet] = useState(false);
   const [coverFejlede, setCoverFejlede] = useState(false);
   const [kopieret, setKopieret] = useState(false);
+  // Siden har TO visninger paa samme rute, praecis som CD-kilden. Adressen
+  // aendres ikke, saa knappen "Tilbage til hjertesagen" er vejen tilbage.
+  const [visning, setVisning] = useState('detalje');
 
   useEffect(() => {
     let afbrudt = false;
@@ -336,6 +342,19 @@ export default function HjertesagPage() {
   const naevn = forening.indsamlingsnaevn || {};
   const naevnAktiv = naevn.status === 'aktiv';
   const naevnUdloebet = naevn.status === 'udloebet_laast';
+
+  if (visning === 'checkout') {
+    return (
+      <HjertesagCheckout
+        hjertesag={hjertesag}
+        forening={forening}
+        onTilbage={() => {
+          setVisning('detalje');
+          window.scrollTo(0, 0);
+        }}
+      />
+    );
+  }
 
   return (
     <div style={S.side} className="hs-side">
@@ -536,25 +555,31 @@ export default function HjertesagPage() {
                     Der mangler {kr(mangler)} kr
                   </div>
 
-                  {/* Stoet-knappen faar sin handling i del 3. Den vises kun naar
-                      foreningen faktisk kan modtage bidrag. */}
+                  {/* Knappen vises KUN naar foreningen faktisk kan modtage
+                      bidrag. Checkout tjekker det samme igen, saa en donor
+                      aldrig udfylder en formular der ikke kan gennemfoeres. */}
                   {forening.payment_ready ? (
                     <button
                       type="button"
+                      onClick={() => {
+                        setVisning('checkout');
+                        window.scrollTo(0, 0);
+                      }}
                       style={{
                         width: '100%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: 10,
-                        padding: 18,
-                        minHeight: 58,
+                        padding: CTA_PADDING,
+                        height: CTA_STOR,
                         border: 'none',
-                        borderRadius: 999,
+                        borderRadius: CTA_RADIUS,
                         background: 'var(--brand)',
                         color: '#FFFFFF',
-                        fontSize: 17,
-                        fontWeight: 700,
+                        fontSize: CTA_SKRIFT,
+                        fontWeight: CTA_VAEGT,
+                        letterSpacing: CTA_SPAERRING,
                         fontFamily: 'inherit',
                         cursor: 'pointer',
                       }}

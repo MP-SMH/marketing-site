@@ -141,3 +141,131 @@
     top: 88px;
   }
 }
+/* ---------------------------------------------------------------------------
+   Hjertesagens checkout (S91). Reglerne kan ikke ligge inline i JSX, fordi de
+   indeholder brydepunkter for skaermbredde. Alt er scopet under .hs-side, saa
+   de aldrig rammer de oevrige sider.
+
+   Brydepunkterne er CD-kildens egne: 920px for spalterne, 480px for
+   beloebsknapperne.
+   --------------------------------------------------------------------------- */
+
+.hs-side .hs-co-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 920px) {
+  .hs-side .hs-co-grid {
+    grid-template-columns: minmax(0, 1fr) 392px;
+    align-items: start;
+    gap: 36px;
+  }
+
+  .hs-side .hs-co-grid > aside {
+    align-self: stretch;
+  }
+
+  .hs-side .hs-co-grid .hs-sticky {
+    position: sticky;
+    top: 88px;
+  }
+}
+
+/* To beloebsknapper paa smalle skaerme, tre fra 480px. */
+.hs-side .hs-amt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 480px) {
+  .hs-side .hs-amt-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Loeft ved hover. Slaas fra naar brugeren har bedt om mindre bevaegelse. */
+.hs-side .hs-liftable {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.hs-side .hs-liftable:hover {
+  transform: translateY(-2px);
+}
+
+/* Beloebsfeltet. Stoerre og tungere end de oevrige felter, fordi tallet er
+   det vigtigste paa siden. */
+.hs-side .hs-field {
+  width: 100%;
+  min-height: 54px;
+  padding: 15px 18px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.hs-side .hs-field::placeholder {
+  color: #c2c8d2;
+}
+
+.hs-side .hs-field:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(224, 25, 63, 0.1);
+}
+
+.hs-side textarea.hs-area {
+  width: 100%;
+  min-height: 96px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--ink);
+  outline: none;
+  resize: vertical;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.hs-side textarea.hs-area:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(224, 25, 63, 0.1);
+}
+
+/* Deaktiverede felter skal stadig kunne laeses. Browserens egen graatoning
+   rammer under kontrastkravet. */
+.hs-side input:disabled {
+  background: var(--alt);
+  color: var(--body);
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hs-side .hs-liftable,
+  .hs-side .hs-field,
+  .hs-side textarea.hs-area {
+    transition: none;
+  }
+
+  .hs-side .hs-liftable:hover {
+    transform: none;
+  }
+}
