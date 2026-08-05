@@ -99,16 +99,45 @@
   }
 }
 
-/* Hjertesagsside: en spalte paa smalle skaerme. Stoet-kortet foerst. */
-@media (max-width: 900px) {
-  .hs-grid {
-    grid-template-columns: minmax(0, 1fr) !important;
-    gap: 32px !important;
+/* Hjertesagsside. Gitteret foelger CD-prototypen: galleri oeverst i venstre
+   spalte, om-teksten under, og stoet-kortet i hoejre spalte over begge
+   raekker. Skiftet sker ved 860px, som i CD. */
+.hs-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.hs-sticky {
+  position: static;
+}
+
+@media (min-width: 860px) {
+  .hs-detail-grid {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-areas:
+      "gallery aside"
+      "about aside";
+    align-items: start;
+    gap: 36px;
   }
-  .hs-grid > aside {
-    order: -1;
+
+  .hs-gallery {
+    grid-area: gallery;
   }
-  .hs-grid > aside > div {
-    position: static !important;
+
+  .hs-aside {
+    grid-area: aside;
+    align-self: stretch;
+  }
+
+  .hs-about {
+    grid-area: about;
+  }
+
+  /* 72px fast navbar plus 16px luft. */
+  .hs-sticky {
+    position: sticky;
+    top: 88px;
   }
 }

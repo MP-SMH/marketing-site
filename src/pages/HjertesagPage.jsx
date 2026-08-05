@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { SMH_API_URL } from '../lib/supabaseClient';
-import Navbar from '../components/marketing/Navbar';
-import Footer from '../components/marketing/Footer';
+import SiteNav from '@/components/marketing/SiteNav';
+import SiteFooter from '@/components/marketing/SiteFooter';
 
 /**
  * Offentlig hjertesagsside. Rute: /hjertesag/:slug
@@ -13,22 +13,67 @@ import Footer from '../components/marketing/Footer';
  *
  * DEL 2 af 4: detaljevisning. Checkout foelger i del 3-4.
  *
- * FARVER: --muted og --border er kapret af shadcn i index.css og staar som
- * HSL-komponenter uden hsl(). De saettes derfor lokalt til hex paa .hs-side.
+ * STRUKTUR: foelger CD-prototypen Hjertesag.dc.html. Gitteret hs-detail-grid
+ * har tre omraader: galleri oeverst i venstre spalte, om-teksten under, og
+ * stoet-kortet i hoejre spalte over begge raekker. Reglerne staar i index.css.
  *
- * BILLEDER: fast aspect-ratio reserverer pladsen foer filen lander, saa
- * intet hopper. Cover er fetchPriority high og IKKE lazy.
+ * FARVER: --muted og --border er kapret af shadcn i index.css og staar der som
+ * HSL-komponenter uden hsl(). De saettes derfor lokalt til CD's hex paa
+ * .hs-side. Uden det falder teksten tavst tilbage til arvet farve.
+ *
+ * BILLEDER: fast aspect-ratio reserverer pladsen foer filen lander, saa intet
+ * hopper. Cover er fetchPriority high og IKKE lazy. Kilden skal altid vaere en
+ * lokal fil: eksterne vaerter modtager den besoegendes IP.
  */
 
 const S = {
   side: {
-    '--muted': '#5A6577',
-    '--border': '#E6E9EF',
+    '--muted': '#55606F',
+    '--border': '#E5E7EB',
+    '--brand-ink': '#A00C24',
+    '--label': '#566072',
     background: 'var(--page)',
     minHeight: '60vh',
   },
-  wrap: { maxWidth: 1080, margin: '0 auto', padding: '0 20px' },
+  wrap: { maxWidth: 1200, margin: '0 auto', padding: '0 20px' },
   besked: { maxWidth: 620, margin: '0 auto', padding: '80px 20px', textAlign: 'center' },
+  h1Besked: { fontSize: 28, fontWeight: 700, color: 'var(--ink)', margin: '0 0 12px' },
+  pBesked: { fontSize: 15, lineHeight: 1.7, color: 'var(--body)', margin: 0 },
+  h2Afsnit: {
+    margin: '0 0 8px',
+    fontSize: 22,
+    fontWeight: 800,
+    letterSpacing: '-.6px',
+    color: 'var(--ink)',
+  },
+  // 13px label. Kontrastkravet under 14px er 5,5:1. --brand (#E0193F) maaler
+  // 4,58:1 og maa ikke bruges som tekst. --brand-hover (#C8112F) maaler 5,87:1.
+  overLabel: {
+    display: 'block',
+    fontSize: 13,
+    fontWeight: 700,
+    letterSpacing: '.8px',
+    textTransform: 'uppercase',
+    color: 'var(--brand-hover)',
+    marginBottom: 12,
+  },
+  sekundaerKnap: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    padding: 12,
+    minHeight: 46,
+    border: '1px solid var(--border)',
+    borderRadius: 14,
+    background: 'var(--surface)',
+    color: 'var(--ink)',
+    fontSize: 14,
+    fontWeight: 600,
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+  },
 };
 
 // Dansk tusindtalsformat. 25000 -> "25.000"
@@ -51,17 +96,57 @@ function harIndhold(v) {
   return typeof v === 'string' && v.trim().length > 0;
 }
 
+// Beloeb fra direct_donations er i OERE. causes er i KRONER. Forveksl dem ikke.
+function oere(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 0;
+  return Math.round(n / 100);
+}
+
+// Relativ tid paa dansk. Faldet tilbage til dato efter 30 dage.
+function tidSiden(iso) {
+  if (!harIndhold(iso)) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const min = Math.floor((Date.now() - d.getTime()) / 60000);
+  if (min < 1) return 'lige nu';
+  if (min < 60) return `for ${min} min siden`;
+  const timer = Math.floor(min / 60);
+  if (timer < 24) return timer === 1 ? 'for 1 time siden' : `for ${timer} timer siden`;
+  const dage = Math.floor(timer / 24);
+  if (dage === 1) return 'i går';
+  if (dage < 30) return `for ${dage} dage siden`;
+  return d.toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// CD's avatarpalet. Fire par, valgt deterministisk paa indeks.
+const AVATAR_FARVER = [
+  { bg: '#FFE4E8', fg: '#E0193F' },
+  { bg: '#E7ECF5', fg: '#2A3B57' },
+  { bg: '#ECFDF3', fg: '#15803D' },
+  { bg: '#FFF7EC', fg: '#B45309' },
+];
+
+function HjerteIkon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 21s-7.5-4.7-10-9.3C.4 8.3 2 4.5 5.6 4.5c2 0 3.4 1.1 4.4 2.6C11 5.6 12.4 4.5 14.4 4.5 18 4.5 19.6 8.3 18 11.7 15.5 16.3 12 21 12 21z" />
+    </svg>
+  );
+}
+
 function initialer(navn) {
   if (!harIndhold(navn)) return '?';
   return navn
     .trim()
     .split(/\s+/)
     .slice(0, 2)
-    .map((o) => o[0])
+    .map((ord) => ord[0])
     .join('')
     .toUpperCase();
 }
 
+// Vaerdien i databasen er en noegle, ikke visningstekst.
 const PARAGRAF_TEKST = {
   paragraf_3: 'efter indsamlingslovens § 3',
   paragraf_4: 'efter indsamlingslovens § 4',
@@ -74,17 +159,18 @@ function datoDK(iso) {
   return d.toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-function Etiket({ farve, baggrund, children }) {
+function Etiket({ farve, baggrund, mono, children }) {
   return (
     <span
       style={{
         padding: '3px 9px',
-        borderRadius: 999,
+        borderRadius: mono ? 8 : 999,
         background: baggrund,
         color: farve,
-        fontSize: 11,
-        fontWeight: 800,
-        letterSpacing: '.4px',
+        fontSize: mono ? 11 : 10.5,
+        fontWeight: mono ? 700 : 800,
+        letterSpacing: mono ? 0 : '.4px',
+        fontFamily: mono ? 'ui-monospace, Menlo, monospace' : 'inherit',
         flexShrink: 0,
       }}
     >
@@ -93,14 +179,14 @@ function Etiket({ farve, baggrund, children }) {
   );
 }
 
-function DokumentationsKort({ ikonBaggrund, ikonFarve, titel, etiket, tekst }) {
+function DokumentationsKort({ ikonBaggrund, ikonFarve, titel, etiket, tekst, sidste }) {
   return (
     <div
       style={{
         display: 'flex',
         gap: 16,
         padding: '22px 24px',
-        borderBottom: '1px solid var(--border)',
+        borderBottom: sidste ? 'none' : '1px solid var(--border)',
       }}
     >
       <div
@@ -114,14 +200,14 @@ function DokumentationsKort({ ikonBaggrund, ikonFarve, titel, etiket, tekst }) {
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          fontSize: 20,
+          fontSize: 19,
           fontWeight: 800,
         }}
         aria-hidden="true"
       >
         i
       </div>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
             display: 'flex',
@@ -156,8 +242,10 @@ export default function HjertesagPage() {
   const [status, setStatus] = useState('indlaeser');
   const [hjertesag, setHjertesag] = useState(null);
   const [forening, setForening] = useState(null);
+  const [stoettevaeg, setStoettevaeg] = useState([]);
   const [udvidet, setUdvidet] = useState(false);
   const [coverFejlede, setCoverFejlede] = useState(false);
+  const [kopieret, setKopieret] = useState(false);
 
   useEffect(() => {
     let afbrudt = false;
@@ -188,6 +276,7 @@ export default function HjertesagPage() {
 
         setHjertesag(data.hjertesag);
         setForening(data.forening);
+        setStoettevaeg(Array.isArray(data.stoettevaeg) ? data.stoettevaeg : []);
         setStatus('klar');
       } catch {
         if (!afbrudt) setStatus('fejl');
@@ -201,36 +290,40 @@ export default function HjertesagPage() {
     };
   }, [slug]);
 
+  async function kopierLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setKopieret(true);
+      window.setTimeout(() => setKopieret(false), 2000);
+    } catch {
+      setKopieret(false);
+    }
+  }
+
   if (status !== 'klar' || !hjertesag || !forening) {
     return (
       <div style={S.side} className="hs-side">
-        <Navbar />
+        <SiteNav />
         <main style={S.besked}>
           {status === 'indlaeser' && (
             <p style={{ color: 'var(--muted)', fontSize: 15 }}>Henter hjertesagen…</p>
           )}
           {status === 'findes-ikke' && (
             <>
-              <h1 style={{ fontSize: 28, fontWeight: 700, color: 'var(--ink)', margin: '0 0 12px' }}>
-                Vi kunne ikke finde denne hjertesag
-              </h1>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--body)', margin: 0 }}>
-                Tjek linket, eller find andre hjertesager på forsiden.
-              </p>
+              <h1 style={S.h1Besked}>Vi kunne ikke finde denne hjertesag</h1>
+              <p style={S.pBesked}>Tjek linket, eller find andre hjertesager på oversigten.</p>
             </>
           )}
           {status === 'fejl' && (
             <>
-              <h1 style={{ fontSize: 28, fontWeight: 700, color: 'var(--ink)', margin: '0 0 12px' }}>
-                Noget gik galt
-              </h1>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--body)', margin: 0 }}>
+              <h1 style={S.h1Besked}>Noget gik galt</h1>
+              <p style={S.pBesked}>
                 Vi kunne ikke hente hjertesagen lige nu. Prøv igen om et øjeblik.
               </p>
             </>
           )}
         </main>
-        <Footer />
+        <SiteFooter />
       </div>
     );
   }
@@ -241,380 +334,647 @@ export default function HjertesagPage() {
   const lang = harIndhold(hjertesag.lang_beskrivelse) ? hjertesag.lang_beskrivelse : '';
   const langErLang = lang.length > 320;
   const naevn = forening.indsamlingsnaevn || {};
+  const naevnAktiv = naevn.status === 'aktiv';
+  const naevnUdloebet = naevn.status === 'udloebet_laast';
 
   return (
     <div style={S.side} className="hs-side">
-      <Navbar />
+      <SiteNav />
 
-      <main style={{ paddingBottom: 64 }}>
-        <section style={{ ...S.wrap, paddingTop: 24 }}>
-          {/* COVER. Pladsen er reserveret af aspect-ratio, saa intet hopper. */}
-          <div
+      <main style={{ paddingTop: 'clamp(24px,4vw,40px)', paddingBottom: 'clamp(40px,6vw,72px)' }}>
+        <section style={{ ...S.wrap, paddingBottom: 8 }}>
+          <Link
+            to="/hjertesager"
             style={{
-              position: 'relative',
-              borderRadius: 26,
-              overflow: 'hidden',
-              border: '1px solid var(--border)',
-              background: 'var(--alt)',
-              aspectRatio: '3 / 2',
-              maxHeight: 460,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 9,
+              textDecoration: 'none',
+              color: 'var(--body)',
+              fontSize: 14.5,
+              fontWeight: 600,
+              padding: '8px 4px',
             }}
           >
-            {visCover ? (
-              <img
-                src={hjertesag.coverbillede}
-                alt=""
-                width="1400"
-                height="933"
-                decoding="async"
-                fetchPriority="high"
-                onError={() => setCoverFejlede(true)}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--muted)',
-                  fontSize: 14,
-                }}
-              >
-                Foreningen har ikke tilføjet et billede
-              </div>
-            )}
-          </div>
+            Tilbage til hjertesager
+          </Link>
         </section>
 
-        <section
-          style={{
-            ...S.wrap,
-            paddingTop: 32,
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0,1fr) minmax(0,380px)',
-            gap: 40,
-            alignItems: 'start',
-          }}
-          className="hs-grid"
-        >
-          {/* VENSTRE: om hjertesagen + dokumentation */}
-          <div>
-            <h1
-              style={{
-                margin: '0 0 10px',
-                fontSize: 28,
-                fontWeight: 700,
-                letterSpacing: '-.5px',
-                color: 'var(--ink)',
-                lineHeight: 1.25,
-              }}
-            >
-              {hjertesag.kampagnenavn}
-            </h1>
-            {harIndhold(hjertesag.kort_beskrivelse) && (
-              <p
+        <section style={{ ...S.wrap, paddingTop: 16 }}>
+          <div className="hs-detail-grid">
+            <div className="hs-gallery">
+              <div
                 style={{
-                  margin: '0 0 32px',
-                  fontSize: 16,
-                  lineHeight: 1.65,
-                  color: 'var(--body)',
-                  maxWidth: 620,
+                  position: 'relative',
+                  borderRadius: 26,
+                  overflow: 'hidden',
+                  border: '1px solid var(--border)',
+                  background: 'var(--alt)',
+                  aspectRatio: '3 / 2',
                 }}
               >
-                {hjertesag.kort_beskrivelse}
-              </p>
-            )}
-
-            {lang && (
-              <>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    letterSpacing: '.8px',
-                    textTransform: 'uppercase',
-                    color: 'var(--brand-hover)',
-                    marginBottom: 12,
-                  }}
-                >
-                  Om denne hjertesag
-                </span>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 15,
-                    lineHeight: 1.7,
-                    color: 'var(--body)',
-                    maxWidth: 620,
-                    display: langErLang && !udvidet ? '-webkit-box' : 'block',
-                    WebkitLineClamp: langErLang && !udvidet ? 5 : 'none',
-                    WebkitBoxOrient: 'vertical',
-                    overflow: langErLang && !udvidet ? 'hidden' : 'visible',
-                  }}
-                >
-                  {lang}
-                </p>
-                {langErLang && (
-                  <button
-                    type="button"
-                    onClick={() => setUdvidet((v) => !v)}
+                {visCover ? (
+                  <img
+                    src={hjertesag.coverbillede}
+                    alt=""
+                    width="1400"
+                    height="933"
+                    decoding="async"
+                    fetchPriority="high"
+                    onError={() => setCoverFejlede(true)}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                ) : (
+                  <div
                     style={{
-                      marginTop: 14,
-                      background: 'none',
-                      border: 'none',
-                      padding: '4px 0',
-                      fontFamily: 'inherit',
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--muted)',
                       fontSize: 14,
-                      fontWeight: 700,
-                      color: 'var(--brand-hover)',
-                      cursor: 'pointer',
                     }}
                   >
-                    {udvidet ? 'Vis mindre' : 'Læs mere'}
-                  </button>
+                    Foreningen har ikke tilføjet et billede
+                  </div>
                 )}
-              </>
-            )}
+              </div>
+            </div>
 
-            <div style={{ height: 1, background: 'var(--border)', margin: '48px 0' }} />
-
-            {/* DOKUMENTATION. Tre tilstande, udledt ET sted. */}
-            <span
-              style={{
-                display: 'block',
-                fontSize: 13,
-                fontWeight: 700,
-                letterSpacing: '.8px',
-                textTransform: 'uppercase',
-                color: 'var(--brand-hover)',
-                marginBottom: 12,
-              }}
-            >
-              Offentlig dokumentation
-            </span>
-            <h2
-              style={{
-                margin: '0 0 22px',
-                fontSize: 20,
-                fontWeight: 600,
-                letterSpacing: '-.4px',
-                color: 'var(--ink)',
-              }}
-            >
-              Indsamlingsnævnet
-            </h2>
-
-            <div
-              style={{
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 22,
-                overflow: 'hidden',
-              }}
-            >
-              {naevn.status === 'aktiv' && (
-                <>
-                  <DokumentationsKort
-                    ikonBaggrund="#ECFDF3"
-                    ikonFarve="#166534"
-                    titel="Tilladelse hos Indsamlingsnævnet"
-                    etiket={<Etiket farve="#166534" baggrund="#ECFDF3">AKTIV</Etiket>}
-                    tekst={`Foreningen har tilladelse til at samle ind ${
-                      PARAGRAF_TEKST[naevn.paragraf] || ''
-                    }.${
-                      datoDK(naevn.udloeb) ? ` Tilladelsen gælder til ${datoDK(naevn.udloeb)}.` : ''
-                    }`}
-                  />
-                  {harIndhold(naevn.journal_nr) && (
-                    <DokumentationsKort
-                      ikonBaggrund="var(--alt)"
-                      ikonFarve="var(--ink)"
-                      titel="Journalnummer"
-                      etiket={
+            <aside className="hs-aside">
+              <div className="hs-sticky">
+                <div
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 26,
+                    padding: 28,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 13,
+                      marginBottom: 22,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 13,
+                        background: 'var(--navy1)',
+                        color: '#FFFFFF',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 17,
+                        fontWeight: 800,
+                        flexShrink: 0,
+                      }}
+                      aria-hidden="true"
+                    >
+                      {initialer(forening.foreningsnavn)}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span
+                        style={{
+                          display: 'block',
+                          fontSize: 16,
+                          fontWeight: 700,
+                          color: 'var(--ink)',
+                          letterSpacing: '-.3px',
+                        }}
+                      >
+                        {forening.foreningsnavn}
+                      </span>
+                      {harIndhold(forening.by) && (
                         <span
                           style={{
-                            padding: '3px 9px',
-                            borderRadius: 8,
-                            background: 'var(--alt)',
-                            color: 'var(--body)',
-                            fontSize: 11,
-                            fontWeight: 700,
-                            fontFamily: 'ui-monospace, Menlo, monospace',
+                            display: 'block',
+                            fontSize: 13,
+                            color: 'var(--muted)',
+                            marginTop: 3,
                           }}
                         >
-                          {naevn.journal_nr}
+                          {forening.by}
                         </span>
-                      }
-                      tekst="Indsamlingen er registreret offentligt hos myndigheden og kan slås op der."
+                      )}
+                    </div>
+                  </div>
+
+                  <h1
+                    style={{
+                      margin: '0 0 18px',
+                      fontSize: 22,
+                      fontWeight: 800,
+                      letterSpacing: '-.5px',
+                      color: 'var(--ink)',
+                      lineHeight: 1.25,
+                    }}
+                  >
+                    {hjertesag.kampagnenavn}
+                  </h1>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      justifyContent: 'space-between',
+                      marginBottom: 12,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 26,
+                        fontWeight: 800,
+                        letterSpacing: '-.8px',
+                        color: 'var(--ink)',
+                      }}
+                    >
+                      {kr(hjertesag.indsamlet_beloeb)}{' '}
+                      <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--muted)' }}>
+                        kr
+                      </span>
+                    </span>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--brand-hover)' }}>
+                      {pct}%
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: 13.5, color: 'var(--muted)', marginBottom: 10 }}>
+                    af {kr(hjertesag.maalbeloeb)} kr i mål
+                  </div>
+
+                  <div
+                    role="progressbar"
+                    aria-valuenow={pct}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="Indsamlet af målet"
+                    style={{
+                      height: 8,
+                      borderRadius: 999,
+                      background: 'var(--alt)',
+                      overflow: 'hidden',
+                      marginBottom: 10,
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${pct}%`,
+                        borderRadius: 999,
+                        background: 'linear-gradient(90deg,#16A34A,#22C55E)',
+                      }}
                     />
+                  </div>
+
+                  <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 22 }}>
+                    Der mangler {kr(mangler)} kr
+                  </div>
+
+                  {/* Stoet-knappen faar sin handling i del 3. Den vises kun naar
+                      foreningen faktisk kan modtage bidrag. */}
+                  {forening.payment_ready ? (
+                    <button
+                      type="button"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 10,
+                        padding: 18,
+                        minHeight: 58,
+                        border: 'none',
+                        borderRadius: 999,
+                        background: 'var(--brand)',
+                        color: '#FFFFFF',
+                        fontSize: 17,
+                        fontWeight: 700,
+                        fontFamily: 'inherit',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Støt denne sag
+                    </button>
+                  ) : (
+                    <div
+                      style={{
+                        padding: '14px 16px',
+                        borderRadius: 14,
+                        background: 'var(--alt)',
+                        fontSize: 13.5,
+                        lineHeight: 1.6,
+                        color: 'var(--body)',
+                      }}
+                    >
+                      Foreningen kan ikke modtage bidrag endnu. Prøv igen senere.
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                    <button type="button" onClick={kopierLink} style={S.sekundaerKnap}>
+                      {kopieret ? 'Kopieret' : 'Kopiér link'}
+                    </button>
+                  </div>
+
+                  <p
+                    style={{
+                      margin: '16px 0 0',
+                      paddingTop: 16,
+                      borderTop: '1px solid var(--border)',
+                      fontSize: 12.5,
+                      lineHeight: 1.6,
+                      color: 'var(--muted)',
+                    }}
+                  >
+                    Bidragene modtages direkte på foreningens egen MobilePay-konto.
+                    StøtMedHjerte tager ingen andel af bidragene, og abonnementet for
+                    platformen afholdes særskilt af foreningen og er ikke trukket fra
+                    bidragene.
+                  </p>
+                </div>
+              </div>
+            </aside>
+
+            <div className="hs-about">
+              {harIndhold(hjertesag.kort_beskrivelse) && (
+                <p
+                  style={{
+                    margin: '0 0 32px',
+                    fontSize: 16,
+                    lineHeight: 1.65,
+                    color: 'var(--body)',
+                    maxWidth: 620,
+                  }}
+                >
+                  {hjertesag.kort_beskrivelse}
+                </p>
+              )}
+
+              {lang && (
+                <>
+                  <span style={S.overLabel}>Om denne hjertesag</span>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 15,
+                      lineHeight: 1.7,
+                      color: 'var(--body)',
+                      maxWidth: 620,
+                      display: langErLang && !udvidet ? '-webkit-box' : 'block',
+                      WebkitLineClamp: langErLang && !udvidet ? 5 : 'none',
+                      WebkitBoxOrient: 'vertical',
+                      overflow: langErLang && !udvidet ? 'hidden' : 'visible',
+                    }}
+                  >
+                    {lang}
+                  </p>
+                  {langErLang && (
+                    <button
+                      type="button"
+                      onClick={() => setUdvidet((v) => !v)}
+                      style={{
+                        marginTop: 14,
+                        background: 'none',
+                        border: 'none',
+                        padding: '4px 0',
+                        fontFamily: 'inherit',
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: 'var(--brand-hover)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {udvidet ? 'Vis mindre' : 'Læs mere'}
+                    </button>
                   )}
                 </>
               )}
 
-              {naevn.status === 'udloebet_laast' && (
-                <DokumentationsKort
-                  ikonBaggrund="#FFF7EC"
-                  ikonFarve="#B45309"
-                  titel="Tilladelsen er udløbet"
-                  etiket={<Etiket farve="#B45309" baggrund="#FFF7EC">UDLØBET</Etiket>}
-                  tekst="Foreningen kan ikke modtage bidrag til denne hjertesag, før tilladelsen er fornyet hos Indsamlingsnævnet."
-                />
-              )}
+              <div style={{ height: 1, background: 'var(--border)', margin: '60px 0' }} />
 
-              {naevn.status !== 'aktiv' && naevn.status !== 'udloebet_laast' && (
-                <DokumentationsKort
-                  ikonBaggrund="var(--alt)"
-                  ikonFarve="var(--ink)"
-                  titel="Ingen tilladelse registreret"
-                  etiket={<Etiket farve="var(--body)" baggrund="var(--alt)">IKKE OPRETTET</Etiket>}
-                  tekst="Foreningen har ikke registreret en tilladelse hos Indsamlingsnævnet på StøtMedHjerte."
-                />
-              )}
-            </div>
+              <span style={S.overLabel}>Hilsner fra støtterne</span>
+              <h2 style={S.h2Afsnit}>En væg af opbakning</h2>
+              <p
+                style={{
+                  margin: '0 0 20px',
+                  fontSize: 15,
+                  lineHeight: 1.65,
+                  color: 'var(--body)',
+                  maxWidth: 560,
+                }}
+              >
+                Når nogen støtter foreningen, kan de efterlade en hilsen. De nyeste står
+                øverst.
+              </p>
 
-            <p style={{ margin: '18px 0 0', fontSize: 13, lineHeight: 1.6, color: 'var(--muted)' }}>
-              Indsamlingsnævnet er den danske myndighed, der godkender og fører tilsyn med
-              foreningers indsamlinger.
-            </p>
-          </div>
-
-          {/* HOEJRE: stoet-kort */}
-          <aside>
-            <div
-              style={{
-                position: 'sticky',
-                top: 24,
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 26,
-                padding: 28,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 13, marginBottom: 22 }}>
+              <div
+                style={{
+                  border: '1px solid var(--border)',
+                  borderRadius: 22,
+                  background: 'var(--surface)',
+                  overflow: 'hidden',
+                }}
+              >
                 <div
                   style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 13,
-                    background: 'var(--navy1)',
-                    color: '#fff',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 17,
-                    fontWeight: 800,
-                    flexShrink: 0,
+                    gap: 9,
+                    padding: '15px 20px',
+                    borderBottom: '1px solid var(--border)',
                   }}
-                  aria-hidden="true"
                 >
-                  {initialer(forening.foreningsnavn)}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
                   <span
                     style={{
-                      display: 'block',
-                      fontSize: 16,
+                      fontSize: 14.5,
                       fontWeight: 700,
                       color: 'var(--ink)',
-                      letterSpacing: '-.3px',
+                      letterSpacing: '-.2px',
                     }}
                   >
-                    {forening.foreningsnavn}
+                    Seneste hilsner
                   </span>
-                  {harIndhold(forening.by) && (
-                    <span style={{ display: 'block', fontSize: 13, color: 'var(--muted)', marginTop: 3 }}>
-                      {forening.by}
-                    </span>
-                  )}
+                  <span
+                    style={{
+                      padding: '3px 9px',
+                      borderRadius: 999,
+                      background: 'var(--alt)',
+                      color: 'var(--body)',
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {stoettevaeg.length}
+                  </span>
                 </div>
+
+                {stoettevaeg.length === 0 ? (
+                  <div
+                    style={{
+                      padding: '40px 20px',
+                      textAlign: 'center',
+                      fontSize: 14.5,
+                      lineHeight: 1.6,
+                      color: 'var(--muted)',
+                    }}
+                  >
+                    Der er ingen hilsner endnu. Bliv den første til at støtte denne
+                    hjertesag.
+                  </div>
+                ) : (
+                  <div style={{ maxHeight: 430, overflowY: 'auto', padding: '2px 20px 10px' }}>
+                    {stoettevaeg.map((post, i) => {
+                      const farve = AVATAR_FARVER[i % AVATAR_FARVER.length];
+                      const nyeste = i === 0;
+                      return (
+                        <div
+                          key={`${post.tidspunkt}-${i}`}
+                          style={{
+                            padding: '22px 20px',
+                            margin: '0 -20px',
+                            borderTop: nyeste ? 'none' : '1px solid var(--border)',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                            {post.anonym ? (
+                              <span
+                                style={{
+                                  width: 38,
+                                  height: 38,
+                                  borderRadius: '50%',
+                                  background: 'var(--brand-surface)',
+                                  color: 'var(--brand)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <HjerteIkon />
+                              </span>
+                            ) : (
+                              <span
+                                style={{
+                                  width: 38,
+                                  height: 38,
+                                  borderRadius: '50%',
+                                  background: farve.bg,
+                                  color: farve.fg,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  flexShrink: 0,
+                                  fontSize: 13.5,
+                                  fontWeight: 800,
+                                  letterSpacing: '.3px',
+                                }}
+                                aria-hidden="true"
+                              >
+                                {initialer(post.navn)}
+                              </span>
+                            )}
+
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 7,
+                                  flexWrap: 'wrap',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: 14.5,
+                                    fontWeight: 700,
+                                    color: 'var(--ink)',
+                                    letterSpacing: '-.2px',
+                                  }}
+                                >
+                                  {post.anonym || !harIndhold(post.navn)
+                                    ? 'Anonym støtte'
+                                    : post.navn}
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 6,
+                                  marginTop: 2,
+                                }}
+                              >
+                                {nyeste && (
+                                  <span
+                                    style={{
+                                      width: 7,
+                                      height: 7,
+                                      borderRadius: '50%',
+                                      background: '#22C55E',
+                                      flexShrink: 0,
+                                    }}
+                                  />
+                                )}
+                                <span
+                                  style={{
+                                    fontSize: 12,
+                                    color: nyeste ? '#15803D' : 'var(--label)',
+                                    fontWeight: nyeste ? 700 : 500,
+                                  }}
+                                >
+                                  {tidSiden(post.tidspunkt)}
+                                </span>
+                              </div>
+                            </div>
+
+                            <span
+                              style={{
+                                flexShrink: 0,
+                                padding: '5px 11px',
+                                borderRadius: 999,
+                                background: 'var(--alt)',
+                                color: 'var(--body)',
+                                fontSize: 12.5,
+                                fontWeight: 700,
+                              }}
+                            >
+                              {kr(oere(post.beloeb))} kr
+                            </span>
+                          </div>
+
+                          {harIndhold(post.hilsen) && (
+                            <p
+                              style={{
+                                margin: '10px 0 0',
+                                fontSize: 14,
+                                lineHeight: 1.6,
+                                color: 'var(--body)',
+                              }}
+                            >
+                              {`“${post.hilsen}”`}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
-              <div
+              <div style={{ height: 1, background: 'var(--border)', margin: '60px 0' }} />
+
+              <span style={S.overLabel}>Offentlig dokumentation</span>
+              <h2
                 style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  justifyContent: 'space-between',
-                  marginBottom: 10,
+                  margin: '0 0 22px',
+                  fontSize: 22,
+                  fontWeight: 800,
+                  letterSpacing: '-.6px',
+                  color: 'var(--ink)',
                 }}
               >
-                <span style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-.8px', color: 'var(--ink)' }}>
-                  {kr(hjertesag.indsamlet_beloeb)}{' '}
-                  <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--muted)' }}>kr</span>
-                </span>
-                <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--brand-hover)' }}>{pct}%</span>
-              </div>
-
-              <div style={{ fontSize: 13.5, color: 'var(--muted)', marginBottom: 10 }}>
-                af {kr(hjertesag.maalbeloeb)} kr i mål
-              </div>
+                Indsamlingsnævnet
+              </h2>
 
               <div
-                role="progressbar"
-                aria-valuenow={pct}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label="Indsamlet af målet"
                 style={{
-                  height: 8,
-                  borderRadius: 999,
-                  background: 'var(--alt)',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 22,
                   overflow: 'hidden',
-                  marginBottom: 10,
                 }}
               >
-                <div
-                  style={{
-                    height: '100%',
-                    width: `${pct}%`,
-                    borderRadius: 999,
-                    background: 'var(--brand)',
-                  }}
-                />
-              </div>
+                {naevnAktiv && (
+                  <>
+                    <DokumentationsKort
+                      ikonBaggrund="#ECFDF3"
+                      ikonFarve="#166534"
+                      titel="Tilladelse hos Indsamlingsnævnet"
+                      etiket={
+                        <Etiket farve="#166534" baggrund="#ECFDF3">
+                          AKTIV
+                        </Etiket>
+                      }
+                      tekst={`Foreningen har tilladelse til at samle ind ${
+                        PARAGRAF_TEKST[naevn.paragraf] || ''
+                      }.${
+                        datoDK(naevn.udloeb)
+                          ? ` Tilladelsen gælder til ${datoDK(naevn.udloeb)}.`
+                          : ''
+                      }`}
+                    />
+                    {harIndhold(naevn.journal_nr) && (
+                      <DokumentationsKort
+                        sidste
+                        ikonBaggrund="var(--alt)"
+                        ikonFarve="var(--ink)"
+                        titel="Journalnummer"
+                        etiket={
+                          <Etiket mono farve="var(--body)" baggrund="var(--alt)">
+                            {naevn.journal_nr}
+                          </Etiket>
+                        }
+                        tekst="Indsamlingen er registreret offentligt hos myndigheden og kan slås op der."
+                      />
+                    )}
+                  </>
+                )}
 
-              <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 22 }}>
-                Der mangler {kr(mangler)} kr
-              </div>
+                {naevnUdloebet && (
+                  <DokumentationsKort
+                    sidste
+                    ikonBaggrund="#FFF7EC"
+                    ikonFarve="#B45309"
+                    titel="Tilladelsen er udløbet"
+                    etiket={
+                      <Etiket farve="#B45309" baggrund="#FFF7EC">
+                        UDLØBET
+                      </Etiket>
+                    }
+                    tekst="Foreningen kan ikke modtage bidrag til denne hjertesag, før tilladelsen er fornyet hos Indsamlingsnævnet."
+                  />
+                )}
 
-              {/* Betalingsknappen bygges i del 4. Vipps forbyder at vi tegner
-                  MobilePay-knappen selv, saa den afventer paymark-afklaring. */}
-              {!forening.payment_ready && (
-                <div
-                  style={{
-                    padding: '14px 16px',
-                    borderRadius: 14,
-                    background: 'var(--alt)',
-                    fontSize: 13.5,
-                    lineHeight: 1.6,
-                    color: 'var(--body)',
-                  }}
-                >
-                  Foreningen kan ikke modtage bidrag endnu. Prøv igen senere.
-                </div>
-              )}
+                {!naevnAktiv && !naevnUdloebet && (
+                  <DokumentationsKort
+                    sidste
+                    ikonBaggrund="var(--alt)"
+                    ikonFarve="var(--ink)"
+                    titel="Ingen tilladelse registreret"
+                    etiket={
+                      <Etiket farve="var(--body)" baggrund="var(--alt)">
+                        IKKE OPRETTET
+                      </Etiket>
+                    }
+                    tekst="Foreningen har ikke registreret en tilladelse hos Indsamlingsnævnet på StøtMedHjerte."
+                  />
+                )}
+              </div>
 
               <p
                 style={{
-                  margin: '16px 0 0',
-                  fontSize: 12.5,
+                  margin: '18px 0 0',
+                  fontSize: 13,
                   lineHeight: 1.6,
                   color: 'var(--muted)',
+                  maxWidth: 620,
                 }}
               >
-                Bidragene modtages direkte på foreningens egen MobilePay-konto. StøtMedHjerte tager
-                ingen andel af bidragene, og abonnementet for platformen afholdes særskilt af
-                foreningen og er ikke trukket fra bidragene.
+                Indsamlingsnævnet er den danske myndighed, der godkender og fører tilsyn med
+                foreningers indsamlinger.
               </p>
             </div>
-          </aside>
+          </div>
         </section>
       </main>
 
-      <Footer />
+      <SiteFooter />
     </div>
   );
 }
