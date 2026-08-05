@@ -47,6 +47,7 @@ import HomeNy from './pages/HomeNy';
 import ForForeningerPage from './pages/ForForeningerPage';
 import ForStoetterPage from './pages/ForStoetterPage';
 import HjertesagerPage from './pages/HjertesagerPage';
+import HjertesagPage from './pages/HjertesagPage';
 import ForeningerPage from './pages/ForeningerPage';
 import SaadanVirkerDetPage from './pages/SaadanVirkerDetPage';
 import PriserPage from './pages/PriserPage';
@@ -90,6 +91,7 @@ function App() {
             {/* Public marketing pages */}
             <Route path="/" element={<HomeNy showTrustBand={false} />} />
             <Route path="/hjertesager" element={<HjertesagerPage />} />
+            <Route path="/hjertesag/:slug" element={<HjertesagPage />} />
             <Route path="/foreninger" element={<ForeningerPage />} />
             <Route path="/for-foreninger" element={<ForForeningerPage />} />
             <Route path="/for-stoetter" element={<ForStoetterPage />} />
