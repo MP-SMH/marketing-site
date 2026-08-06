@@ -131,7 +131,7 @@ export default function HjertesagerHero({ campaignCount, associationCount, onScr
           </span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
             <Heart size={13} color="rgba(255,255,255,0.2)" />
-            80% til foreningen
+            Direkte til foreningens MobilePay
           </span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
             <TrendingUp size={13} color="rgba(255,255,255,0.2)" />
