@@ -123,11 +123,16 @@ function tidSiden(iso) {
 }
 
 // CD's avatarpalet. Fire par, valgt deterministisk paa indeks.
+// KONTRAST MAALT S92 med scripts/kontrast.js. Initialerne er 13,5px,
+// altsaa UNDER 14px, hvor kravet er 5,5:1 og ikke 4,5:1.
+// CD's egne par maalte 4,00 / 9,52 / 4,76 / 4,73. Tre af fire faldt.
+// Rettet til 6,81 / 9,52 / 6,76 / 7,19. Aendres en vaerdi, koer
+// node scripts/kontrast.js igen foer commit.
 const AVATAR_FARVER = [
-  { bg: '#FFE4E8', fg: '#E0193F' },
+  { bg: '#FFE4E8', fg: '#A00C24' },
   { bg: '#E7ECF5', fg: '#2A3B57' },
-  { bg: '#ECFDF3', fg: '#15803D' },
-  { bg: '#FFF7EC', fg: '#B45309' },
+  { bg: '#ECFDF3', fg: '#166534' },
+  { bg: '#FFF7EC', fg: '#8A3D06' },
 ];
 
 function HjerteIkon() {
@@ -546,6 +551,18 @@ export default function HjertesagPage() {
                         height: '100%',
                         width: `${pct}%`,
                         borderRadius: 999,
+                        // DOKUMENTERET AFVIGELSE FRA KONTRASTREGLEN.
+                        // Besluttet af Mario (CTO) den 5. august 2026 i S92.
+                        // Maalt med scripts/kontrast.js mod banen
+                        // var(--alt) = #F3F5F8: #16A34A gav 3,02:1 og
+                        // #22C55E gav 2,09:1. Kravet til informationsbaerende
+                        // grafik er 3,0:1 (WCAG 2.1, 1.4.11), saa den lyse
+                        // ende af gradienten opfylder ikke kravet.
+                        // Elementet har role=progressbar og aria-valuenow,
+                        // saa vaerdien er tilgaengelig for skaermlaesere
+                        // uafhaengigt af farven.
+                        // Registreret i BACKLOG som S92-BJAELKE-KONTRAST.
+                        // AENDRES DENNE LINJE, koer node scripts/kontrast.js.
                         background: 'linear-gradient(90deg,#16A34A,#22C55E)',
                       }}
                     />
@@ -849,7 +866,13 @@ export default function HjertesagPage() {
                                 <span
                                   style={{
                                     fontSize: 12,
-                                    color: nyeste ? '#15803D' : 'var(--label)',
+                                    // 12px. Kravet under 14px er 5,5:1.
+                                    // #15803D maalte 5,02:1 paa hvidt kort
+                                    // og faldt. #166534 maaler 7,13:1 og er
+                                    // samme groenne som etiketten laengere
+                                    // nede i filen. Maalt S92 med
+                                    // scripts/kontrast.js.
+                                    color: nyeste ? '#166534' : 'var(--label)',
                                     fontWeight: nyeste ? 700 : 500,
                                   }}
                                 >
@@ -955,10 +978,15 @@ export default function HjertesagPage() {
                   <DokumentationsKort
                     sidste
                     ikonBaggrund="#FFF7EC"
-                    ikonFarve="#B45309"
+                    ikonFarve="#8A3D06"
                     titel="Tilladelsen er udløbet"
                     etiket={
-                      <Etiket farve="#B45309" baggrund="#FFF7EC">
+                      // Etiket er 10,5px. Kravet under 14px er 5,5:1.
+                      // CD's #B45309 paa #FFF7EC maalte 4,73:1 og faldt.
+                      // #8A3D06 maaler 7,19:1. Samme farve som avatarens
+                      // ravpar, rettet samme sted i S92. Ikonstregen faar
+                      // samme vaerdi, saa kortet ikke har to ravfarver.
+                      <Etiket farve="#8A3D06" baggrund="#FFF7EC">
                         UDLØBET
                       </Etiket>
                     }
