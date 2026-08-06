@@ -187,7 +187,94 @@ function Etiket({ farve, baggrund, mono, children }) {
   );
 }
 
-function DokumentationsKort({ ikonBaggrund, ikonFarve, titel, etiket, tekst, sidste }) {
+// Ikoner til dokumentationsblokken. Geometri fra CD's Hjertesag.dc.html,
+// linje 336 og 344. De to sidste findes ikke i CD, fordi CD kun tegnede
+// den aktive tilstand, og er tegnet i samme streg-sprog: viewBox 24,
+// stroke-width 1.9, runde ender.
+//
+// REGEL FRA S91: ingen faelles ikonkomponent. Den kunne kun tegne path,
+// saa circle blev tavst udeladt i syv ikoner. Hvert ikon staar for sig,
+// og circle skrives eksplicit.
+//
+// Farven arves fra ikonFarve paa DokumentationsKort via currentColor,
+// saa de maalte kontrastvaerdier fra S92 foelger med af sig selv.
+
+function IkonSkjold() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
+function IkonDokument() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="M9 13h6" />
+      <path d="M9 17h4" />
+    </svg>
+  );
+}
+
+function IkonAdvarsel() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+      <path d="M12 9.5v4" />
+      <path d="M12 17.2h.01" />
+    </svg>
+  );
+}
+
+function IkonInfo() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="9.5" />
+      <path d="M12 16.5v-5" />
+      <path d="M12 8h.01" />
+    </svg>
+  );
+}
+function DokumentationsKort({ ikon, ikonBaggrund, ikonFarve, titel, etiket, tekst, sidste }) {
   return (
     <div
       style={{
@@ -208,12 +295,10 @@ function DokumentationsKort({ ikonBaggrund, ikonFarve, titel, etiket, tekst, sid
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          fontSize: 19,
-          fontWeight: 800,
         }}
         aria-hidden="true"
       >
-        i
+        {ikon}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
@@ -941,6 +1026,7 @@ export default function HjertesagPage() {
                 {naevnAktiv && (
                   <>
                     <DokumentationsKort
+                      ikon={<IkonSkjold />}
                       ikonBaggrund="#ECFDF3"
                       ikonFarve="#166534"
                       titel="Tilladelse hos Indsamlingsnævnet"
@@ -960,6 +1046,7 @@ export default function HjertesagPage() {
                     {harIndhold(naevn.journal_nr) && (
                       <DokumentationsKort
                         sidste
+                        ikon={<IkonDokument />}
                         ikonBaggrund="var(--alt)"
                         ikonFarve="var(--ink)"
                         titel="Journalnummer"
@@ -977,6 +1064,7 @@ export default function HjertesagPage() {
                 {naevnUdloebet && (
                   <DokumentationsKort
                     sidste
+                    ikon={<IkonAdvarsel />}
                     ikonBaggrund="#FFF7EC"
                     ikonFarve="#8A3D06"
                     titel="Tilladelsen er udløbet"
@@ -997,6 +1085,7 @@ export default function HjertesagPage() {
                 {!naevnAktiv && !naevnUdloebet && (
                   <DokumentationsKort
                     sidste
+                    ikon={<IkonInfo />}
                     ikonBaggrund="var(--alt)"
                     ikonFarve="var(--ink)"
                     titel="Ingen tilladelse registreret"
