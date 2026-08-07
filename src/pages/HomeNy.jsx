@@ -208,9 +208,9 @@ function Hero() {
                 <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--brand)" }}>37% nået</span>
                 <span style={{ fontSize: 13.5, fontWeight: 500, color: "var(--smh-muted)" }}>68 støtter</span>
               </div>
-              <button style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, padding: 15, minHeight: 52, border: "none", borderRadius: 999, background: "#5A78FF", color: "#fff", fontSize: 15.5, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 12px 26px rgba(90,120,255,.30)" }}>
+              <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, padding: 15, minHeight: 52, border: "none", borderRadius: 999, background: "#080E1A", color: "#fff", fontSize: 15.5, fontWeight: 600, fontFamily: "inherit", boxShadow: "0 12px 26px rgba(8,14,26,.30)" }}>
                 <Ic d={PATH.heart} size={18} fill color="#fff" />Støt med MobilePay
-              </button>
+              </div>
               <div style={{ marginTop: 13, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, color: "var(--smh-muted)", fontSize: 12.5, textAlign: "center" }}>
                 <Ic d={PATH.lock} size={14} sw={2} style={{ flexShrink: 0 }} />Bidrag går direkte til foreningen
               </div>
@@ -367,7 +367,7 @@ function TwoPaths() {
                 <span style={{ flex: 1, textAlign: "center", fontSize: 12, fontWeight: 700, color: "#fff", padding: "7px 0", borderRadius: 9, background: "var(--brand)" }}>200</span>
                 <span style={{ flex: 1, textAlign: "center", fontSize: 12, fontWeight: 700, color: "var(--smh-muted)", padding: "7px 0", borderRadius: 9, background: "var(--alt)" }}>500</span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "#5A78FF", color: "#fff", fontSize: 11.5, fontWeight: 700, padding: 11, borderRadius: 10 }}>Støt med MobilePay</div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "#080E1A", color: "#fff", fontSize: 11.5, fontWeight: 700, padding: 11, borderRadius: 10 }}>Støt med MobilePay</div>
             </div>
           </div>
           <div style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: ".6px", textTransform: "uppercase", color: "var(--brand)", marginBottom: 10 }}>For støtter</div>
