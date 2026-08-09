@@ -1,0 +1,8 @@
+.hs-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
+.hs-filter{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px;}
+@media(min-width:720px){.hs-filter{grid-template-columns:2fr 1fr 1fr;}}
+.hs-field{height:48px;width:100%;padding:0 18px;border-radius:999px;border:1px solid var(--smh-border);background:var(--surface);color:var(--ink);font-size:15px;font-family:inherit;outline:none;transition:border-color 150ms;}
+.hs-field:hover{border-color:#C6CDD8;}
+.hs-field:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
+.hs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;align-items:stretch;}
+@media(prefers-reduced-motion:reduce){.hs-field{transition:none;}}
