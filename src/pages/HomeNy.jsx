@@ -8,7 +8,9 @@
 //  ville blive tolket som en rute og ødelægge scroll).
 // ============================================================
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { PRICING, MAANEDLIG_BESPARELSE, FEATURES as PRIS_FEATURES } from "../data/pricing";
 import SiteNav from "@/components/marketing/SiteNav";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import "./Home.css";
@@ -109,15 +111,6 @@ const ASSOC_POINTS = [
   "Modtag bidrag via MobilePay direkte på jeres konto",
   "Tilknyt journalnummer fra Indsamlingsnævnet",
   "Saml dokumentation til foreningens regnskab",
-];
-
-const PLANS = [
-  { name: "Donationer", desc: "Til foreninger, der vil i gang med enkelte hjertesager.", price: "149", cta: "Vælg Donationer",
-    features: ["Ubegrænsede hjertesager", "Bidrag via MobilePay", "Overblik og progress"], featured: false },
-  { name: "Fast støtte", desc: "Til foreninger, der vil opbygge faste, månedlige bidrag.", price: "199", cta: "Vælg Fast støtte",
-    features: ["Alt i Donationer", "Faste månedlige bidrag", "Forudsigeligt grundlag"], featured: false },
-  { name: "Samlet løsning", desc: "Hele platformen, donationer og fast støtte samlet.", price: "278", cta: "Vælg Samlet løsning",
-    features: ["Alt i Donationer og Fast støtte", "Tilladelse og regnskabsgrundlag", "Prioriteret support"], featured: true },
 ];
 
 /* Reusable button style fragments (shared by several CTAs). */
@@ -570,44 +563,107 @@ function PermitSection() {
    PRICING
    ============================================================ */
 function Pricing() {
+  const [binding, setBinding] = useState(true);
+
+  const grp = binding ? PRICING.med_binding : PRICING.uden_binding;
+  const noteFor = (key) =>
+    binding
+      ? "5 måneders binding. Spar " + MAANEDLIG_BESPARELSE[key] + " kr./md. mod uden binding."
+      : "Opsig når som helst.";
+
+  const cards = [
+    {
+      key: "donationer",
+      name: "Donationer",
+      desc: "Til foreninger, der vil i gang med enkelte hjertesager.",
+      inkl: grp.donationer.inkl,
+      note: noteFor("donationer"),
+      features: PRIS_FEATURES.donationer.kort,
+      featured: false,
+    },
+    {
+      key: "samlet",
+      name: "Samlet løsning",
+      desc: "Donationer og fast støtte samlet i én platform.",
+      inkl: grp.samlet.inkl,
+      note: noteFor("samlet"),
+      features: PRIS_FEATURES.samlet.kort,
+      featured: true,
+    },
+  ];
+
+  const segBase = {
+    fontFamily: "inherit",
+    fontSize: "14px",
+    padding: "0 20px",
+    height: "42px",
+    border: "none",
+    borderRadius: "999px",
+    cursor: "pointer",
+    transition: "background .15s, color .15s",
+  };
+  const seg = (active) => ({
+    ...segBase,
+    background: active ? "var(--brand)" : "transparent",
+    color: active ? "#fff" : "var(--body)",
+    fontWeight: active ? 700 : 600,
+  });
+
   return (
     <section id="priser" style={{ background: "var(--alt)", borderTop: "1px solid var(--smh-border)", borderBottom: "1px solid var(--smh-border)" }}>
       <div className="sec-pad wrap">
-        <div style={{ textAlign: "center", marginBottom: 44 }}>
+        <div style={{ textAlign: "center", marginBottom: "36px" }}>
           <Eyebrow>Priser</Eyebrow>
-          <h2 style={{ margin: "0 auto 16px", fontSize: "clamp(27px,4.4vw,40px)", lineHeight: 1.12, fontWeight: 800, letterSpacing: "-.9px", color: "var(--ink)", maxWidth: 600, textWrap: "balance" }}>En fast pris. Ingen andel af donationerne.</h2>
-          <p style={{ margin: "0 auto", fontSize: "clamp(16px,2.2vw,18px)", lineHeight: 1.6, color: "var(--body)", maxWidth: 520 }}>Vælg den løsning, der passer til foreningen. Alle priser er inkl. moms.</p>
+          <h2 style={{ margin: "0 auto 16px", fontSize: "clamp(27px,4.4vw,40px)", lineHeight: 1.12, fontWeight: 800, letterSpacing: "-.9px", color: "var(--ink)", maxWidth: 600, textWrap: "balance" }}>En fast pris. Ingen andel af det indsamlede.</h2>
+          <p style={{ margin: "0 auto", fontSize: "clamp(16px,2.2vw,18px)", lineHeight: 1.6, color: "var(--body)", maxWidth: 520 }}>Vælg den løsning, der passer til foreningen. Begge varianter faktureres månedligt.</p>
         </div>
-        <div className="g3" style={{ alignItems: "stretch" }}>
-          {PLANS.map((pl) => (
-            <div key={pl.name} style={{ position: "relative", background: "var(--surface)", border: pl.featured ? "2px solid var(--brand)" : "1px solid var(--smh-border)", borderRadius: 26, padding: "34px 30px", display: "flex", flexDirection: "column", boxShadow: pl.featured ? "0 30px 60px -26px rgba(224,25,63,.3)" : "none" }}>
-              {pl.featured && (
-                <div style={{ position: "absolute", top: 20, right: 20, padding: "6px 14px", borderRadius: 999, background: "var(--brand)", color: "#fff", fontSize: 11.5, fontWeight: 700, letterSpacing: ".3px" }}>Mest valgt</div>
-              )}
-              <h3 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>{pl.name}</h3>
-              <p style={{ margin: "0 0 22px", fontSize: 14.5, lineHeight: 1.5, color: "var(--smh-muted)", minHeight: 42 }}>{pl.desc}</p>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 22 }}>
-                <span style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px", color: "var(--ink)" }}>{pl.price}</span>
-                <span style={{ fontSize: 15, fontWeight: 500, color: "var(--smh-muted)" }}>kr./md</span>
+
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "clamp(28px,4vw,40px)" }}>
+          <div role="group" aria-label="Vælg binding" style={{ display: "inline-flex", gap: "4px", padding: "5px", borderRadius: "999px", background: "var(--surface)", border: "1px solid var(--smh-border)", boxShadow: "0 8px 22px -16px rgba(8,14,26,.3)" }}>
+            <button type="button" aria-pressed={binding} style={seg(binding)} onClick={() => setBinding(true)}>Med binding</button>
+            <button type="button" aria-pressed={!binding} style={seg(!binding)} onClick={() => setBinding(false)}>Uden binding</button>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "22px", maxWidth: "760px", margin: "0 auto", alignItems: "stretch" }}>
+          {cards.map((c) => (
+            <div key={c.key} style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative", background: "var(--surface)", border: c.featured ? "2px solid var(--brand)" : "1px solid var(--smh-border)", borderRadius: "26px", padding: "32px 28px", boxShadow: c.featured ? "0 30px 60px -26px rgba(224,25,63,.3)" : "none" }}>
+              <div>
+                <div style={{ fontSize: "13px", fontWeight: 700, letterSpacing: ".6px", textTransform: "uppercase", color: "var(--body)", marginBottom: "12px" }}>{c.name}</div>
+                <p style={{ margin: 0, minHeight: "44px", fontSize: "14.5px", lineHeight: 1.55, color: "var(--body)" }}>{c.desc}</p>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
-                {pl.features.map((feat) => (
-                  <div key={feat} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <Ic d={PATH.check} size={17} sw={2.6} color={pl.featured ? "var(--brand)" : "var(--success)"} style={{ flexShrink: 0, marginTop: 1 }} />
-                    <span style={{ fontSize: 14.5, lineHeight: 1.45, color: "var(--body)" }}>{feat}</span>
-                  </div>
-                ))}
+
+              <div style={{ height: "1px", background: "var(--smh-border)", margin: "24px 0" }} />
+
+              <div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "7px" }}>
+                  <span style={{ fontSize: "clamp(38px,5vw,46px)", fontWeight: 800, letterSpacing: "-1.4px", color: "var(--ink)" }}>{c.inkl}</span>
+                  <span style={{ fontSize: "15px", fontWeight: 500, color: "var(--body)" }}>kr./md. inkl. moms</span>
+                </div>
+                <div style={{ marginTop: "12px", minHeight: "42px", fontSize: "14px", lineHeight: 1.45, fontWeight: 400, color: "var(--body)" }}>{c.note}</div>
               </div>
-              <a href="#foreninger" style={{
-                ...btnBase, textAlign: "center", fontSize: 15.5, fontWeight: 600, padding: 15, minHeight: 52, borderRadius: 999, marginTop: "auto",
-                ...(pl.featured
-                  ? { color: "#fff", background: "var(--brand)", boxShadow: "0 12px 26px rgba(224,25,63,.24)" }
-                  : { color: "var(--ink)", background: "var(--surface)", border: "1px solid var(--smh-border)" }),
-              }}>{pl.cta}</a>
+
+              <div style={{ height: "1px", background: "var(--smh-border)", margin: "24px 0 20px" }} />
+
+              <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                <div style={{ fontSize: "12.5px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase", color: "var(--body)", marginBottom: "16px" }}>Indeholder</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "13px", marginBottom: "28px", flex: 1 }}>
+                  {c.features.map((feat, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "11px" }}>
+                      <span style={{ flexShrink: 0, width: "20px", height: "20px", borderRadius: "50%", background: "#ECFDF3", display: "flex", alignItems: "center", justifyContent: "center", marginTop: "1px" }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803D" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                      </span>
+                      <span style={{ fontSize: "14.5px", lineHeight: 1.45, color: "var(--body)" }}>{feat}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link to="/opret-forening" className={c.featured ? "cta-flat-brand" : "cta-flat-ghost"} style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", marginTop: "auto", fontSize: "15.5px", fontWeight: 600, height: "52px", padding: "0 24px", borderRadius: "999px", color: c.featured ? "#fff" : "var(--ink)", boxShadow: c.featured ? "0 12px 26px rgba(224,25,63,.24)" : "none" }}>Opret forening</Link>
+              </div>
             </div>
           ))}
         </div>
-        <p style={{ textAlign: "center", margin: "30px auto 0", fontSize: 14, color: "var(--smh-muted)" }}>Ingen binding på donationerne. StøtMedHjerte tager ikke en andel af det indsamlede.</p>
+
+        <p style={{ textAlign: "center", margin: "32px auto 0", fontSize: "14px", lineHeight: 1.6, color: "var(--body)", maxWidth: "620px" }}>StøtMedHjerte tager ikke en andel af det indsamlede. Bidrag går direkte til foreningens egen MobilePay-konto.</p>
       </div>
     </section>
   );

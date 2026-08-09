@@ -1,8 +1,52 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { PRICING } from "../data/pricing";
 import SiteNav from "@/components/marketing/SiteNav";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import "./Priser.css";
+
+const GRID = "minmax(240px,1.6fr) 1fr 1fr";
+const MARK = { padding: "10px 22px", display: "flex", alignItems: "center", justifyContent: "center" };
+const CTA = { textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", height: "52px", padding: "0 20px", borderRadius: "999px", fontSize: "15.5px", fontWeight: 600, color: "var(--ink)" };
+
+function Check() {
+  return (
+    <span style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#ECFDF3", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#15803D" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+    </span>
+  );
+}
+
+function Dash() {
+  return <span aria-label="Ikke inkluderet" style={{ display: "block", width: "14px", height: "2px", borderRadius: "2px", background: "#B9C0CC", margin: "0 auto" }} />;
+}
+
+const GRUPPER = [
+  {
+    titel: "Kom i gang",
+    donationer: true,
+    rows: [
+      ["Regnskabet laves automatisk", "Når tilladelsen udløber, er regnskabet klar til indsendelse."],
+      ["Bidrag direkte til jeres MobilePay", "Pengene går ind på foreningens egen konto. Vi rører dem aldrig."],
+      ["Op til 5 hjertesager", "En side pr. formål, fx nye trøjer eller en klubtur."],
+      ["Del og promover med ét klik", "Færdige opslag og links til Facebook, mail og SMS."],
+      ["Se alle støtter og bidrag", "Hvem har givet hvad og hvornår, samlet ét sted."],
+      ["Journalnummer og tilladelse styret", "Vi holder styr på Indsamlingsnævnets frister for jer."],
+      ["Alle dokumenter samlet", "Aftaler, regnskaber og bilag i ét arkiv."],
+      ["Support når I har brug for det", "Skriv til os i platformen og få svar."],
+    ],
+  },
+  {
+    titel: "Fast støtte og revision",
+    donationer: false,
+    rows: [
+      ["Faste månedlige bidrag", "Støtter kan give et fast beløb hver måned."],
+      ["Støtteaftaler og historik", "Se hvem der støtter fast, og hvad der er givet."],
+      ["Rapport hver måned", "Et samlet overblik til bestyrelsesmødet."],
+      ["Revisor godkender digitalt", "Inviter jeres revisor og få underskriften online."],
+    ],
+  },
+];
 
 function Ic({ d, size = 24, sw = 1.9, stroke = "currentColor", style }) {
   return (
@@ -27,11 +71,28 @@ function BrandCheck() {
   );
 }
 
-const PLAN1 = ["Donationer via MobilePay", "Ubegrænset antal hjertesager", "CVR-validering", "Journalnummer pr. hjertesag", "Bidragsoverblik", "Dokumentation samlet ét sted"];
-const PLAN2 = ["Faste månedlige bidrag via MobilePay", "Overblik over støtteaftaler", "Støttehistorik", "CVR-validering", "Dokumentation samlet ét sted", "Grundlag til regnskab"];
-const PLAN3 = [["Alt i Donationer og Fast støtte", true], ["Supporter-overblik", false], ["Månedlige rapporter", false], ["Udvidet dokumentation", false], ["Indsamlingsregnskab pr. hjertesag", false]];
-
 export default function PriserPage() {
+  const [binding, setBinding] = useState(true);
+
+  const grp = binding ? PRICING.med_binding : PRICING.uden_binding;
+
+  const segBase = {
+    fontFamily: "inherit",
+    fontSize: "14px",
+    padding: "0 20px",
+    height: "42px",
+    border: "none",
+    borderRadius: "999px",
+    cursor: "pointer",
+    transition: "background .15s, color .15s",
+  };
+  const seg = (active) => ({
+    ...segBase,
+    background: active ? "var(--brand)" : "transparent",
+    color: active ? "#fff" : "var(--body)",
+    fontWeight: active ? 700 : 600,
+  });
+
   return (
     <>
       <SiteNav />
@@ -64,66 +125,53 @@ export default function PriserPage() {
         <section className="pr-wrap" id="planer" style={{ paddingTop: "clamp(42px,4.6vw,64px)", paddingBottom: "clamp(30px,3.6vw,48px)" }}>
           <div className="pr-intro-c" style={{ marginBottom: "clamp(24px,3vw,34px)" }}>
             <div className="pr-eyebrow">Prisplaner</div>
-            <h2 className="pr-h2">Tre planer, samme princip.</h2>
+            <h2 className="pr-h2">To planer, samme princip.</h2>
             <p className="pr-lead">Vælg det, der passer til foreningen. Uanset plan beholder I hele donationen.</p>
           </div>
-          <div className="pr-plans">
-            {/* Plan 1: Donationer */}
-            <div className="pr-plan pr-card pr-lift">
-              <div style={{ fontSize: "13px", fontWeight: 700, letterSpacing: ".6px", textTransform: "uppercase", color: "var(--smh-muted)", marginBottom: "12px" }}>Donationer</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: "7px", marginBottom: "13px" }}>
-                <span style={{ fontSize: "clamp(38px,5vw,46px)", fontWeight: 800, letterSpacing: "-1.4px", color: "var(--ink)" }}>149</span>
-                <span style={{ fontSize: "15px", fontWeight: 500, color: "var(--smh-muted)" }}>kr. pr. måned</span>
-              </div>
-              <p style={{ margin: "0 0 22px", fontSize: "14.5px", lineHeight: 1.55, color: "var(--body)", minHeight: "64px" }}>Til foreninger, der vil tage imod engangsbidrag til konkrete hjertesager.</p>
-              <Link to="/opret-forening" className="pr-plan-cta pr-btn-ghost" style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", fontSize: "15.5px", fontWeight: 600, padding: "15px", minHeight: "52px", borderRadius: "999px", color: "var(--ink)", background: "var(--surface)", border: "1px solid var(--smh-border)" }}>Vælg Donationer</Link>
-              <div style={{ height: "1px", background: "var(--smh-border)", margin: "24px 0 20px" }} />
-              <div style={{ fontSize: "12.5px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase", color: "var(--label)", marginBottom: "16px" }}>Indeholder</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "13px" }}>
-                {PLAN1.map((f) => (
-                  <div key={f} style={{ display: "flex", alignItems: "flex-start", gap: "11px" }}><GreenCheck /><span style={{ fontSize: "14.5px", lineHeight: 1.45, color: "var(--body)" }}>{f}</span></div>
-                ))}
-              </div>
-            </div>
 
-            {/* Plan 2: Fast støtte */}
-            <div className="pr-plan pr-card pr-lift">
-              <div style={{ fontSize: "13px", fontWeight: 700, letterSpacing: ".6px", textTransform: "uppercase", color: "var(--smh-muted)", marginBottom: "12px" }}>Fast støtte</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: "7px", marginBottom: "13px" }}>
-                <span style={{ fontSize: "clamp(38px,5vw,46px)", fontWeight: 800, letterSpacing: "-1.4px", color: "var(--ink)" }}>199</span>
-                <span style={{ fontSize: "15px", fontWeight: 500, color: "var(--smh-muted)" }}>kr. pr. måned</span>
-              </div>
-              <p style={{ margin: "0 0 22px", fontSize: "14.5px", lineHeight: 1.55, color: "var(--body)", minHeight: "64px" }}>Til foreninger, der vil tilbyde faste månedlige støtteaftaler og mere forudsigelig økonomi.</p>
-              <Link to="/opret-forening" className="pr-plan-cta pr-btn-ghost" style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", fontSize: "15.5px", fontWeight: 600, padding: "15px", minHeight: "52px", borderRadius: "999px", color: "var(--ink)", background: "var(--surface)", border: "1px solid var(--smh-border)" }}>Vælg Fast støtte</Link>
-              <div style={{ height: "1px", background: "var(--smh-border)", margin: "24px 0 20px" }} />
-              <div style={{ fontSize: "12.5px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase", color: "var(--label)", marginBottom: "16px" }}>Indeholder</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "13px" }}>
-                {PLAN2.map((f) => (
-                  <div key={f} style={{ display: "flex", alignItems: "flex-start", gap: "11px" }}><GreenCheck /><span style={{ fontSize: "14.5px", lineHeight: 1.45, color: "var(--body)" }}>{f}</span></div>
-                ))}
-              </div>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "clamp(26px,3.2vw,38px)" }}>
+            <div role="group" aria-label="Vælg bindingsperiode" style={{ display: "inline-flex", padding: "5px", gap: "4px", borderRadius: "999px", background: "var(--alt)", border: "1px solid var(--smh-border)" }}>
+              <button type="button" aria-pressed={binding} onClick={() => setBinding(true)} style={seg(binding)}>Med binding</button>
+              <button type="button" aria-pressed={!binding} onClick={() => setBinding(false)} style={seg(!binding)}>Uden binding</button>
             </div>
+          </div>
 
-            {/* Plan 3: Samlet løsning */}
-            <div className="pr-plan pr-card pr-lift" style={{ border: "1.5px solid var(--brand)", boxShadow: "0 24px 56px -32px rgba(224,25,63,.28)" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 700, letterSpacing: ".6px", textTransform: "uppercase", color: "var(--brand)" }}>Samlet løsning</span>
-                <span style={{ fontSize: "11px", fontWeight: 700, letterSpacing: ".3px", color: "var(--brand-hover)", background: "var(--brand-surface)", border: "1px solid var(--brand-border)", padding: "5px 10px", borderRadius: "999px" }}>Begge moduler</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: "7px", marginBottom: "6px" }}>
-                <span style={{ fontSize: "clamp(38px,5vw,46px)", fontWeight: 800, letterSpacing: "-1.4px", color: "var(--ink)" }}>278</span>
-                <span style={{ fontSize: "15px", fontWeight: 500, color: "var(--smh-muted)" }}>kr. pr. måned</span>
-              </div>
-              <div style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--smh-muted)", marginBottom: "14px" }}>Spar 70 kr. pr. måned mod hver for sig.</div>
-              <p style={{ margin: "0 0 22px", fontSize: "14.5px", lineHeight: 1.55, color: "var(--body)", minHeight: "42px" }}>Til foreninger, der vil samle donationer, fast støtte, hjertesager og dokumentation i én løsning.</p>
-              <Link to="/opret-forening" className="pr-plan-cta pr-btn-brand" style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", fontSize: "15.5px", fontWeight: 600, padding: "15px", minHeight: "52px", borderRadius: "999px", color: "#fff", background: "var(--brand)", boxShadow: "0 12px 26px rgba(224,25,63,.26)" }}>Vælg samlet løsning</Link>
-              <div style={{ height: "1px", background: "var(--smh-border)", margin: "24px 0 20px" }} />
-              <div style={{ fontSize: "12.5px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase", color: "var(--label)", marginBottom: "16px" }}>Indeholder</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "13px" }}>
-                {PLAN3.map(([f, bold]) => (
-                  <div key={f} style={{ display: "flex", alignItems: "flex-start", gap: "11px" }}><BrandCheck /><span style={{ fontSize: "14.5px", lineHeight: 1.45, color: bold ? "var(--ink)" : "var(--body)", fontWeight: bold ? 600 : 400 }}>{f}</span></div>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+            <div style={{ minWidth: "620px", background: "var(--surface)", border: "1px solid var(--smh-border)", borderRadius: "24px", padding: "6px 28px 24px", boxShadow: "0 30px 70px -46px rgba(8,14,26,.28)" }}>
+
+              <div style={{ display: "grid", gridTemplateColumns: GRID, alignItems: "end", borderBottom: "2px solid var(--ink)" }}>
+                <div />
+                {[["Donationer", grp.donationer.inkl], ["Samlet løsning", grp.samlet.inkl]].map(([navn, tal]) => (
+                  <div key={navn} style={{ textAlign: "center", padding: "8px 20px 20px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 700, letterSpacing: ".6px", textTransform: "uppercase", color: "var(--body)" }}>{navn}</span>
+                    <span style={{ display: "block", fontSize: "clamp(30px,4vw,40px)", fontWeight: 800, letterSpacing: "-1.2px", color: "var(--ink)", marginTop: "8px" }}>{tal}</span>
+                    <span style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "var(--body)", marginTop: "2px" }}>kr./md. inkl. moms</span>
+                  </div>
                 ))}
               </div>
+
+              {GRUPPER.map((g) => (
+                <React.Fragment key={g.titel}>
+                  <div style={{ borderTop: "1px solid var(--smh-border)", borderBottom: "1px solid var(--smh-border)", padding: "14px 22px 12px", fontSize: "12.5px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase", color: "var(--body)" }}>{g.titel}</div>
+                  {g.rows.map(([navn, forklaring], i) => (
+                    <div key={navn} style={{ display: "grid", gridTemplateColumns: GRID, alignItems: "center", background: i % 2 === 1 ? "var(--alt)" : "transparent" }}>
+                      <div style={{ padding: "10px 22px" }}>
+                        <span style={{ display: "block", fontSize: "14px", fontWeight: 600, lineHeight: 1.45, color: "var(--ink)" }}>{navn}</span>
+                        <span style={{ display: "block", fontSize: "13px", lineHeight: 1.45, color: "var(--body)", marginTop: "2px" }}>{forklaring}</span>
+                      </div>
+                      <div style={MARK}>{g.donationer ? <Check /> : <Dash />}</div>
+                      <div style={MARK}><Check /></div>
+                    </div>
+                  ))}
+                </React.Fragment>
+              ))}
+
+              <div style={{ display: "grid", gridTemplateColumns: GRID, alignItems: "center", borderTop: "1px solid var(--smh-border)" }}>
+                <div style={{ padding: "20px 22px", fontSize: "14px", fontWeight: 600, color: "var(--body)" }}>{binding ? "5 måneders binding, derefter 1 måneds varsel" : "Opsig når som helst"}</div>
+                <div style={{ padding: "20px 16px" }}><Link to="/opret-forening" className="cta-flat-ghost" style={CTA}>Opret forening</Link></div>
+                <div style={{ padding: "20px 16px" }}><Link to="/opret-forening" className="cta-flat-brand" style={{ ...CTA, color: "#fff" }}>Opret forening</Link></div>
+              </div>
+
             </div>
           </div>
         </section>

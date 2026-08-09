@@ -69,3 +69,11 @@
 .lift-4:hover{transform:translateY(-4px);box-shadow:0 30px 64px -30px rgba(8,14,26,.22);border-color:#cdd3dd;}
 .link-ink{transition:.15s;}
 .link-ink:hover{color:var(--ink) !important;}
+
+/* ---- flat pris-CTA: kun farve/kant paa hover, ingen bevaegelse ---- */
+.cta-flat-brand{background:var(--brand);transition:background 150ms;}
+.cta-flat-brand:hover{background:var(--brand-hover);}
+.cta-flat-ghost{background:var(--surface);border:1.5px solid var(--ink);transition:background 150ms,border-color 150ms;}
+.cta-flat-ghost:hover{background:var(--alt);border-color:var(--brand);}
+.cta-flat-brand:focus-visible,.cta-flat-ghost:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
+@media (prefers-reduced-motion: reduce){.cta-flat-brand,.cta-flat-ghost{transition:none;}}

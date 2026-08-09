@@ -61,3 +61,11 @@
 .pr-plan-cta{transition:.15s;}
 
 .pr-cta-w:focus-visible,.pr-plan-cta:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
+
+/* ---- flat pris-CTA: kun farve/kant paa hover, ingen bevaegelse ---- */
+.cta-flat-brand{background:var(--brand);transition:background 150ms;}
+.cta-flat-brand:hover{background:var(--brand-hover);}
+.cta-flat-ghost{background:var(--surface);border:1.5px solid var(--ink);transition:background 150ms,border-color 150ms;}
+.cta-flat-ghost:hover{background:var(--alt);border-color:var(--brand);}
+.cta-flat-brand:focus-visible,.cta-flat-ghost:focus-visible{outline:2px solid var(--brand);outline-offset:3px;}
+@media (prefers-reduced-motion: reduce){.cta-flat-brand,.cta-flat-ghost{transition:none;}}

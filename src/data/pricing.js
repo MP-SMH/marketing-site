@@ -28,3 +28,38 @@ export const PRICING = {
 };
 
 export const MAANEDLIG_BESPARELSE = { donationer: 30, samlet: 56 };
+
+export const FEATURES = {
+  donationer: {
+    kort: [
+      "Donationer via MobilePay",
+      "Ubegrænset antal hjertesager",
+      "Bidragsoverblik",
+    ],
+    fuld: [
+      "Donationer via MobilePay",
+      "Ubegrænset antal hjertesager",
+      "CVR-validering",
+      "Journalnummer pr. hjertesag",
+      "Bidragsoverblik",
+      "Dokumentation samlet ét sted",
+    ],
+  },
+  samlet: {
+    kort: [
+      "Alt i Donationer",
+      "Fast månedlig støtte via MobilePay",
+      "Indsamlingsregnskab pr. hjertesag",
+    ],
+    fuld: [
+      "Alt i Donationer",
+      "Faste månedlige bidrag via MobilePay",
+      "Overblik over støtteaftaler",
+      "Støttehistorik",
+      "Supporter-overblik",
+      "Månedlige rapporter",
+      "Udvidet dokumentation",
+      "Indsamlingsregnskab pr. hjertesag",
+    ],
+  },
+};
