@@ -67,7 +67,7 @@ const S = {
     gap: 7,
     padding: CTA_PADDING,
     height: CTA_MEDIUM,
-    border: '1px solid var(--border)',
+    border: '1px solid var(--smh-border)',
     borderRadius: CTA_RADIUS,
     background: 'var(--surface)',
     color: 'var(--ink)',
@@ -281,7 +281,7 @@ function DokumentationsKort({ ikon, ikonBaggrund, ikonFarve, titel, etiket, teks
         display: 'flex',
         gap: 16,
         padding: '22px 24px',
-        borderBottom: sidste ? 'none' : '1px solid var(--border)',
+        borderBottom: sidste ? 'none' : '1px solid var(--smh-border)',
       }}
     >
       <div
@@ -402,7 +402,7 @@ export default function HjertesagPage() {
         <SiteNav />
         <main style={S.besked}>
           {status === 'indlaeser' && (
-            <p style={{ color: 'var(--muted)', fontSize: 15 }}>Henter hjertesagen…</p>
+            <p style={{ color: 'var(--smh-muted)', fontSize: 15 }}>Henter hjertesagen…</p>
           )}
           {status === 'findes-ikke' && (
             <>
@@ -477,7 +477,7 @@ export default function HjertesagPage() {
                   position: 'relative',
                   borderRadius: 26,
                   overflow: 'hidden',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--smh-border)',
                   background: 'var(--alt)',
                   aspectRatio: '3 / 2',
                 }}
@@ -501,7 +501,7 @@ export default function HjertesagPage() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'var(--muted)',
+                      color: 'var(--smh-muted)',
                       fontSize: 14,
                     }}
                   >
@@ -516,7 +516,7 @@ export default function HjertesagPage() {
                 <div
                   style={{
                     background: 'var(--surface)',
-                    border: '1px solid var(--border)',
+                    border: '1px solid var(--smh-border)',
                     borderRadius: 26,
                     padding: 28,
                   }}
@@ -564,7 +564,7 @@ export default function HjertesagPage() {
                           style={{
                             display: 'block',
                             fontSize: 13,
-                            color: 'var(--muted)',
+                            color: 'var(--smh-muted)',
                             marginTop: 3,
                           }}
                         >
@@ -604,7 +604,7 @@ export default function HjertesagPage() {
                       }}
                     >
                       {kr(hjertesag.indsamlet_beloeb)}{' '}
-                      <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--muted)' }}>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--smh-muted)' }}>
                         kr
                       </span>
                     </span>
@@ -613,7 +613,7 @@ export default function HjertesagPage() {
                     </span>
                   </div>
 
-                  <div style={{ fontSize: 13.5, color: 'var(--muted)', marginBottom: 10 }}>
+                  <div style={{ fontSize: 13.5, color: 'var(--smh-muted)', marginBottom: 10 }}>
                     af {kr(hjertesag.maalbeloeb)} kr i mål
                   </div>
 
@@ -653,7 +653,7 @@ export default function HjertesagPage() {
                     />
                   </div>
 
-                  <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 22 }}>
+                  <div style={{ fontSize: 13, color: 'var(--smh-muted)', marginBottom: 22 }}>
                     Der mangler {kr(mangler)} kr
                   </div>
 
@@ -713,10 +713,10 @@ export default function HjertesagPage() {
                     style={{
                       margin: '16px 0 0',
                       paddingTop: 16,
-                      borderTop: '1px solid var(--border)',
+                      borderTop: '1px solid var(--smh-border)',
                       fontSize: 12.5,
                       lineHeight: 1.6,
-                      color: 'var(--muted)',
+                      color: 'var(--smh-muted)',
                     }}
                   >
                     Bidragene modtages direkte på foreningens egen MobilePay-konto.
@@ -783,7 +783,7 @@ export default function HjertesagPage() {
                 </>
               )}
 
-              <div style={{ height: 1, background: 'var(--border)', margin: '60px 0' }} />
+              <div style={{ height: 1, background: 'var(--smh-border)', margin: '60px 0' }} />
 
               <span style={S.overLabel}>Hilsner fra støtterne</span>
               <h2 style={S.h2Afsnit}>En væg af opbakning</h2>
@@ -802,7 +802,7 @@ export default function HjertesagPage() {
 
               <div
                 style={{
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--smh-border)',
                   borderRadius: 22,
                   background: 'var(--surface)',
                   overflow: 'hidden',
@@ -814,7 +814,7 @@ export default function HjertesagPage() {
                     alignItems: 'center',
                     gap: 9,
                     padding: '15px 20px',
-                    borderBottom: '1px solid var(--border)',
+                    borderBottom: '1px solid var(--smh-border)',
                   }}
                 >
                   <span
@@ -848,7 +848,7 @@ export default function HjertesagPage() {
                       textAlign: 'center',
                       fontSize: 14.5,
                       lineHeight: 1.6,
-                      color: 'var(--muted)',
+                      color: 'var(--smh-muted)',
                     }}
                   >
                     Der er ingen hilsner endnu. Bliv den første til at støtte denne
@@ -865,7 +865,7 @@ export default function HjertesagPage() {
                           style={{
                             padding: '22px 20px',
                             margin: '0 -20px',
-                            borderTop: nyeste ? 'none' : '1px solid var(--border)',
+                            borderTop: nyeste ? 'none' : '1px solid var(--smh-border)',
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
@@ -1000,7 +1000,7 @@ export default function HjertesagPage() {
                 )}
               </div>
 
-              <div style={{ height: 1, background: 'var(--border)', margin: '60px 0' }} />
+              <div style={{ height: 1, background: 'var(--smh-border)', margin: '60px 0' }} />
 
               <span style={S.overLabel}>Offentlig dokumentation</span>
               <h2
@@ -1018,7 +1018,7 @@ export default function HjertesagPage() {
               <div
                 style={{
                   background: 'var(--surface)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--smh-border)',
                   borderRadius: 22,
                   overflow: 'hidden',
                 }}
@@ -1104,7 +1104,7 @@ export default function HjertesagPage() {
                   margin: '18px 0 0',
                   fontSize: 13,
                   lineHeight: 1.6,
-                  color: 'var(--muted)',
+                  color: 'var(--smh-muted)',
                   maxWidth: 620,
                 }}
               >

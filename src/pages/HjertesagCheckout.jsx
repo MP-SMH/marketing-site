@@ -95,7 +95,7 @@ const S = {
   wrap: { maxWidth: 1200, margin: '0 auto', padding: '0 20px' },
   kort: {
     background: 'var(--surface)',
-    border: '1px solid var(--border)',
+    border: '1px solid var(--smh-border)',
     borderRadius: 22,
     padding: 'clamp(18px,4.5vw,28px)',
     boxShadow: '0 16px 44px -36px rgba(8,14,26,.14)',
@@ -130,7 +130,7 @@ const S = {
     gap: 7,
     fontSize: 12.5,
     lineHeight: 1.5,
-    color: 'var(--muted)',
+    color: 'var(--smh-muted)',
     marginTop: 8,
   },
   // #B4122F maaler 6,23:1. Fejl i et betalingsflow skal vaere maksimalt
@@ -502,7 +502,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                 width: '100%',
                 textAlign: 'center',
                 background: 'var(--surface)',
-                border: '1px solid var(--border)',
+                border: '1px solid var(--smh-border)',
                 borderRadius: 26,
                 padding: 'clamp(28px,6vw,44px)',
                 boxShadow: '0 30px 70px -42px rgba(8,14,26,.22)',
@@ -514,7 +514,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                   height: 60,
                   borderRadius: 16,
                   background: 'var(--alt)',
-                  color: 'var(--muted)',
+                  color: 'var(--smh-muted)',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -593,7 +593,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
           padding: CTA_PADDING,
           borderRadius: CTA_RADIUS,
           background: 'var(--alt)',
-          border: '1px solid var(--border)',
+          border: '1px solid var(--smh-border)',
           color: '#6B7280',
           fontFamily: 'inherit',
           fontSize: 15,
@@ -649,8 +649,8 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
           height: CTA_MEDIUM,
           borderRadius: CTA_RADIUS,
           background: 'var(--alt)',
-          border: '1px dashed var(--border)',
-          color: 'var(--muted)',
+          border: '1px dashed var(--smh-border)',
+          color: 'var(--smh-muted)',
           fontFamily: 'inherit',
           fontSize: 13.5,
           fontWeight: 600,
@@ -739,13 +739,13 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                           letterSpacing: '-.3px',
                           cursor: 'pointer',
                           background: 'var(--surface)',
-                          border: valgt ? '2px solid var(--brand)' : '1.5px solid var(--border)',
+                          border: valgt ? '2px solid var(--brand)' : '1.5px solid var(--smh-border)',
                           color: valgt ? 'var(--brand-hover)' : 'var(--ink)',
                           boxShadow: valgt ? '0 10px 24px rgba(224,25,63,.14)' : 'none',
                         }}
                       >
                         {kr(v)}{' '}
-                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--smh-muted)' }}>
                           kr
                         </span>
                       </button>
@@ -766,7 +766,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                         transform: 'translateY(-50%)',
                         fontSize: 16,
                         fontWeight: 700,
-                        color: 'var(--muted)',
+                        color: 'var(--smh-muted)',
                       }}
                     >
                       kr
@@ -801,7 +801,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                           borderRadius: '50%',
                           border: 'none',
                           background: 'var(--alt)',
-                          color: 'var(--muted)',
+                          color: 'var(--smh-muted)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -820,7 +820,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                       <span>{beloebFejlTekst}</span>
                     </div>
                   ) : (
-                    <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 8 }}>
+                    <div style={{ fontSize: 12.5, color: 'var(--smh-muted)', marginTop: 8 }}>
                       Mindstebeløb er {kr(MIN_KRONER)} kr
                     </div>
                   )}
@@ -836,7 +836,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                     margin: '0 0 20px',
                     fontSize: 13.5,
                     lineHeight: 1.55,
-                    color: 'var(--muted)',
+                    color: 'var(--smh-muted)',
                   }}
                 >
                   Skriv en personlig hilsen samtidig med at du viser din støtte. Du bestemmer helt
@@ -858,7 +858,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                     aria-invalid={emailFejl}
                     style={{
                       ...S.tekstfelt,
-                      border: `1.5px solid ${emailFejl ? '#B4122F' : 'var(--border)'}`,
+                      border: `1.5px solid ${emailFejl ? '#B4122F' : 'var(--smh-border)'}`,
                     }}
                   />
                   {emailFejl ? (
@@ -892,7 +892,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                     aria-invalid={navnFejl}
                     style={{
                       ...S.tekstfelt,
-                      border: `1.5px solid ${navnFejl ? '#B4122F' : 'var(--border)'}`,
+                      border: `1.5px solid ${navnFejl ? '#B4122F' : 'var(--smh-border)'}`,
                     }}
                   />
                   {navnFejl && (
@@ -906,7 +906,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                 <div style={{ marginTop: 18 }}>
                   <label htmlFor="hs-besked" style={S.feltLabel}>
                     Personlig besked til foreningen{' '}
-                    <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(valgfrit)</span>
+                    <span style={{ color: 'var(--smh-muted)', fontWeight: 400 }}>(valgfrit)</span>
                   </label>
                   <textarea
                     id="hs-besked"
@@ -931,7 +931,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                 <div
                   style={{
                     marginTop: 8,
-                    border: '1px solid var(--border)',
+                    border: '1px solid var(--smh-border)',
                     borderRadius: 16,
                     background: 'var(--alt)',
                     padding: '14px 16px',
@@ -962,7 +962,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                         padding: '3px 9px',
                         borderRadius: 999,
                         background: 'var(--surface)',
-                        border: '1px solid var(--border)',
+                        border: '1px solid var(--smh-border)',
                         fontSize: 11,
                         fontWeight: 700,
                         color: 'var(--body)',
@@ -1049,7 +1049,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                   </div>
                 </div>
 
-                <div style={{ height: 1, background: 'var(--border)', margin: '22px 0' }} />
+                <div style={{ height: 1, background: 'var(--smh-border)', margin: '22px 0' }} />
 
                 <button
                   type="button"
@@ -1066,7 +1066,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                     cursor: 'pointer',
                     textAlign: 'left',
                     background: anonym ? 'var(--brand-surface)' : 'var(--surface)',
-                    border: `1.5px solid ${anonym ? 'var(--brand)' : 'var(--border)'}`,
+                    border: `1.5px solid ${anonym ? 'var(--brand)' : 'var(--smh-border)'}`,
                   }}
                 >
                   <span
@@ -1079,7 +1079,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
-                      color: 'var(--muted)',
+                      color: 'var(--smh-muted)',
                     }}
                   >
                     <OejeSlukketIkon />
@@ -1100,7 +1100,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                         display: 'block',
                         fontSize: 13,
                         lineHeight: 1.5,
-                        color: 'var(--muted)',
+                        color: 'var(--smh-muted)',
                         marginTop: 2,
                       }}
                     >
@@ -1140,7 +1140,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                 <div
                   style={{
                     background: 'var(--surface)',
-                    border: '1px solid var(--border)',
+                    border: '1px solid var(--smh-border)',
                     borderRadius: 26,
                     padding: 'clamp(18px,4.5vw,28px)',
                     boxShadow: '0 30px 70px -42px rgba(8,14,26,.22)',
@@ -1196,7 +1196,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                           alignItems: 'center',
                           gap: 6,
                           fontSize: 13,
-                          color: 'var(--muted)',
+                          color: 'var(--smh-muted)',
                           marginTop: 1,
                         }}
                       >
@@ -1212,7 +1212,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                     </div>
                   </div>
 
-                  <div style={{ fontSize: 13.5, color: 'var(--muted)', marginBottom: 8 }}>
+                  <div style={{ fontSize: 13.5, color: 'var(--smh-muted)', marginBottom: 8 }}>
                     {kr(hjertesag.indsamlet_beloeb)} kr af {kr(hjertesag.maalbeloeb)} kr{' '}
                     <span
                       style={{ float: 'right', fontWeight: 800, color: 'var(--brand-hover)' }}
@@ -1264,7 +1264,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                       {kr(effektivt)} kr
                     </span>
                   </div>
-                  <div style={{ height: 1, background: 'var(--border)', marginBottom: 16 }} />
+                  <div style={{ height: 1, background: 'var(--smh-border)', marginBottom: 16 }} />
                   <div
                     style={{
                       display: 'flex',
@@ -1333,7 +1333,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                         alignItems: 'center',
                         gap: 6,
                         fontSize: 12.5,
-                        color: 'var(--muted)',
+                        color: 'var(--smh-muted)',
                         fontWeight: 600,
                       }}
                     >
@@ -1346,7 +1346,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                         alignItems: 'center',
                         gap: 6,
                         fontSize: 12.5,
-                        color: 'var(--muted)',
+                        color: 'var(--smh-muted)',
                         fontWeight: 600,
                       }}
                     >
@@ -1365,11 +1365,11 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                     }}
                   >
                     Ved at donere accepterer du vores{' '}
-                    <Link to="/betingelser" style={{ color: 'var(--muted)' }}>
+                    <Link to="/betingelser" style={{ color: 'var(--smh-muted)' }}>
                       betingelser
                     </Link>{' '}
                     og{' '}
-                    <Link to="/privatlivspolitik" style={{ color: 'var(--muted)' }}>
+                    <Link to="/privatlivspolitik" style={{ color: 'var(--smh-muted)' }}>
                       privatlivspolitik
                     </Link>
                     .
@@ -1379,10 +1379,10 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                     style={{
                       margin: '14px 0 0',
                       paddingTop: 14,
-                      borderTop: '1px solid var(--border)',
+                      borderTop: '1px solid var(--smh-border)',
                       fontSize: 12,
                       lineHeight: 1.6,
-                      color: 'var(--muted)',
+                      color: 'var(--smh-muted)',
                     }}
                   >
                     Bidragene modtages direkte på foreningens egen MobilePay-konto. StøtMedHjerte
