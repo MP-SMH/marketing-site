@@ -647,7 +647,6 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
         style={{
           width: '100%',
           height: CTA_MEDIUM,
-          padding: CTA_PADDING,
           borderRadius: CTA_RADIUS,
           background: 'var(--alt)',
           border: '1px dashed var(--border)',
