@@ -32,9 +32,9 @@ export const MAANEDLIG_BESPARELSE = { donationer: 30, samlet: 56 };
 export const FEATURES = {
   donationer: {
     kort: [
-      "Donationer via MobilePay",
-      "Ubegrænset antal hjertesager",
-      "Bidragsoverblik",
+      "Regnskabet laves automatisk",
+      "Bidrag direkte til jeres MobilePay",
+      "Op til 5 hjertesager",
     ],
     fuld: [
       "Donationer via MobilePay",
@@ -48,8 +48,8 @@ export const FEATURES = {
   samlet: {
     kort: [
       "Alt i Donationer",
-      "Fast månedlig støtte via MobilePay",
-      "Indsamlingsregnskab pr. hjertesag",
+      "Faste månedlige bidrag",
+      "Revisor godkender digitalt",
     ],
     fuld: [
       "Alt i Donationer",
