@@ -349,6 +349,27 @@ export default function KvitteringPage() {
     setPhase('fejl502');
   }, [reference, stopPoll]);
 
+  // Siden viser en konkret donations beloeb, forening og hjertesag. Den maa
+  // ALDRIG indekseres. HashRouter holder soegemaskiner ude i dag, men den
+  // beskyttelse falder bort den dag vi skifter til BrowserRouter paa apex.
+  // Derfor saettes robots-metaet direkte i head, uafhaengigt af router.
+  useEffect(() => {
+    const FLAG = 'kvittering-noindex';
+    let meta = document.head.querySelector(`meta[data-tag="${FLAG}"]`);
+    let oprettetHer = false;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'robots');
+      meta.setAttribute('content', 'noindex, nofollow');
+      meta.setAttribute('data-tag', FLAG);
+      document.head.appendChild(meta);
+      oprettetHer = true;
+    }
+    return () => {
+      if (oprettetHer && meta.parentNode) meta.parentNode.removeChild(meta);
+    };
+  }, []);
+
   useEffect(() => {
     document.title = 'Kvittering | StøtMedHjerte';
     startRef.current = Date.now();
