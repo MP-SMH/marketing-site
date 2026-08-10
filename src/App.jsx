@@ -48,6 +48,7 @@ import ForForeningerPage from './pages/ForForeningerPage';
 import ForStoetterPage from './pages/ForStoetterPage';
 import HjertesagerPage from './pages/HjertesagerPage';
 import HjertesagPage from './pages/HjertesagPage';
+import KvitteringPage from './pages/KvitteringPage';
 import ForeningerPage from './pages/ForeningerPage';
 import SaadanVirkerDetPage from './pages/SaadanVirkerDetPage';
 import PriserPage from './pages/PriserPage';
@@ -92,6 +93,8 @@ function App() {
             <Route path="/" element={<HomeNy showTrustBand={false} />} />
             <Route path="/hjertesager" element={<HjertesagerPage />} />
             <Route path="/hjertesag/:slug" element={<HjertesagPage />} />
+            <Route path="/kvittering" element={<KvitteringPage />} />
+            <Route path="/kvittering/:reference" element={<KvitteringPage />} />
             <Route path="/foreninger" element={<ForeningerPage />} />
             <Route path="/for-foreninger" element={<ForForeningerPage />} />
             <Route path="/for-stoetter" element={<ForStoetterPage />} />

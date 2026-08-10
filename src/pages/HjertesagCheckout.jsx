@@ -429,7 +429,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
 
     // Ruten kraever https. Paa localhost afvises kaldet derfor med 400, og det
     // er korrekt: en returadresse over http maa ikke indgaa i et betalingsflow.
-    const returUrl = `${window.location.origin}/#/hjertesag/${hjertesag.slug}`;
+    const returUrl = `${window.location.origin}/#/kvittering`;
 
     const krop = {
       association_uuid: forening.association_uuid,
