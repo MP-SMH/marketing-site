@@ -264,6 +264,14 @@ const STIL = `
 .kvp-primary:hover{background:var(--brand-hover,#C8112F) !important;color:#fff;}
 .kvp-secondary:hover{background:${C.alt} !important;}
 .kvp-link:hover{color:${C.linkInk} !important;}
+/* Beta bruger 520px som graense: under den skal knapper fylde fuld bredde,
+   som resten af fladen (Home.css .cta-w). Reglen staar lokalt her fordi den
+   delte klasse cta-w kun er defineret i Home.css og SiteFooter.css og ikke
+   indlaest globalt. 519px moeder Home.css' min-width 520px uden overlap.
+   Den rigtige samling af reglen ligger i BACKLOG S99-CTA-BREDDE-SAMLING. */
+@media (max-width: 519px){
+  .kvp-primary, .kvp-secondary { width: 100%; }
+}
 `;
 
 export default function KvitteringPage() {
