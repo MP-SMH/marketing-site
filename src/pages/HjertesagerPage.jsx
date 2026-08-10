@@ -91,7 +91,7 @@ function HjertesagKort({ hs }) {
 
         {godkendt
           ? <Link to={`/hjertesag/${hs.slug}`} className="cta-flat-brand" style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", fontSize: "15px", fontWeight: 600, color: "#fff", textDecoration: "none" }}>Støt hjertesagen</Link>
-          : <span aria-disabled="true" style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", background: "var(--alt)", border: "1px solid var(--smh-border)", color: "#8A94A3", fontSize: "15px", fontWeight: 600, cursor: "not-allowed" }}>Kan ikke modtage bidrag endnu</span>}
+          : <Link to={`/hjertesag/${hs.slug}`} style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", background: "var(--alt)", border: "1px solid var(--smh-border)", color: "var(--ink)", fontSize: "15px", fontWeight: 600, textDecoration: "none" }}>Se hjertesagen</Link>}
 
         <div style={{ marginTop: "11px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", color: "var(--smh-muted)", fontSize: "12px", textAlign: "center" }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
@@ -102,9 +102,10 @@ function HjertesagKort({ hs }) {
   );
 
   const shell = { display: "flex", flexDirection: "column", background: "var(--surface)", border: "1px solid var(--smh-border)", borderRadius: "24px", overflow: "hidden", boxShadow: "0 16px 44px -30px rgba(8,14,26,.14)", textDecoration: "none" };
-  return godkendt
-    ? <Link to={`/hjertesag/${hs.slug}`} style={shell}>{cardInner}</Link>
-    : <div style={shell}>{cardInner}</div>;
+  // Kortet er ALDRIG et Link. Paa mobil fylder det naesten hele skaermen, og et
+  // klikbart kort giver utilsigtede tryk under rulning. Knappen i kortet er den
+  // eneste vej ind paa hjertesagen, uanset om foreningen kan modtage bidrag.
+  return <div style={shell}>{cardInner}</div>;
 }
 
 export default function HjertesagerPage() {

@@ -699,7 +699,7 @@ export default function HjertesagPage() {
                         color: 'var(--body)',
                       }}
                     >
-                      Foreningen kan ikke modtage bidrag endnu. Prøv igen senere.
+                      Foreningen afventer godkendelse hos Indsamlingsnævnet og kan derfor ikke modtage bidrag endnu.
                     </div>
                   )}
 
