@@ -1,8 +1,67 @@
-.hs-wrap{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px;}
-.hs-filter{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px;}
-@media(min-width:720px){.hs-filter{grid-template-columns:2fr 1fr 1fr;}}
-.hs-field{height:48px;width:100%;padding:0 18px;border-radius:999px;border:1px solid var(--smh-border);background:var(--surface);color:var(--ink);font-size:15px;font-family:inherit;outline:none;transition:border-color 150ms;}
-.hs-field:hover{border-color:#C6CDD8;}
-.hs-field:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
-.hs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;align-items:stretch;}
-@media(prefers-reduced-motion:reduce){.hs-field{transition:none;}}
+/* ============================================================
+   Hjertesager.css
+   Mobile-first. Alt bygger paa marketing-sitets egne tokens.
+   Ingen MobilePay-blaa, jf. K6.
+
+   Farver (hex, baggrund, fontstoerrelse), maalt:
+     fairband-tekst #4B5565 paa #F3F5F8, 13,5px       6,26:1
+     fairband-strong #080E1A paa #F3F5F8, 13,5px      over 14:1
+     kpi-label #566072 paa #F3F5F8, 11px              5,54:1
+     kpi-vaerdi #080E1A paa #F3F5F8, 15,5px           over 14:1
+   ============================================================ */
+
+.hs-wrap { max-width: 1200px; margin: 0 auto; }
+
+.hs-fairband {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  margin-bottom: 26px;
+  border-radius: 16px;
+  background: var(--alt);
+  border: 1px solid var(--smh-border);
+}
+.hs-fairband > span {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--smh-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-hover);
+}
+.hs-fairband p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--body);
+}
+.hs-fairband strong { color: var(--ink); font-weight: 700; }
+
+.hs-kpi {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px 10px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--alt);
+  margin-bottom: 20px;
+}
+@media (max-width: 400px) {
+  .hs-kpi { grid-template-columns: 1fr; gap: 10px; }
+  .hs-kpi > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .hs-kpi > div > div:first-child { margin-bottom: 0; }
+}
+
+.hs-cards { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: stretch; }
+@media (min-width: 640px) { .hs-cards { grid-template-columns: 1fr 1fr; gap: 22px; } }
+@media (min-width: 1040px) { .hs-cards { grid-template-columns: repeat(3, 1fr); } }
