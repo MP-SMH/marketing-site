@@ -146,6 +146,7 @@ const STIL = `
 .reg-stuck .reg-filtercard{border-radius:0;box-shadow:none;border-color:transparent;}
 .reg-stuck .reg-barinner{background:var(--surface);border-bottom:1px solid var(--smh-border);}
 .reg-stuck .reg-head{border-bottom:none;}
+.reg-stuck .reg-hint{display:none;}
 @media(max-width:519px){
   .reg-bar{position:static;}
   .reg-search{position:sticky;top:67px;z-index:30;}
@@ -418,19 +419,21 @@ export default function IndsamlingsregnskaberPage() {
                   </SelectFelt>
                 </div>
               </div>
+              <p className="reg-hint" style={{ margin: '12px 0 0', fontSize: 12.5, lineHeight: 1.5, color: MUTED }}>Du kan også søge på journalnummer fra Indsamlingsnævnet.</p>
             </div>
-            <div className="reg-head" aria-hidden="true">
-              <div>Forening og formål</div>
-              <div>Periode</div>
-              <div className="reg-h-belob">Indsamlet</div>
-              <div>Offentliggjort</div>
-            </div>
+            {rows.length > 0 && (
+              <div className="reg-head" aria-hidden="true">
+                <div>Forening og formål</div>
+                <div>Periode</div>
+                <div className="reg-h-belob">Indsamlet</div>
+                <div>Offentliggjort</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <section className="reg-wrap" style={{ paddingTop: 'clamp(20px,3vw,32px)', paddingBottom: 'clamp(50px,8vw,86px)' }}>
-        <p style={{ margin: '0 0 20px', fontSize: 12.5, lineHeight: 1.5, color: MUTED }}>Du kan også søge på journalnummer fra Indsamlingsnævnet.</p>
         {indhold}
       </section>
 
