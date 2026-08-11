@@ -49,6 +49,8 @@ import ForStoetterPage from './pages/ForStoetterPage';
 import HjertesagerPage from './pages/HjertesagerPage';
 import HjertesagPage from './pages/HjertesagPage';
 import KvitteringPage from './pages/KvitteringPage';
+import IndsamlingsregnskaberPage from './pages/IndsamlingsregnskaberPage';
+import IndsamlingsregnskabPage from './pages/IndsamlingsregnskabPage';
 import ForeningerPage from './pages/ForeningerPage';
 import SaadanVirkerDetPage from './pages/SaadanVirkerDetPage';
 import PriserPage from './pages/PriserPage';
@@ -95,6 +97,8 @@ function App() {
             <Route path="/hjertesag/:slug" element={<HjertesagPage />} />
             <Route path="/kvittering" element={<KvitteringPage />} />
             <Route path="/kvittering/:reference" element={<KvitteringPage />} />
+            <Route path="/indsamlingsregnskaber" element={<IndsamlingsregnskaberPage />} />
+            <Route path="/indsamlingsregnskab/:id" element={<IndsamlingsregnskabPage />} />
             <Route path="/foreninger" element={<ForeningerPage />} />
             <Route path="/for-foreninger" element={<ForForeningerPage />} />
             <Route path="/for-stoetter" element={<ForStoetterPage />} />
