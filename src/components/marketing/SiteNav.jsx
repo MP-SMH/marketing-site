@@ -14,6 +14,7 @@ import "./SiteNav.css";
 const ROUTES = {
   home: "/",
   hjertesager: "/hjertesager",
+  indsamlingsregnskaber: "/indsamlingsregnskaber",
   forStoetter: "/for-stoetter",
   forForeninger: "/for-foreninger",
   donationer: "/donationer",
@@ -67,6 +68,7 @@ const NAV_GROUPS = [
       { t: "Find hjertesag", s: "Støt et konkret formål", href: ROUTES.hjertesager },
       { t: "Sådan støtter du", s: "Vælg beløb, godkend i MobilePay", href: ROUTES.forStoetter },
       { t: "Sikkerhed", s: "Betaling, data og tryghed", href: ROUTES.sikkerhed },
+      { t: "Indsamlingsregnskaber", s: "Se hvad foreningerne har indsamlet", href: ROUTES.indsamlingsregnskaber },
     ],
   },
   {
@@ -74,7 +76,6 @@ const NAV_GROUPS = [
     w: 340,
     items: [
       { t: "For foreninger", s: "Overblik og dokumentation", href: ROUTES.forForeninger },
-      { t: "Hjertesager", s: "Konkrete indsamlinger", href: ROUTES.hjertesager },
       { t: "Donationer", s: "Engangsbidrag via MobilePay", href: ROUTES.donationer },
       { t: "Fast støtte", s: "Månedlige bidrag", href: ROUTES.fastStoette },
       { t: "Tilladelse og regnskab", s: "Indsamlingsnævnet og regnskab", href: ROUTES.tilladelse },
@@ -108,10 +109,10 @@ const DRAWER = [
   { group: "For støtter", links: [
     { t: "Find hjertesag", href: ROUTES.hjertesager },
     { t: "Sådan støtter du", href: ROUTES.forStoetter },
+    { t: "Indsamlingsregnskaber", href: ROUTES.indsamlingsregnskaber },
   ]},
   { group: "For foreninger", links: [
     { t: "For foreninger", href: ROUTES.forForeninger },
-    { t: "Hjertesager", href: ROUTES.hjertesager },
     { t: "Donationer", href: ROUTES.donationer },
     { t: "Fast støtte", href: ROUTES.fastStoette },
     { t: "Tilladelse og regnskab", href: ROUTES.tilladelse },
