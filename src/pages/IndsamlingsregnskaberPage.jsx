@@ -146,11 +146,16 @@ const STIL = `
 .reg-stuck .reg-filtercard{border-radius:0;box-shadow:none;border-color:transparent;}
 .reg-stuck .reg-barinner{background:var(--surface);border-bottom:1px solid var(--smh-border);}
 .reg-stuck .reg-head{border-bottom:none;}
-.reg-stuck .reg-hint{display:none;}
+.reg-hint{margin:12px 0 0;max-height:48px;opacity:1;overflow:hidden;transition:max-height .18s ease,opacity .18s ease,margin-top .18s ease;}
+.reg-stuck .reg-hint{max-height:0;opacity:0;margin-top:0;}
+@media (prefers-reduced-motion: reduce){.reg-hint{transition:none;}}
 @media(max-width:519px){
   .reg-bar{position:static;}
-  .reg-search{position:sticky;top:67px;z-index:30;}
-  .reg-stuck .reg-search{box-shadow:0 6px 16px -8px rgba(8,14,26,.28);}
+  .reg-bar::after{display:none;}
+  .reg-stuck .reg-filtercard{border-radius:24px;box-shadow:0 18px 48px -30px rgba(8,14,26,.28);border-color:var(--smh-border);}
+  .reg-stuck .reg-barinner{background:transparent;border-bottom:none;}
+  .reg-stuck .reg-hint{max-height:48px;opacity:1;margin-top:12px;}
+  .reg-stuck .reg-head{border-bottom:1px solid var(--smh-border);}
 }
 `;
 
@@ -419,7 +424,7 @@ export default function IndsamlingsregnskaberPage() {
                   </SelectFelt>
                 </div>
               </div>
-              <p className="reg-hint" style={{ margin: '12px 0 0', fontSize: 12.5, lineHeight: 1.5, color: MUTED }}>Du kan også søge på journalnummer fra Indsamlingsnævnet.</p>
+              <p className="reg-hint" style={{ fontSize: 12.5, lineHeight: 1.5, color: MUTED }}>Du kan også søge på journalnummer fra Indsamlingsnævnet.</p>
             </div>
             {rows.length > 0 && (
               <div className="reg-head" aria-hidden="true">
