@@ -167,9 +167,9 @@ function Hero() {
         <div style={{ animation: "smhRise .7s .1s ease both" }}>
           <div className="hero-stage">
             <div className="hero-glow" />
-            {/* photo — REPLACE src, see ASSETS.md */}
+            {/* hero-foto, eager + srcset (S103) */}
             <figure className="hero-photo" style={{ position: "relative", zIndex: 1, margin: 0, borderRadius: 28, overflow: "hidden", border: "1px solid var(--smh-border)", boxShadow: "0 34px 80px -34px rgba(8,14,26,.22)" }}>
-              <img src="/assets/forside-hero-3d-platform-foreningsliv.webp" alt="Frivillige og medlemmer samlet til et lokalt foreningsarrangement" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", display: "block" }} />
+              <img src="/assets/forside-hero-lokalt-faellesskab.webp" srcSet="/assets/forside-hero-lokalt-faellesskab-768.webp 768w, /assets/forside-hero-lokalt-faellesskab-1280.webp 1280w, /assets/forside-hero-lokalt-faellesskab.webp 1536w" sizes="(max-width: 900px) 100vw, 50vw" alt="Frivillige og medlemmer samlet til et lokalt foreningsarrangement" loading="eager" fetchPriority="high" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", display: "block" }} />
             </figure>
 
             {/* overlapping hjertesag card */}
@@ -467,9 +467,9 @@ function SupporterSection() {
         <p style={{ margin: "0 auto", fontSize: "clamp(16px,2.2vw,18px)", lineHeight: 1.6, color: "var(--body)", maxWidth: 540 }}>Fire enkle trin, uden ny profil og uden ekstra app.</p>
       </div>
 
-      {/* photo — image-slot in prototype; REPLACE src, see ASSETS.md */}
+      {/* stoetter-foto, lazy + srcset (S103) */}
       <figure style={{ margin: "0 0 40px", borderRadius: 24, overflow: "hidden", border: "1px solid var(--smh-border)", height: "clamp(240px,32vw,360px)", boxShadow: "0 30px 70px -36px rgba(8,14,26,.16)" }}>
-        <img src="/assets/forside-stoetter-foto.webp" alt="En støtter giver et bidrag på sin telefon til en lokal hjertesag" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        <img src="/assets/forside-stoetter-bidrag-paa-telefon.webp" srcSet="/assets/forside-stoetter-bidrag-paa-telefon-768.webp 768w, /assets/forside-stoetter-bidrag-paa-telefon-1280.webp 1280w, /assets/forside-stoetter-bidrag-paa-telefon.webp 1536w" sizes="100vw" alt="En støtter giver et bidrag på sin telefon til en lokal hjertesag" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
       </figure>
 
       <div className="g4" style={{ marginBottom: 40 }}>
@@ -496,9 +496,9 @@ function AssociationSection() {
     <section id="foreninger" style={{ background: "var(--alt)", borderTop: "1px solid var(--smh-border)", borderBottom: "1px solid var(--smh-border)" }}>
       <div className="sec-pad wrap">
         <div className="split">
-          {/* photo — image-slot in prototype; REPLACE src, see ASSETS.md */}
+          {/* foreningsfoto, lazy + srcset (S103) */}
           <figure style={{ margin: 0, borderRadius: 24, overflow: "hidden", border: "1px solid var(--smh-border)", aspectRatio: "4/3", boxShadow: "0 30px 70px -36px rgba(8,14,26,.16)" }}>
-            <img src="/assets/forside-foreninger-foto.webp" alt="Frivillige fra en bestyrelse planlægger årets indsamling sammen" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <img src="/assets/forside-bestyrelse-planlaegger.webp" srcSet="/assets/forside-bestyrelse-planlaegger-768.webp 768w, /assets/forside-bestyrelse-planlaegger-1280.webp 1280w, /assets/forside-bestyrelse-planlaegger.webp 1600w" sizes="(max-width: 900px) 100vw, 50vw" alt="Frivillige fra en bestyrelse planlægger årets indsamling sammen" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           </figure>
           <div>
             <Eyebrow color="var(--brand)">For foreninger</Eyebrow>
