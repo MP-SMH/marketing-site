@@ -26,6 +26,12 @@ import { ctaBoks, CTA_STOR, CTA_MEDIUM } from '../lib/cta';
 // Rutens status-vaerdier afbildes praecist til de tre visningsgrupper.
 const POLL_MS = 3000;
 const TIMEOUT_MS = 60000;
+// S102: efter TIMEOUT_MS holder siden IKKE op med at spoerge. Den skifter til
+// den beroligende besked og spoerger videre i et langsommere interval.
+// Begrundelse: en capture kan traekke ud uden at noget er galt, og donorens
+// vigtigste oejeblik er bekraeftelsen. Giver siden op, ser donoren aldrig at
+// betalingen lykkedes, selv om pengene er landet hos foreningen.
+const POLL_LANGSOM_MS = 10000;
 
 function harIndhold(v) {
   return typeof v === 'string' && v.trim().length > 0;
@@ -282,6 +288,7 @@ export default function KvitteringPage() {
 
   const pollRef = useRef(null);
   const startRef = useRef(0);
+  const intervalRef = useRef(0);
 
   const stopPoll = useCallback(() => {
     if (pollRef.current) {
@@ -344,11 +351,22 @@ export default function KvitteringPage() {
     }
     if (status === 'undervejs') {
       setPhase('undervejs');
-      if (Date.now() - startRef.current >= TIMEOUT_MS) {
-        stopPoll();
+      const erOvertid = Date.now() - startRef.current >= TIMEOUT_MS;
+      const oensketInterval = erOvertid ? POLL_LANGSOM_MS : POLL_MS;
+
+      if (erOvertid) {
         setTimeoutFlag(true);
-      } else if (!pollRef.current) {
-        pollRef.current = window.setInterval(() => { hentStatus(); }, POLL_MS);
+      }
+
+      // Skift interval ved overgangen til overtid, ellers ville siden blive
+      // ved med at spoerge hvert tredje sekund i timevis.
+      if (erOvertid && intervalRef.current !== POLL_LANGSOM_MS) {
+        stopPoll();
+      }
+
+      if (!pollRef.current) {
+        intervalRef.current = oensketInterval;
+        pollRef.current = window.setInterval(() => { hentStatus(); }, oensketInterval);
       }
       return;
     }
@@ -391,6 +409,11 @@ export default function KvitteringPage() {
     startRef.current = Date.now();
     setTimeoutFlag(false);
     setPhase('loading');
+    // S102: knappen skal give oejeblikkelig virkning. Uden nulstilling ville
+    // siden fortsaette i det langsomme interval, mens teksten lover et par
+    // sekunder.
+    stopPoll();
+    intervalRef.current = 0;
     hentStatus();
   }
 
