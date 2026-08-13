@@ -126,7 +126,7 @@ export default function PriserPage() {
           <div className="pr-intro-c" style={{ marginBottom: "clamp(24px,3vw,34px)" }}>
             <div className="pr-eyebrow">Prisplaner</div>
             <h2 className="pr-h2">To planer, samme princip.</h2>
-            <p className="pr-lead">Vælg det, der passer til foreningen. Uanset plan beholder I hele donationen.</p>
+            <p className="pr-lead">Vælg det, der passer til foreningen. Uanset plan tager StøtMedHjerte ingen andel af bidragene.</p>
           </div>
 
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "clamp(26px,3.2vw,38px)" }}>
@@ -211,7 +211,7 @@ export default function PriserPage() {
                   <div style={{ background: "var(--green-surface)", border: "1px solid var(--green-border)", borderRadius: "16px", padding: "15px 15px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", marginBottom: "12px" }}>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: "7px", fontSize: "12px", fontWeight: 700, color: "#15803D" }}><span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--success)" }} />Donationer</span>
-                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#15803D", background: "#fff", border: "1px solid var(--green-border)", padding: "4px 9px", borderRadius: "999px" }}>100% til foreningen</span>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#15803D", background: "#fff", border: "1px solid var(--green-border)", padding: "4px 9px", borderRadius: "999px" }}>Direkte til foreningen</span>
                     </div>
                     <div className="pr-track">
                       <div className="pr-step" style={{ background: "#fff", border: "1px solid var(--green-border)", borderRadius: "12px", padding: "12px 7px" }}><span style={{ width: "28px", height: "28px", borderRadius: "8px", background: "var(--green-surface)", display: "flex", alignItems: "center", justifyContent: "center" }}><Ic d='<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>' size={15} stroke="#15803D" /></span><span style={{ fontSize: "11px", fontWeight: 600, lineHeight: 1.25, color: "var(--ink)" }}>Støtter</span></div>
@@ -264,7 +264,7 @@ export default function PriserPage() {
           </div>
           <div className="pr-trio" style={{ marginBottom: "clamp(28px,4vw,40px)" }}>
             {[
-              { d: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>', title: "Andel af donationerne: 0%", body: "StøtMedHjerte tager aldrig en procentdel af bidragene. Donationerne går fuldt ud til foreningen." },
+              { d: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>', title: "Andel af donationerne: 0%", body: "StøtMedHjerte tager aldrig en procentdel af bidragene. De modtages direkte på foreningens egen MobilePay-konto." },
               { d: '<circle cx="12" cy="12" r="10"/><path d="M8 12h8"/>', title: "Platformsgebyr pr. bidrag", body: "Vi lægger ikke et gebyr fra StøtMedHjerte oven i det enkelte bidrag." },
               { d: '<path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/>', title: "Skjulte tillæg", body: "Ingen overraskelser oven i den faste månedspris. I ved på forhånd, hvad I betaler." },
             ].map((c) => (

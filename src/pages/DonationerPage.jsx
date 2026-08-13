@@ -170,7 +170,7 @@ export default function DonationerPage() {
             <div style={{ maxWidth: "760px" }}>
               <div style={{ fontSize: "13px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#FF8FA3", marginBottom: "14px" }}>Pengenes vej</div>
               <h2 style={{ margin: "0 0 16px", fontSize: "clamp(26px,4.2vw,40px)", lineHeight: 1.13, fontWeight: 800, letterSpacing: "-1px", color: "#fff", textWrap: "balance" }}>Direkte til foreningen</h2>
-              <p style={{ margin: 0, fontSize: "clamp(16px,2.4vw,19px)", lineHeight: 1.65, color: "#AEB9CC" }}>Der er ingen mellemmand, der holder på pengene. Når støtten godkender bidraget, går hele beløbet direkte til foreningens egen MobilePay-konto.</p>
+              <p style={{ margin: 0, fontSize: "clamp(16px,2.4vw,19px)", lineHeight: 1.65, color: "#AEB9CC" }}>Der er ingen mellemmand, der holder på pengene. Når støtten godkender bidraget, går det direkte til foreningens egen MobilePay-konto.</p>
             </div>
 
             <div className="don-flow-rail" style={{ marginTop: "clamp(34px,5vw,52px)", maxWidth: "1060px" }}>
@@ -190,7 +190,7 @@ export default function DonationerPage() {
                 <div className="don-pulse" style={{ animation: "donPulse 2.6s ease-out infinite", width: "46px", height: "46px", borderRadius: "14px", background: "rgba(34,197,94,.16)", display: "flex", alignItems: "center", justifyContent: "center", color: "#22C55E" }}><Ic d='<path d="M3 10.5 12 4l9 6.5M5 10v9M19 10v9M9.5 10v9M14.5 10v9M3 21h18"/>' size={23} stroke="#22C55E" /></div>
                 <div style={{ marginTop: "16px", fontSize: "12px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase", color: "#5FA77C" }}>Modtager</div>
                 <div style={{ marginTop: "5px", fontSize: "17.5px", fontWeight: 800, letterSpacing: "-.3px", color: "#fff" }}>Foreningens egen konto</div>
-                <p style={{ margin: "7px 0 0", fontSize: "13.5px", lineHeight: 1.5, color: "#AEB9CC" }}>Hele beløbet lander på foreningens egen MobilePay-konto.</p>
+                <p style={{ margin: "7px 0 0", fontSize: "13.5px", lineHeight: 1.5, color: "#AEB9CC" }}>Bidraget lander på foreningens egen MobilePay-konto.</p>
               </div>
             </div>
 

@@ -121,7 +121,7 @@ export default function SaadanVirkerDetPage() {
                       <span style={{ position: "absolute", top: "-9px", right: "-9px", width: "23px", height: "23px", borderRadius: "50%", background: "#16A34A", color: "#fff", fontSize: "11.5px", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #ECFDF3" }}>3</span>
                     </div>
                     <div style={{ fontSize: "15.5px", fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>Direkte betaling</div>
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", lineHeight: 1.4, color: "#15803D", fontWeight: 700, marginTop: "4px" }}><Ic d='<path d="M20 6 9 17l-5-5"/>' size={12} sw={3} />100% til foreningen</div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", lineHeight: 1.4, color: "#15803D", fontWeight: 700, marginTop: "4px" }}><Ic d='<path d="M20 6 9 17l-5-5"/>' size={12} sw={3} />Direkte til foreningen</div>
                   </div>
 
                   <Conn />

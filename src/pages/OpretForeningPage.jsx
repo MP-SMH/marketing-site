@@ -557,7 +557,7 @@ export default function OpretForeningPage() {
 
     if (!canSubmitStep3()) return;
 
-    if (binding !== '12mdr' && binding !== 'maanedlig') {
+    if (binding !== 'binding' && binding !== 'ingen') {
       setSubmitError('Vælg en betalingsperiode for at oprette foreningen.');
       return;
     }
@@ -584,8 +584,9 @@ export default function OpretForeningPage() {
       consent_marketing_id: consentMarketingChecked
         ? consentVersions.marketing_consent?.id || null
         : null,
+      abonnement_produkt: 'donationer',
       abonnement_binding: binding,
-      abonnement_maanedspris: binding === '12mdr' ? 149 : 179,
+      abonnement_maanedspris: binding === 'binding' ? 149 : 179,
     };
 
     try {
@@ -727,6 +728,21 @@ export default function OpretForeningPage() {
       {/* Wizard */}
       <main className="ofo-wrap ofo-main">
         <div className="ofo-frame">
+          {import.meta.env.DEV && (
+            <div style={{ display: 'flex', gap: 6, padding: '10px 12px', marginBottom: 12, background: '#FEF6DC', border: '1px dashed #B45309', borderRadius: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#7A5B00', letterSpacing: 0.4 }}>KUN LOKALT</span>
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setStep(n)}
+                  style={{ padding: '4px 10px', fontSize: 12, fontWeight: 700, cursor: 'pointer', borderRadius: 999, border: '1px solid #B45309', background: step === n ? '#B45309' : 'transparent', color: step === n ? '#fff' : '#7A5B00' }}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="ofo-frame-header">
             <div className="ofo-frame-head-row">
               <div>
@@ -996,8 +1012,9 @@ export default function OpretForeningPage() {
                 <p style={ofoP}>Foreningen betaler et fast abonnement for at bruge StøtMedHjerte. Vælg om I vil betale med 12 måneders binding til en lavere månedspris, eller betale månedligt uden binding.</p>
                 <div className="ofo-binding-grid">
                   {[
-                    { key: '12mdr', price: 149, heading: '12 måneders binding', note: 'Foreningen binder sig i 12 måneder. Lavere månedspris.' },
-                    { key: 'maanedlig', price: 179, heading: 'Ingen binding', note: 'Foreningen betaler månedligt og kan opsige frit. Højere månedspris.' },
+                    // TEKST IKKE GODKENDT AF CMO - maa ikke i produktion foer den er det
+                    { key: 'binding', price: 149, heading: 'Med binding', note: 'Foreningen binder sig i 5 måneder og kan derefter opsige med 1 måneds varsel. Lavere månedspris.' },
+                    { key: 'ingen', price: 179, heading: 'Uden binding', note: 'Foreningen betaler månedligt og kan opsige frit. Højere månedspris.' },
                   ].map((o) => {
                     const sel = binding === o.key;
                     return (

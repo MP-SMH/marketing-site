@@ -121,7 +121,7 @@ export default function DenReneModelPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "13px", marginTop: "26px" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                   <span style={{ width: "26px", height: "26px", borderRadius: "8px", background: "#ECFDF3", color: "#15803D", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Ic d='<path d="M20 6 9 17l-5-5"/>' size={15} sw={2.6} stroke="#15803D" /></span>
-                  <span style={{ fontSize: "15.5px", lineHeight: 1.5, color: "var(--ink)" }}><b style={{ fontWeight: 700 }}>Donationer</b>: 100% til foreningens egen konto.</span>
+                  <span style={{ fontSize: "15.5px", lineHeight: 1.5, color: "var(--ink)" }}><b style={{ fontWeight: 700 }}>Donationer</b>: direkte til foreningens egen konto.</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                   <span style={{ width: "26px", height: "26px", borderRadius: "8px", background: "var(--brand-surface)", color: "var(--brand)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Ic d='<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>' size={15} sw={2.2} stroke="var(--brand)" /></span>
@@ -181,7 +181,7 @@ export default function DenReneModelPage() {
             </div>
             <div className="drm-cards3">
               {[
-                { icon: <span style={{ fontSize: "16px", fontWeight: 800, letterSpacing: "-.3px", lineHeight: 1 }}>kr.</span>, title: "Fuldt beløb til formålet", body: "Foreningen modtager hele donationen. Der trækkes ingen procentandel fra bidraget." },
+                { icon: <span style={{ fontSize: "16px", fontWeight: 800, letterSpacing: "-.3px", lineHeight: 1 }}>kr.</span>, title: "Ingen andel til os", body: "Bidragene modtages direkte på foreningens egen MobilePay-konto. StøtMedHjerte tager ingen andel." },
                 { icon: <Ic d='<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h4"/>' size={22} stroke="#15803D" />, title: "Lettere regnskab", body: "Bidrag lander direkte på foreningens egen konto. Ét sted at afstemme, ingen mellemregning." },
                 { icon: <Ic d='<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>' size={22} stroke="#15803D" />, title: "Nemt at forklare", body: "Bestyrelse, medlemmer og støtter kan se præcis hvor pengene går. Ingen skjulte led." },
               ].map((c) => (
