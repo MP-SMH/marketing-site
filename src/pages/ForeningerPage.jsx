@@ -1,8 +1,8 @@
 // ============================================================
 // src/pages/ForeningerPage.jsx
-// Skridt 1-2 af 3 i konverteringen af foreningsoversigten.
-// Dette skridt: datahentning, de fire tilstande, hero og kortgitter.
-// Filterraekken kommer i skridt 3.
+// Skridt 1-3 af 3 i konverteringen af foreningsoversigten.
+// Dette skridt: venstrestillet hero, filterraekke og
+// browser-filtrering af de allerede hentede foreninger.
 //
 // Live data fra GET /api/public/foreninger med eget roterende froe
 // (smh_foreninger_froe), saa raekkefoelgen ikke deles med
@@ -10,7 +10,7 @@
 // HjertesagerPage.jsx.
 // ============================================================
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import SiteNav from "@/components/marketing/SiteNav";
 import SiteFooter from "@/components/marketing/SiteFooter";
@@ -27,6 +27,46 @@ function initialer(navn) {
     .map((ord) => ord[0])
     .join("")
     .toUpperCase();
+}
+
+function Vaelger({ etiket, valgt, erValgt, muligheder, aaben, onToggle, onVaelg }) {
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        type="button"
+        className="fl-field fl-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={aaben}
+        onClick={onToggle}
+      >
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", color: erValgt ? "var(--ink)" : "var(--smh-muted)" }}>{etiket}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="m6 9 6 6 6-6" /></svg>
+      </button>
+      {aaben && (
+        <div className="fl-menu" role="listbox">
+          {muligheder.map((m) => {
+            const punktValgt = m === valgt;
+            return (
+              <button
+                key={m}
+                type="button"
+                className="fl-opt"
+                role="option"
+                aria-selected={punktValgt}
+                onClick={() => onVaelg(m)}
+                style={{ color: punktValgt ? "#A00C24" : "var(--body)", fontWeight: punktValgt ? 700 : 500 }}
+              >
+                <span>{m}</span>
+                {punktValgt && (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function ForeningKort({ f }) {
@@ -93,10 +133,20 @@ function ForeningKort({ f }) {
   );
 }
 
+const STOETTE_STANDARD = "Støttemuligheder";
+const STOETTE_FAST = "Tilbyder fast støtte";
+
 export default function ForeningerPage() {
   const froe = useMemo(() => hentFroe("smh_foreninger_froe"), []);
   const [foreninger, setForeninger] = useState([]);
   const [status, setStatus] = useState("indlaeser");
+
+  const [q, setQ] = useState("");
+  const [kategori, setKategori] = useState("Alle kategorier");
+  const [landsdel, setLandsdel] = useState("Hele landet");
+  const [stoette, setStoette] = useState(STOETTE_STANDARD);
+  const [aabenMenu, setAabenMenu] = useState(null);
+  const filterRef = useRef(null);
 
   useEffect(() => {
     let live = true;
@@ -107,31 +157,154 @@ export default function ForeningerPage() {
     return () => { live = false; };
   }, [froe]);
 
+  useEffect(() => {
+    if (!aabenMenu) return;
+    function paaKlik(e) {
+      if (filterRef.current && !filterRef.current.contains(e.target)) setAabenMenu(null);
+    }
+    document.addEventListener("mousedown", paaKlik);
+    return () => document.removeEventListener("mousedown", paaKlik);
+  }, [aabenMenu]);
+
+  const kategorier = useMemo(() => {
+    const unikke = [...new Set(foreninger.map((f) => f.foreningstype).filter(Boolean))].sort((a, b) => a.localeCompare(b, "da"));
+    return ["Alle kategorier", ...unikke];
+  }, [foreninger]);
+
+  const byer = useMemo(() => {
+    const unikke = [...new Set(foreninger.map((f) => f.by).filter(Boolean))].sort((a, b) => a.localeCompare(b, "da"));
+    return ["Hele landet", ...unikke];
+  }, [foreninger]);
+
+  const filtrerede = useMemo(() => {
+    const soeg = q.trim().toLowerCase();
+    return foreninger.filter((f) => {
+      if (soeg) {
+        const navn = (f.foreningsnavn || "").toLowerCase();
+        const by = (f.by || "").toLowerCase();
+        if (!navn.includes(soeg) && !by.includes(soeg)) return false;
+      }
+      if (kategori !== "Alle kategorier" && f.foreningstype !== kategori) return false;
+      if (landsdel !== "Hele landet" && f.by !== landsdel) return false;
+      if (stoette === STOETTE_FAST && !f.har_fast_stoette) return false;
+      return true;
+    });
+  }, [foreninger, q, kategori, landsdel, stoette]);
+
+  const rydFiltre = () => {
+    setQ("");
+    setKategori("Alle kategorier");
+    setLandsdel("Hele landet");
+    setStoette(STOETTE_STANDARD);
+    setAabenMenu(null);
+  };
+
+  const skiftMenu = (id) => setAabenMenu((nu) => (nu === id ? null : id));
+
   return (
     <div style={{ background: "var(--page)", minHeight: "100vh" }}>
       <SiteNav />
 
-      <section style={{ padding: "48px 24px 24px", textAlign: "center" }}>
-        <div style={{ fontSize: "13px", fontWeight: 700, letterSpacing: ".8px", color: "var(--smh-muted)", marginBottom: "12px" }}>FIND EN FORENING</div>
-        <h1 style={{ margin: "0 0 12px", fontSize: "34px", fontWeight: 800, color: "var(--ink)" }}>Find en forening, du vil støtte</h1>
-        <p style={{ margin: "0 auto", maxWidth: "560px", fontSize: "17px", lineHeight: 1.6, color: "var(--body)" }}>Se foreningerne på StøtMedHjerte, og find den du vil støtte. Bidragene går direkte til foreningens egen MobilePay-konto.</p>
-        <p style={{ margin: "16px auto 0", maxWidth: "560px", fontSize: "14px", fontWeight: 600, color: "#15803D" }}>Betaling sker med MobilePay. StøtMedHjerte er aldrig i pengestrømmen.</p>
+      <section className="fl-wrap" style={{ paddingTop: "clamp(30px,5vw,54px)", paddingBottom: "clamp(24px,3.5vw,36px)" }}>
+        <div style={{ maxWidth: 720 }}>
+          <div className="fl-eyebrow" style={{ color: "#C8112F" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.3 2 4.5 5.6 4.5c2 0 3.4 1.1 4.4 2.6C11 5.6 12.4 4.5 14.4 4.5 18 4.5 19.6 8.3 18 11.7 15.5 16.3 12 21 12 21Z" /></svg>
+            Find en forening
+          </div>
+          <h1 style={{ margin: "0 0 14px", fontSize: "clamp(29px,4.8vw,42px)", fontWeight: 800, letterSpacing: "-1.2px", lineHeight: 1.1, color: "var(--ink)" }}>Find en forening, du vil støtte</h1>
+          <p style={{ margin: 0, fontSize: "clamp(16px,2vw,17.5px)", lineHeight: 1.65, color: "var(--body)" }}>Se foreningerne på StøtMedHjerte, og find den du vil støtte. Bidragene går direkte til foreningens egen MobilePay-konto.</p>
+        </div>
       </section>
 
-      <section style={{ padding: "0 0 64px" }}>
+      {status === "klar" && foreninger.length > 0 && (
+        <section className="fl-wrap" style={{ paddingBottom: "clamp(18px,2.5vw,26px)" }}>
+          <div ref={filterRef} style={{ border: "1px solid var(--smh-border)", borderRadius: 24, background: "#FFFFFF", padding: "clamp(16px,2.6vw,22px)", boxShadow: "0 18px 48px -38px rgba(8,14,26,.2)" }}>
+            <div className="fl-tools">
+              <div style={{ position: "relative" }}>
+                <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "var(--smh-muted)", display: "flex", pointerEvents: "none" }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                </span>
+                <input
+                  className="fl-field"
+                  style={{ paddingLeft: 44, paddingRight: 44 }}
+                  placeholder="Søg på foreningsnavn eller by"
+                  aria-label="Søg på foreningsnavn eller by"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                />
+                {q && (
+                  <button
+                    type="button"
+                    aria-label="Ryd søgning"
+                    onClick={() => setQ("")}
+                    style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--smh-muted)", display: "flex", padding: 0 }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                  </button>
+                )}
+              </div>
+
+              <div className="fl-selects">
+                <Vaelger
+                  etiket={kategori}
+                  valgt={kategori}
+                  erValgt={kategori !== "Alle kategorier"}
+                  muligheder={kategorier}
+                  aaben={aabenMenu === "kategori"}
+                  onToggle={() => skiftMenu("kategori")}
+                  onVaelg={(m) => { setKategori(m); setAabenMenu(null); }}
+                />
+                <Vaelger
+                  etiket={landsdel}
+                  valgt={landsdel}
+                  erValgt={landsdel !== "Hele landet"}
+                  muligheder={byer}
+                  aaben={aabenMenu === "landsdel"}
+                  onToggle={() => skiftMenu("landsdel")}
+                  onVaelg={(m) => { setLandsdel(m); setAabenMenu(null); }}
+                />
+                <Vaelger
+                  etiket={stoette}
+                  valgt={stoette}
+                  erValgt={stoette === STOETTE_FAST}
+                  muligheder={[STOETTE_STANDARD, STOETTE_FAST]}
+                  aaben={aabenMenu === "stoette"}
+                  onToggle={() => skiftMenu("stoette")}
+                  onVaelg={(m) => { setStoette(m); setAabenMenu(null); }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="fl-wrap" style={{ paddingBottom: "clamp(50px,8vw,86px)" }}>
         {status === "indlaeser" ? (
           <p style={{ textAlign: "center", color: "var(--body)", fontSize: "15px" }}>Henter foreninger …</p>
         ) : status === "fejl" ? (
           <p style={{ textAlign: "center", color: "var(--body)", fontSize: "15px" }}>Vi kan ikke hente foreningerne lige nu. Prøv igen om lidt.</p>
         ) : foreninger.length === 0 ? (
           <p style={{ textAlign: "center", color: "var(--body)", fontSize: "15px" }}>Der er endnu ingen foreninger at vise.</p>
-        ) : (
-          <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}>
-            <p style={{ margin: "0 0 20px", fontSize: "15px", color: "var(--body)" }}>{foreninger.length === 1 ? "1 forening" : `${foreninger.length} foreninger`}</p>
-            <div className="fl-grid">
-              {foreninger.map((f) => <ForeningKort key={f.slug} f={f} />)}
-            </div>
+        ) : filtrerede.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <p style={{ margin: "0 0 16px", color: "var(--body)", fontSize: "15px" }}>Ingen foreninger matcher dine filtre.</p>
+            <button
+              type="button"
+              onClick={rydFiltre}
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "11px 18px", minHeight: 44, boxSizing: "border-box", borderRadius: 999, border: "1px solid var(--smh-border)", background: "#FFFFFF", color: "var(--ink)", fontSize: 14, fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}
+            >
+              Ryd alle filtre
+            </button>
           </div>
+        ) : (
+          <>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 14, flexWrap: "wrap", margin: "22px 0 20px" }}>
+              <p style={{ margin: 0, fontSize: 14.5, color: "var(--body)" }}>{filtrerede.length === 1 ? "1 forening" : `${filtrerede.length} foreninger`}</p>
+            </div>
+            <div className="fl-grid">
+              {filtrerede.map((f) => <ForeningKort key={f.slug} f={f} />)}
+            </div>
+          </>
         )}
       </section>
 
