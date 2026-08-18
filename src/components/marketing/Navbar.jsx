@@ -49,7 +49,7 @@ const DROPDOWN_DATA = {
         title: 'StøtMedHjerte',
         items: [
           { icon: 'Heart', label: 'Vores vision', desc: 'Fremtidens fundraising for danske foreninger', href: '/om-os' },
-          { icon: 'ShieldCheck', label: 'Sikkerhed og tillid', desc: '100% lovlig indsamling. Garanteret.', href: '/saadan-virker-det' },
+          { icon: 'ShieldCheck', label: 'Sikkerhed og tillid', desc: 'Sådan holder vi indsamlinger sikre og lovlige', href: '/saadan-virker-det' },
           { icon: 'HelpCircle', label: 'FAQ', desc: 'Svar på de mest stillede spørgsmål', href: '/faq' },
         ],
       },

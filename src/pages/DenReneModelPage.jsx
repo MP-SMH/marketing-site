@@ -144,7 +144,6 @@ export default function DenReneModelPage() {
                       <svg width="16" height="30" viewBox="0 0 16 30" fill="none" style={{ color: "var(--flow)" }}><path d="M8 2v20" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /><path d="M3 18l5 8 5-8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
                       <div style={{ width: "100%", background: "#ECFDF3", border: "1.5px solid #BBF7D0", borderRadius: "14px", padding: "13px 8px" }}>
                         <div style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--ink)" }}>Forening</div>
-                        <div style={{ fontSize: "11.5px", fontWeight: 700, color: "#15803D", marginTop: "2px" }}>100%</div>
                       </div>
                     </div>
                   </div>
