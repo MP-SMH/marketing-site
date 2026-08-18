@@ -3,8 +3,7 @@
 // og fornys ved naeste besoeg. Serveren sorterer paa
 // hashtext(hjertesag_uuid || froe), se smh-app migration 43c4f7f og
 // smh-api public/hjertesager-liste-route.js.
-export function hentFroe() {
-  const noegle = "smh_hjertesager_froe";
+export function hentFroe(noegle = "smh_hjertesager_froe") {
   try {
     const gemt = sessionStorage.getItem(noegle);
     if (gemt) return gemt;
