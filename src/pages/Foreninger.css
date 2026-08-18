@@ -1,0 +1,25 @@
+.fl-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.fl-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--smh-border);
+  text-decoration: none;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.fl-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(16, 24, 40, .08);
+}
+@media (max-width: 900px) {
+  .fl-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  .fl-grid { grid-template-columns: 1fr; }
+}
