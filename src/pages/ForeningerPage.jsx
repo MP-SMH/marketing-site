@@ -16,6 +16,7 @@ import SiteNav from "@/components/marketing/SiteNav";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import { SMH_API_URL } from "../lib/supabaseClient";
 import { hentFroe } from "../lib/froe";
+import { visForeningstype } from "../lib/foreningstype";
 import "./Foreninger.css";
 
 // Hoejst to initialer fra foreningsnavnet, til logo-pladsholderen.
@@ -109,7 +110,7 @@ function ForeningKort({ f }) {
                 </span>
               )}
               {f.foreningstype && (
-                <span style={{ padding: "2px 8px", borderRadius: 999, background: "var(--alt)", color: "var(--body)", fontSize: 11.5, fontWeight: 700 }}>{f.foreningstype}</span>
+                <span style={{ padding: "2px 8px", borderRadius: 999, background: "var(--alt)", color: "var(--body)", fontSize: 11.5, fontWeight: 700 }}>{visForeningstype(f.foreningstype)}</span>
               )}
             </div>
           </div>

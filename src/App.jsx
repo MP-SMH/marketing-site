@@ -52,6 +52,7 @@ import KvitteringPage from './pages/KvitteringPage';
 import IndsamlingsregnskaberPage from './pages/IndsamlingsregnskaberPage';
 import IndsamlingsregnskabPage from './pages/IndsamlingsregnskabPage';
 import ForeningerPage from './pages/ForeningerPage';
+import ForeningPage from './pages/ForeningPage';
 import SaadanVirkerDetPage from './pages/SaadanVirkerDetPage';
 import PriserPage from './pages/PriserPage';
 import DenReneModelPage from './pages/DenReneModelPage';
@@ -100,6 +101,7 @@ function App() {
             <Route path="/indsamlingsregnskaber" element={<IndsamlingsregnskaberPage />} />
             <Route path="/indsamlingsregnskab/:id" element={<IndsamlingsregnskabPage />} />
             <Route path="/foreninger" element={<ForeningerPage />} />
+            <Route path="/forening/:slug" element={<ForeningPage />} />
             <Route path="/for-foreninger" element={<ForForeningerPage />} />
             <Route path="/for-stoetter" element={<ForStoetterPage />} />
             <Route path="/saadan-virker-det" element={<SaadanVirkerDetPage />} />
