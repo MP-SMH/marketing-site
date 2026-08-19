@@ -308,6 +308,50 @@ export default function ForeningerPage() {
         )}
       </section>
 
+      <section style={{ background: "#F3F5F8", borderTop: "1px solid var(--smh-border)", borderBottom: "1px solid var(--smh-border)" }}>
+        <div className="fl-wrap" style={{ paddingTop: "clamp(48px,7vw,80px)", paddingBottom: "clamp(48px,7vw,80px)" }}>
+          <div className="fl-eyebrow" style={{ color: "#C8112F" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+            Sådan støtter du
+          </div>
+          <h2 className="fl-h2">To måder at støtte en forening</h2>
+          <p style={{ margin: "0 0 30px", fontSize: 15, lineHeight: 1.7, color: "var(--body)", maxWidth: 620 }}>Nogle foreninger tilbyder begge dele. Andre har kun hjertesager. Det står på foreningens egen side.</p>
+
+          <div className="fl-two">
+            <div className="fl-two-card">
+              <span className="fl-two-ico" style={{ background: "#FFF1F3", color: "var(--brand)" }}>
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.3 2 4.5 5.6 4.5c2 0 3.4 1.1 4.4 2.6C11 5.6 12.4 4.5 14.4 4.5 18 4.5 19.6 8.3 18 11.7 15.5 16.3 12 21 12 21z" /></svg>
+              </span>
+              <div>
+                <h3 style={{ margin: "0 0 6px", fontSize: 16.5, fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>Støt en hjertesag</h3>
+                <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6, color: "var(--body)" }}>En hjertesag er en konkret indsamling med et formål og et beløb, foreningen samler ind til. Du giver et enkelt bidrag, og du bestemmer selv hvor meget.</p>
+              </div>
+            </div>
+            <div className="fl-two-card">
+              <span className="fl-two-ico" style={{ background: "#FFF1F3", color: "#A00C24" }}>
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+              </span>
+              <div>
+                <h3 style={{ margin: "0 0 6px", fontSize: 16.5, fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>Støt fast hver måned</h3>
+                <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6, color: "var(--body)" }}>Et fast månedligt beløb til foreningen selv. Du vælger beløbet, og du kan stoppe når som helst i MobilePay-appen. Ikke alle foreninger tilbyder fast støtte.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="fl-wrap" style={{ paddingTop: "clamp(48px,7vw,80px)", paddingBottom: "clamp(56px,8vw,92px)" }}>
+        <div style={{ borderRadius: 24, background: "#0B1424", color: "#fff", padding: "clamp(28px,4.5vw,44px)", boxShadow: "0 30px 70px -40px rgba(8,14,26,.5)" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 14, fontSize: 12.5, fontWeight: 700, letterSpacing: ".8px", textTransform: "uppercase", color: "#8FA0BC" }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            Den rene model
+          </div>
+          <h2 style={{ margin: "0 0 14px", fontSize: "clamp(21px,2.8vw,26px)", fontWeight: 800, letterSpacing: "-.6px", color: "#fff" }}>Bidraget går direkte til foreningen</h2>
+          <p style={{ margin: "0 0 8px", fontSize: 15, lineHeight: 1.7, color: "#AEB9CC", maxWidth: 620 }}>Bidraget går ind på foreningens egen MobilePay-konto. StøtMedHjerte er aldrig i pengestrømmen, håndterer ikke betalingen og opbevarer ikke kort-, bank- eller kontooplysninger.</p>
+          <p style={{ margin: 0, fontSize: 15, lineHeight: 1.7, color: "#AEB9CC", maxWidth: 620 }}>Foreningen betaler et fast månedligt abonnement for at bruge platformen. StøtMedHjerte tager ikke en andel af bidragene.</p>
+        </div>
+      </section>
+
       <SiteFooter />
     </div>
   );
