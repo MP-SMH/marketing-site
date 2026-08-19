@@ -483,9 +483,119 @@ export default function ForeningPage() {
                 )}
               </>
             )}
+
+            <div style={{ borderRadius: 24, background: "#0B1424", color: "#fff", padding: "clamp(26px,4vw,38px)", boxShadow: "0 30px 70px -40px rgba(8,14,26,.5)", marginTop: 60 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 14, fontSize: 12.5, fontWeight: 700, letterSpacing: ".8px", textTransform: "uppercase", color: "#8FA0BC" }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                Den rene model
+              </div>
+              <h2 style={{ margin: "0 0 14px", fontSize: "clamp(21px,2.8vw,26px)", fontWeight: 800, letterSpacing: "-.6px", color: "#fff" }}>Bidraget går direkte til foreningen</h2>
+              <p style={{ margin: "0 0 8px", fontSize: 15, lineHeight: 1.7, color: "#AEB9CC", maxWidth: 600 }}>Bidragene går ind på foreningens egen MobilePay-konto. StøtMedHjerte er aldrig i pengestrømmen, håndterer ikke betalingen og opbevarer ikke kort-, bank- eller kontooplysninger.</p>
+              <p style={{ margin: 0, fontSize: 15, lineHeight: 1.7, color: "#AEB9CC", maxWidth: 600 }}>Foreningen betaler et fast månedligt abonnement for at bruge platformen. StøtMedHjerte tager ikke en andel af bidragene.</p>
+            </div>
           </div>
 
-          <div></div>
+          {!forening.har_fast_stoette && (
+            <aside>
+              <div className="sticky-inner">
+                <div style={{ background: "#FFFFFF", border: "1px solid var(--smh-border)", borderRadius: 22, padding: "clamp(20px,4vw,26px)", boxShadow: "0 30px 70px -42px rgba(8,14,26,.22)" }}>
+                  {hjertesager.length > 0 ? (
+                    (() => {
+                      const hs = hjertesager[0];
+                      const maal = Number(hs.maalbeloeb);
+                      const pct = maal > 0 ? Math.min(100, Math.round((Number(hs.indsamlet_beloeb) / maal) * 100)) : 0;
+                      return (
+                        <>
+                          <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, letterSpacing: "-.45px", color: "var(--ink)" }}>{`Støt ${forening.foreningsnavn}`}</h2>
+                          <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.6, color: "var(--body)" }}>Foreningen samler ind til konkrete formål. Vælg en hjertesag og giv et bidrag.</p>
+                          <Link to={`/hjertesag/${hs.slug}`} style={{ display: "block", textDecoration: "none", border: "1px solid var(--smh-border)", borderRadius: 18, overflow: "hidden", background: "#FFFFFF", marginBottom: 16 }}>
+                            <div style={{ aspectRatio: "16/9", background: "#F3F5F8" }}>
+                              {harIndhold(hs.coverbillede) && (
+                                <img src={hs.coverbillede} alt={hs.kampagnenavn} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                              )}
+                            </div>
+                            <div style={{ padding: "14px 16px 16px" }}>
+                              <h3 style={{ margin: "0 0 10px", fontSize: 15, fontWeight: 700, letterSpacing: "-.2px", color: "var(--ink)", lineHeight: 1.3 }}>{hs.kampagnenavn}</h3>
+                              <div style={{ height: 7, borderRadius: 999, background: "#F3F5F8", overflow: "hidden", marginBottom: 7 }}>
+                                <div style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#16A34A,#22C55E)", width: `${pct}%` }} />
+                              </div>
+                              <span style={{ fontSize: 12.5, fontWeight: 700, color: "#15803D" }}>{`${pct}% nået`}</span>
+                            </div>
+                          </Link>
+                          <a href="#hjertesager" style={{ textDecoration: "none", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, minHeight: 48, border: "1px solid var(--smh-border)", borderRadius: 999, background: "#FFFFFF", color: "var(--ink)", fontSize: 14.5, fontWeight: 700, boxSizing: "border-box" }}>
+                            Se alle hjertesager
+                          </a>
+                        </>
+                      );
+                    })()
+                  ) : (
+                    <>
+                      <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, letterSpacing: "-.45px", color: "var(--ink)" }}>Foreningen er lige gået i luften</h2>
+                      <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.6, color: "var(--body)" }}>Der er ingen aktive indsamlinger lige nu. Kig forbi igen, eller del foreningens side, så flere kan finde den.</p>
+                      <button
+                        type="button"
+                        onClick={kopierLink}
+                        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, minHeight: 48, border: "1px solid var(--smh-border)", borderRadius: 999, background: "#FFFFFF", color: "var(--ink)", fontSize: 14.5, fontWeight: 700, boxSizing: "border-box", fontFamily: "inherit", cursor: "pointer" }}
+                      >
+                        {kopieret ? (
+                          <>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#15803D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                            Kopieret
+                          </>
+                        ) : (
+                          <>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" /><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></svg>
+                            Kopiér link
+                          </>
+                        )}
+                      </button>
+                    </>
+                  )}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 9, marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--smh-border)", fontSize: 13, lineHeight: 1.55, color: "var(--body)" }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15803D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M20 6 9 17l-5-5" /></svg>
+                    Bidraget går direkte til foreningens egen konto.
+                  </div>
+                </div>
+              </div>
+            </aside>
+          )}
+
+          {/* Stoette-panel. Vises kun ved fast stoette.
+              Kun AFVENTER-tilstanden er bygget. Prototypen har tre:
+
+              KLAR kraever Recurring API og en MobilePay-knap der tegnes af
+              Vipps, ikke af os. Den viser en raekke beloebsknapper i et
+              gitter, et felt til eget beloeb med rydknap, en linje med
+              "Du støtter med" og det valgte beloeb i fontSize 22 og
+              fontWeight 800, en advarsel i brandfarven naar beloebet er
+              under minimum, MobilePay-knappen, og to beroligende linjer,
+              hvoraf den foerste er "Beløbet trækkes hver måned. Du kan
+              stoppe når som helst."
+
+              AFVIST vises for donorer under 18 og kraever en
+              aldersbekraeftelse der ikke findes.
+
+              Begge bygges sammen med Recurring API. Vaerdierne staar i
+              CD-prototypen Forening.dc.html. */}
+          {forening.har_fast_stoette && (
+            <aside>
+              <div className="sticky-inner">
+                <a id="stoet" style={{ position: "relative", top: -80, display: "block" }} />
+                <div style={{ background: "#FFFFFF", border: "1px solid var(--smh-border)", borderRadius: 22, padding: "clamp(20px,4vw,26px)", boxShadow: "0 30px 70px -42px rgba(8,14,26,.22)" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "6px 12px", borderRadius: 999, background: "#FFF7EC", color: "#8A3D06", fontSize: 11.5, fontWeight: 800, letterSpacing: ".4px", marginBottom: 16 }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9.5" /><path d="M12 7v5.5l3.5 2" /></svg>
+                    PÅ VEJ
+                  </span>
+                  <h2 style={{ margin: "0 0 10px", fontSize: 19, fontWeight: 800, letterSpacing: "-.45px", color: "var(--ink)" }}>{`Fast støtte åbner snart hos ${forening.foreningsnavn}`}</h2>
+                  <p style={{ margin: "0 0 20px", fontSize: 14, lineHeight: 1.65, color: "var(--body)" }}>Foreningens opsætning af faste aftaler er ikke helt på plads endnu. Du kan støtte en af foreningens hjertesager i mellemtiden.</p>
+                  <a href="#hjertesager" style={{ textDecoration: "none", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, padding: 16, minHeight: 52, borderRadius: 999, background: "var(--brand)", color: "#fff", fontSize: 15, fontWeight: 700, boxSizing: "border-box" }}>
+                    Se foreningens hjertesager
+                  </a>
+                  <p style={{ margin: "14px 0 0", fontSize: 12.5, lineHeight: 1.55, color: "var(--smh-muted)" }}>Vi åbner for faste aftaler, så snart opsætningen er godkendt.</p>
+                </div>
+              </div>
+            </aside>
+          )}
         </div>
       </section>
 

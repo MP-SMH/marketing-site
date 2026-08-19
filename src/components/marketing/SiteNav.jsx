@@ -14,6 +14,7 @@ import "./SiteNav.css";
 const ROUTES = {
   home: "/",
   hjertesager: "/hjertesager",
+  foreninger: "/foreninger",
   indsamlingsregnskaber: "/indsamlingsregnskaber",
   forStoetter: "/for-stoetter",
   forForeninger: "/for-foreninger",
@@ -66,6 +67,7 @@ const NAV_GROUPS = [
     label: "For støtter",
     items: [
       { t: "Find hjertesag", s: "Støt et konkret formål", href: ROUTES.hjertesager },
+      { t: "Find en forening", s: "Se foreningerne og støt dem du kender", href: ROUTES.foreninger },
       { t: "Sådan støtter du", s: "Vælg beløb, godkend i MobilePay", href: ROUTES.forStoetter },
       { t: "Sikkerhed", s: "Betaling, data og tryghed", href: ROUTES.sikkerhed },
       { t: "Indsamlingsregnskaber", s: "Se hvad foreningerne har indsamlet", href: ROUTES.indsamlingsregnskaber },
@@ -108,6 +110,7 @@ const NAV_GROUPS = [
 const DRAWER = [
   { group: "For støtter", links: [
     { t: "Find hjertesag", href: ROUTES.hjertesager },
+    { t: "Find en forening", href: ROUTES.foreninger },
     { t: "Sådan støtter du", href: ROUTES.forStoetter },
     { t: "Indsamlingsregnskaber", href: ROUTES.indsamlingsregnskaber },
   ]},
