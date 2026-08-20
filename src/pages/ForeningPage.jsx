@@ -354,11 +354,14 @@ export default function ForeningPage() {
                 <h2 className="f-h2">Aktive indsamlinger lige nu</h2>
                 <p className="f-lead">{forening.har_fast_stoette ? "En hjertesag er en konkret indsamling med et formål og en slutdato. Vil du støtte en enkelt sag frem for foreningen som helhed, kan du gøre det her." : "En hjertesag er en konkret indsamling med et formål og en slutdato. Vælg den sag, du vil støtte."}</p>
                 <div className="f-cards">
-                  {hjertesager.map((hs) => (
-                    <Link
+                  {hjertesager.map((hs) => {
+                    const sti = slug && hs.slug ? `/hjertesag/${slug}/${hs.slug}` : null;
+                    const Kort = sti ? Link : "div";
+                    return (
+                    <Kort
                       key={hs.slug}
-                      to={`/hjertesag/${hs.slug}`}
-                      className="liftable"
+                      {...(sti ? { to: sti } : {})}
+                      className={sti ? "liftable" : undefined}
                       style={{ textDecoration: "none", display: "block", border: "1px solid var(--smh-border)", borderRadius: 22, overflow: "hidden", background: "#FFFFFF", boxShadow: "0 16px 44px -34px rgba(8,14,26,.16)" }}
                     >
                       <div style={{ aspectRatio: "16/9", background: "#0B1424" }}>
@@ -374,8 +377,9 @@ export default function ForeningPage() {
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                         </span>
                       </div>
-                    </Link>
-                  ))}
+                    </Kort>
+                    );
+                  })}
                 </div>
               </>
             ) : (
@@ -504,11 +508,13 @@ export default function ForeningPage() {
                       const hs = hjertesager[0];
                       const maal = Number(hs.maalbeloeb);
                       const pct = maal > 0 ? Math.min(100, Math.round((Number(hs.indsamlet_beloeb) / maal) * 100)) : 0;
+                      const sti = slug && hs.slug ? `/hjertesag/${slug}/${hs.slug}` : null;
+                      const Kort = sti ? Link : "div";
                       return (
                         <>
                           <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, letterSpacing: "-.45px", color: "var(--ink)" }}>{`Støt ${forening.foreningsnavn}`}</h2>
                           <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.6, color: "var(--body)" }}>Foreningen samler ind til konkrete formål. Vælg en hjertesag og giv et bidrag.</p>
-                          <Link to={`/hjertesag/${hs.slug}`} style={{ display: "block", textDecoration: "none", border: "1px solid var(--smh-border)", borderRadius: 18, overflow: "hidden", background: "#FFFFFF", marginBottom: 16 }}>
+                          <Kort {...(sti ? { to: sti } : {})} style={{ display: "block", textDecoration: "none", border: "1px solid var(--smh-border)", borderRadius: 18, overflow: "hidden", background: "#FFFFFF", marginBottom: 16 }}>
                             <div style={{ aspectRatio: "16/9", background: "#F3F5F8" }}>
                               {harIndhold(hs.coverbillede) && (
                                 <img src={hs.coverbillede} alt={hs.kampagnenavn} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
@@ -521,7 +527,7 @@ export default function ForeningPage() {
                               </div>
                               <span style={{ fontSize: 12.5, fontWeight: 700, color: "#15803D" }}>{`${pct}% nået`}</span>
                             </div>
-                          </Link>
+                          </Kort>
                           <a href="#hjertesager" style={{ textDecoration: "none", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, minHeight: 48, border: "1px solid var(--smh-border)", borderRadius: 999, background: "#FFFFFF", color: "var(--ink)", fontSize: 14.5, fontWeight: 700, boxSizing: "border-box" }}>
                             Se alle hjertesager
                           </a>

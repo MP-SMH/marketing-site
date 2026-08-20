@@ -95,7 +95,7 @@ function App() {
             {/* Public marketing pages */}
             <Route path="/" element={<HomeNy showTrustBand={false} />} />
             <Route path="/hjertesager" element={<HjertesagerPage />} />
-            <Route path="/hjertesag/:slug" element={<HjertesagPage />} />
+            <Route path="/hjertesag/:foreningSlug/:hjertesagSlug" element={<HjertesagPage />} />
             <Route path="/kvittering" element={<KvitteringPage />} />
             <Route path="/kvittering/:reference" element={<KvitteringPage />} />
             <Route path="/indsamlingsregnskaber" element={<IndsamlingsregnskaberPage />} />

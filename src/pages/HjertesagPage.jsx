@@ -7,9 +7,9 @@ import HjertesagCheckout from './HjertesagCheckout';
 import { CTA_STOR, CTA_MEDIUM, CTA_RADIUS, CTA_PADDING, CTA_SKRIFT, CTA_SKRIFT_SEKUNDAER, CTA_VAEGT, CTA_SPAERRING } from '../lib/cta';
 
 /**
- * Offentlig hjertesagsside. Rute: /hjertesag/:slug
+ * Offentlig hjertesagsside. Rute: /hjertesag/:foreningSlug/:hjertesagSlug
  *
- * Data hentes fra smh-api (GET /api/public/hjertesag/:slug), IKKE fra
+ * Data hentes fra smh-api (GET /api/public/hjertesag/:foreningSlug/:hjertesagSlug), IKKE fra
  * Supabase i browseren: RLS kraever rollen supporter, og stoettere logger
  * aldrig ind.
  *
@@ -330,7 +330,7 @@ function DokumentationsKort({ ikon, ikonBaggrund, ikonFarve, titel, etiket, teks
 }
 
 export default function HjertesagPage() {
-  const { slug } = useParams();
+  const { foreningSlug, hjertesagSlug } = useParams();
 
   const [status, setStatus] = useState('indlaeser');
   const [hjertesag, setHjertesag] = useState(null);
@@ -352,7 +352,7 @@ export default function HjertesagPage() {
 
       try {
         const svar = await fetch(
-          `${SMH_API_URL}/api/public/hjertesag/${encodeURIComponent(slug)}`
+          `${SMH_API_URL}/api/public/hjertesag/${encodeURIComponent(foreningSlug)}/${encodeURIComponent(hjertesagSlug)}`
         );
 
         if (afbrudt) return;
@@ -384,7 +384,7 @@ export default function HjertesagPage() {
     return () => {
       afbrudt = true;
     };
-  }, [slug]);
+  }, [foreningSlug, hjertesagSlug]);
 
   async function kopierLink() {
     try {

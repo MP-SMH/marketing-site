@@ -6,7 +6,7 @@ import SiteFooter from '@/components/marketing/SiteFooter';
 import { CTA_MEDIUM, CTA_RADIUS, CTA_PADDING, CTA_SKRIFT, CTA_VAEGT, CTA_SPAERRING } from '../lib/cta';
 
 /**
- * Checkout for en hjertesag. Vises som anden visning af /hjertesag/:slug.
+ * Checkout for en hjertesag. Vises som anden visning af /hjertesag/:foreningSlug/:hjertesagSlug.
  * Kaldes fra HjertesagPage naar stoetteknappen trykkes. Ruten aendres IKKE.
  *
  * KILDE: cd-s91/Hjertesag.dc.html linje 359-539 (checkout view) og 690-815

@@ -43,6 +43,7 @@ function HjertesagKort({ hs }) {
   const godkendt = f.payment_ready === true && !!f.indsamlingsnaevn_journal_nr;
   const pct = Math.round(andel(hs) * 100);
   const barBg = godkendt ? "linear-gradient(90deg,#16A34A,#22C55E)" : "#C6CDD8";
+  const sti = f.slug && hs.slug ? `/hjertesag/${f.slug}/${hs.slug}` : null;
   const statusLine = godkendt
     ? `Journalnr. ${f.indsamlingsnaevn_journal_nr} · Indsamlingsnævnet`
     : "Afventer godkendelse hos Indsamlingsnævnet";
@@ -90,8 +91,12 @@ function HjertesagKort({ hs }) {
         </div>
 
         {godkendt
-          ? <Link to={`/hjertesag/${hs.slug}`} className="cta-flat-brand" style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", fontSize: "15px", fontWeight: 600, color: "#fff", textDecoration: "none" }}>Støt hjertesagen</Link>
-          : <Link to={`/hjertesag/${hs.slug}`} style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", background: "var(--alt)", border: "1px solid var(--smh-border)", color: "var(--ink)", fontSize: "15px", fontWeight: 600, textDecoration: "none" }}>Se hjertesagen</Link>}
+          ? (sti
+              ? <Link to={sti} className="cta-flat-brand" style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", fontSize: "15px", fontWeight: 600, color: "#fff", textDecoration: "none" }}>Støt hjertesagen</Link>
+              : <div className="cta-flat-brand" style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", fontSize: "15px", fontWeight: 600, color: "#fff" }}>Støt hjertesagen</div>)
+          : (sti
+              ? <Link to={sti} style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", background: "var(--alt)", border: "1px solid var(--smh-border)", color: "var(--ink)", fontSize: "15px", fontWeight: 600, textDecoration: "none" }}>Se hjertesagen</Link>
+              : <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", background: "var(--alt)", border: "1px solid var(--smh-border)", color: "var(--ink)", fontSize: "15px", fontWeight: 600 }}>Se hjertesagen</div>)}
 
         <div style={{ marginTop: "11px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", color: "var(--smh-muted)", fontSize: "12px", textAlign: "center" }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>

@@ -420,6 +420,7 @@ export default function KvitteringPage() {
   const forening = harIndhold(data?.foreningsnavn) ? data.foreningsnavn : null;
   const sag = harIndhold(data?.hjertesagsnavn) ? data.hjertesagsnavn : null;
   const slug = harIndhold(data?.hjertesagsslug) ? data.hjertesagsslug : null;
+  const foreningsslug = harIndhold(data?.foreningsslug) ? data.foreningsslug : null;
   const amountStr = data ? fmtKr(data.beloeb_oere) : '';
   const timeStr = fmtTid(data?.oprettet);
 
@@ -431,9 +432,9 @@ export default function KvitteringPage() {
   );
 
   function primaerTilbage() {
-    if (slug) {
+    if (slug && foreningsslug) {
       return (
-        <Link className="kvp-primary" to={`/hjertesag/${slug}`} style={S.primary}>
+        <Link className="kvp-primary" to={`/hjertesag/${foreningsslug}/${slug}`} style={S.primary}>
           Tilbage til hjertesagen
         </Link>
       );
