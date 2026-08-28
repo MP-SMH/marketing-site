@@ -15,6 +15,7 @@ import { useParams, Link } from "react-router-dom";
 import { SMH_API_URL } from "../lib/supabaseClient";
 import SiteNav from "@/components/marketing/SiteNav";
 import SiteFooter from "@/components/marketing/SiteFooter";
+import ForeningIkkeKlar from "@/components/ForeningIkkeKlar";
 import { visForeningstype, visCvr } from "../lib/foreningstype";
 import { FormaalIkon } from "../lib/formaalIkoner";
 import "./Forening.css";
@@ -71,6 +72,15 @@ export default function ForeningPage() {
         const data = await svar.json();
         if (afbrudt) return;
 
+        // Backend svarer klar:false naar siden er slaaet til men profilen
+        // ikke er komplet. Saa viser vi en "snart klar"-tilstand med kun de
+        // minimale data backend sender (navn, by, cvr), ikke den fulde side.
+        if (data.klar === false) {
+          setForening(data.forening);
+          setStatus("ikke-klar");
+          return;
+        }
+
         setForening(data.forening);
         setFormaal(Array.isArray(data.formaal) ? data.formaal : []);
         setHjertesager(Array.isArray(data.hjertesager) ? data.hjertesager : []);
@@ -105,6 +115,7 @@ export default function ForeningPage() {
           {status === "indlaeser" && (
             <p style={{ color: "var(--smh-muted)", fontSize: 15 }}>Henter foreningen…</p>
           )}
+          {status === "ikke-klar" && <ForeningIkkeKlar forening={forening} />}
           {status === "findes-ikke" && (
             <>
               <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--ink)", margin: "0 0 12px" }}>Vi kunne ikke finde denne forening</h1>
