@@ -832,14 +832,14 @@ export default function OpretForeningPage() {
                     <button type="button" className="ofo-linkbtn" onClick={() => window.location.reload()}>Genindlæs siden</button>
                   </div>
                 ) : consentVersions ? (
-                  <>
+                  <form onSubmit={(e) => { e.preventDefault(); if (canSubmitStep3()) setStep(4); }}>
                     {submitError ? <div style={{ margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{submitError}</div> : null}
 
                     {/* CVR-nummer: eneste org-input, resten auto-hentes */}
                     <div style={{ marginBottom: 16 }}>
                       <label style={{ display: 'block' }}>
                         <span className="ofo-label">CVR-nummer *</span>
-                        <input className="ofo-field" value={cvrNummer} onChange={(e) => { setCvrNummer(e.target.value.replace(/\D/g, '').slice(0, 8)); if (cvrLookupState.status !== 'idle') { setCvrLookupState({ status: 'idle' }); setForeningsnavn(''); setPostnummer(''); } }} onBlur={handleCvrBlur} disabled={submitLoading} placeholder="12345678" inputMode="numeric" maxLength={8} style={{ fontFamily: 'ui-monospace, monospace', ...(fieldErrors.cvrNummer ? { borderColor: 'var(--brand)' } : {}) }} />
+                        <input className="ofo-field" value={cvrNummer} onChange={(e) => { setCvrNummer(e.target.value.replace(/\D/g, '').slice(0, 8)); if (cvrLookupState.status !== 'idle') { setCvrLookupState({ status: 'idle' }); setForeningsnavn(''); setPostnummer(''); } }} onBlur={handleCvrBlur} disabled={submitLoading} placeholder="12345678" autoComplete="off" inputMode="numeric" maxLength={8} style={{ fontFamily: 'ui-monospace, monospace', ...(fieldErrors.cvrNummer ? { borderColor: 'var(--brand)' } : {}) }} />
                       </label>
                       {!fieldErrors.cvrNummer && cvrLookupState.status === 'loading' ? <div style={ofoCvrRow('var(--smh-muted)')}><Loader size={14} style={{ animation: 'ofoSpin .7s linear infinite' }} />Slår op i CVR-registret ...</div> : null}
                       {!fieldErrors.cvrNummer && cvrLookupState.status === 'inactive' ? <div style={ofoCvrRow('#B45309')}><AlertTriangle size={15} />Inaktiv eller ophørt forening. Kan ikke oprettes.</div> : null}
@@ -883,7 +883,7 @@ export default function OpretForeningPage() {
                           <span className="ofo-label">Direkte telefon *</span>
                           <div style={{ display: 'flex', alignItems: 'stretch', borderRadius: 13, border: '1px solid ' + (fieldErrors.kontaktTlf ? 'var(--brand)' : 'var(--smh-border)'), background: 'var(--surface)', overflow: 'hidden' }}>
                             <span style={{ display: 'flex', alignItems: 'center', padding: '0 13px', background: 'var(--alt)', color: 'var(--body)', fontSize: 15, fontWeight: 600, borderRight: '1px solid var(--smh-border)' }}>+45</span>
-                            <input className="ofo-field" inputMode="numeric" placeholder="12 34 56 78" value={kontaktTlf} onChange={(e) => setKontaktTlf(e.target.value.replace(/\D/g, '').slice(0, 8))} disabled={submitLoading} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }} />
+                            <input className="ofo-field" autoComplete="tel" inputMode="numeric" placeholder="12 34 56 78" value={kontaktTlf} onChange={(e) => setKontaktTlf(e.target.value.replace(/\D/g, '').slice(0, 8))} disabled={submitLoading} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }} />
                           </div>
                         </label>
                         {fieldErrors.kontaktTlf ? <div style={ofoFieldErr}>{fieldErrors.kontaktTlf}</div> : null}
@@ -952,10 +952,10 @@ export default function OpretForeningPage() {
                       </button>
                     </div>
 
-                    <button type="button" className="ofo-primary" onClick={() => { if (canSubmitStep3()) setStep(4); }} disabled={!canSubmitStep3()} style={{ marginTop: 22 }}>
+                    <button type="submit" className="ofo-primary" disabled={!canSubmitStep3()} style={{ marginTop: 22 }}>
                       Fortsæt til samarbejdsaftale <ArrowRight size={17} />
                     </button>
-                  </>
+                  </form>
                 ) : null}
               </div>
             )}
