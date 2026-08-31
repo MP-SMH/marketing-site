@@ -989,16 +989,16 @@ export default function OpretForeningPage() {
             {/* ---- Trin 5: MobilePay MSN (visuelt only) ---- */}
             {step === 5 && (
               <div>
-                <h2 style={ofoH}>Sådan modtager I bidrag</h2>
-                <p style={ofoP}>Bidrag fra jeres støtter går ind på foreningens egen MobilePay-konto. I kobler kontoen til efter oprettelsen.</p>
+                <h2 style={ofoH}>Det sidste sker i jeres dashboard</h2>
+                <p style={ofoP}>Når foreningen er oprettet, fortsætter opsætningen i jeres dashboard. Her går I i gang med både ansøgningen til Indsamlingsnævnet og ansøgningen om et salgsstedsnummer hos MobilePay. De to forløb kan starte samtidig, og der går normalt noget tid, før begge er godkendt.</p>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '15px 16px', borderRadius: 16, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 22 }}>
                   <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 11, background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShieldCheck size={20} /></span>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>Direkte til foreningen</div>
-                    <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--body)' }}>Bidragene går direkte til foreningen. StøtMedHjerte tager ingen andel.</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>MobilePay godkender foreningen</div>
+                    <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--body)' }}>Når MobilePay behandler ansøgningen, kontrollerer de, hvem der tegner foreningen, og bekræfter identiteten med MitID. Det kaldes KYC og hvidvaskkontrol. Bidragene modtages direkte på foreningens egen MobilePay-konto, og StøtMedHjerte tager ingen andel af bidragene.</div>
                   </div>
                 </div>
-                <p style={{ margin: '0 0 22px', fontSize: 14, lineHeight: 1.6, color: 'var(--body)' }}>I kobler foreningens egen MobilePay til i næste skridt, når foreningen er oprettet.</p>
+                <p style={{ margin: '0 0 22px', fontSize: 14, lineHeight: 1.6, color: 'var(--body)' }}>Vi viser jer de næste skridt i dashboardet, så snart foreningen er oprettet.</p>
                 <button type="button" className="ofo-primary" onClick={() => setStep(6)} style={{ marginTop: 22 }}>
                   Fortsæt til abonnement <ArrowRight size={17} />
                 </button>
