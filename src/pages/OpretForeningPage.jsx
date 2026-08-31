@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ShieldCheck, ArrowRight, Loader, Check, AlertCircle, AlertTriangle, ChevronDown, FileText, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ArrowRight, Loader, Check, AlertCircle, AlertTriangle, ChevronDown, FileText, ChevronRight, Info } from 'lucide-react';
 import zxcvbn from 'zxcvbn';
 import { useNavigate, Link } from 'react-router-dom';
 import { SMH_API_URL } from '@/lib/supabaseClient';
@@ -989,12 +989,12 @@ export default function OpretForeningPage() {
             {/* ---- Trin 5: MobilePay MSN (visuelt only) ---- */}
             {step === 5 && (
               <div>
-                <h2 style={ofoH}>Kobl foreningens MobilePay</h2>
-                <p style={ofoP}>Bidrag fra jeres støtter går direkte ind på foreningens egen MobilePay-konto. Indtast foreningens MobilePay-nummer.</p>
+                <h2 style={ofoH}>Sådan modtager I bidrag</h2>
+                <p style={ofoP}>Bidrag fra jeres støtter går ind på foreningens egen MobilePay-konto. I kobler kontoen til efter oprettelsen.</p>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '15px 16px', borderRadius: 16, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 22 }}>
                   <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 11, background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShieldCheck size={20} /></span>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>Verificeret udbetaling</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>Direkte til foreningen</div>
                     <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--body)' }}>Bidragene går direkte til foreningen. StøtMedHjerte tager ingen andel.</div>
                   </div>
                 </div>
@@ -1009,7 +1009,7 @@ export default function OpretForeningPage() {
             {step === 6 && (
               <form onSubmit={handleStep3Submit}>
                 <h2 style={ofoH}>Vælg jeres betalingsperiode</h2>
-                <p style={ofoP}>Foreningen betaler et fast abonnement for at bruge StøtMedHjerte. Vælg om I vil betale med 12 måneders binding til en lavere månedspris, eller betale månedligt uden binding.</p>
+                <p style={ofoP}>Foreningen betaler et fast abonnement for at bruge StøtMedHjerte. Vælg om I vil binde jer i 5 måneder til en lavere månedspris, eller betale månedligt uden binding.</p>
                 <div className="ofo-binding-grid">
                   {[
                     // TEKST IKKE GODKENDT AF CMO - maa ikke i produktion foer den er det
@@ -1024,7 +1024,7 @@ export default function OpretForeningPage() {
                           <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-1.4px', color: 'var(--ink)' }}>{o.price}</span>
                           <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--smh-muted)' }}>kr./md.</span>
                         </div>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: 'var(--smh-muted)', flex: 1 }}><ShieldCheck size={13} />{o.note}</div>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12.5, lineHeight: 1.5, fontWeight: 600, color: 'var(--smh-muted)', flex: 1 }}><Info size={16} style={{ flexShrink: 0, marginTop: 1 }} />{o.note}</div>
                         <div style={{ width: '100%', padding: 12, minHeight: 48, borderRadius: 999, fontSize: 14.5, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, ...(sel ? { background: 'var(--brand)', color: '#fff' } : { background: '#fff', color: 'var(--ink)', border: '1px solid var(--smh-border)' }) }}>
                           {sel ? <><Check size={16} />Valgt</> : 'Vælg'}
                         </div>

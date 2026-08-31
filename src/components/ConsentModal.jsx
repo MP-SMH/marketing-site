@@ -249,8 +249,8 @@ export default function ConsentModal({
   const mdH2Style = { fontSize: 16, fontWeight: 600, color: '#080E1A', marginTop: 22, marginBottom: 10, paddingBottom: 6, borderBottom: '1px solid #E5E7EB', letterSpacing: '-0.01em' };
   const mdH3Style = { fontSize: 14.5, fontWeight: 600, color: '#080E1A', marginTop: 18, marginBottom: 8 };
   const mdPStyle = { margin: '0 0 14px 0' };
-  const mdUlStyle = { margin: '0 0 14px 0', paddingLeft: 22 };
-  const mdOlStyle = { margin: '0 0 14px 0', paddingLeft: 22 };
+  const mdUlStyle = { margin: '0 0 14px 0', paddingLeft: 22, listStyle: 'disc outside' };
+  const mdOlStyle = { margin: '0 0 14px 0', paddingLeft: 22, listStyle: 'decimal outside' };
   const mdLiStyle = { marginBottom: 6 };
   const mdAStyle = { color: '#E0193F', textDecoration: 'underline' };
   const mdStrongStyle = { color: '#080E1A', fontWeight: 600 };
