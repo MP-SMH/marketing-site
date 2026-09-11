@@ -117,7 +117,7 @@ function PdfKnap({ url, label = 'Se regnskabet' }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      style={{ ...ctaBoks(CTA_MEDIUM), display: 'inline-flex', gap: 8, background: 'var(--brand)', color: '#fff', border: 'none', marginTop: 16 }}
+      style={{ ...ctaBoks(CTA_MEDIUM), display: 'inline-flex', gap: 8, background: 'var(--brand)', color: '#fff', border: 'none', marginTop: 20 }}
     >
       <DokIkon />
       {label}
@@ -279,13 +279,13 @@ export default function IndsamlingsregnskabPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ background: erstattet ? 'var(--alt)' : 'var(--surface)', border: erstattet ? '1px solid var(--smh-border)' : '1.5px solid var(--brand-border)', borderRadius: 20, padding: 22 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap', marginBottom: 6 }}>
+              <div style={{ background: erstattet ? 'var(--alt)' : 'var(--surface)', border: erstattet ? '1px solid var(--smh-border)' : '1.5px solid var(--brand-border)', borderRadius: 20, padding: '22px 24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap', marginBottom: 10 }}>
                   <span style={badgeStil(hovedBadge.tone)}>{hovedBadge.label}</span>
                   {regnskab.revisor_paategnet === true && <span style={badgeStil('neutral')}>GODKENDT AF REVISOR</span>}
                 </div>
                 <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-.3px', color: erstattet ? MUTED : 'var(--ink)' }}>{erAars ? 'Årsregnskab' : 'Regnskab for perioden'}</div>
-                {regnskab.offentliggjort_dato && <div style={{ fontSize: 13, color: MUTED, fontVariantNumeric: 'tabular-nums', marginTop: 2 }}>Offentliggjort {fmtDato(regnskab.offentliggjort_dato)}</div>}
+                {regnskab.offentliggjort_dato && <div style={{ fontSize: 13, color: MUTED, fontVariantNumeric: 'tabular-nums', marginTop: 4 }}>Offentliggjort {fmtDato(regnskab.offentliggjort_dato)}</div>}
 
                 {linjer.length > 0 && (
                   <div style={{ marginTop: 14, borderTop: '1px solid var(--smh-border)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -323,13 +323,13 @@ export default function IndsamlingsregnskabPage() {
               {erklaeringer.map((e) => {
                 const b = docBadge(e.status);
                 return (
-                  <div key={e.id} style={{ background: 'var(--surface)', border: '1px solid var(--smh-border)', borderRadius: 16, padding: '16px 18px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap', marginBottom: 6 }}>
+                  <div key={e.id} style={{ background: 'var(--surface)', border: '1px solid var(--smh-border)', borderRadius: 16, padding: '22px 24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap', marginBottom: 10 }}>
                       <span style={badgeStil(b.tone)}>{b.label}</span>
                     </div>
                     <div style={{ fontSize: 14.5, fontWeight: 700, letterSpacing: '-.2px', color: 'var(--ink)' }}>Overskudserklæring</div>
-                    {e.periode_slut && <div style={{ fontSize: 13, color: MUTED, fontVariantNumeric: 'tabular-nums', marginTop: 2 }}>Regnskabsår til {fmtDato(e.periode_slut)}</div>}
-                    {e.offentliggjort_dato && <div style={{ fontSize: 13, color: MUTED, fontVariantNumeric: 'tabular-nums', marginTop: 2 }}>Offentliggjort {fmtDato(e.offentliggjort_dato)}</div>}
+                    {e.periode_slut && <div style={{ fontSize: 13, color: MUTED, fontVariantNumeric: 'tabular-nums', marginTop: 4 }}>Regnskabsår til {fmtDato(e.periode_slut)}</div>}
+                    {e.offentliggjort_dato && <div style={{ fontSize: 13, color: MUTED, fontVariantNumeric: 'tabular-nums', marginTop: 4 }}>Offentliggjort {fmtDato(e.offentliggjort_dato)}</div>}
                     <PdfKnap url={e.fil_url} />
                   </div>
                 );
