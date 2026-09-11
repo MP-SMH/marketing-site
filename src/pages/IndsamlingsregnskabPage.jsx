@@ -4,6 +4,7 @@ import { SMH_API_URL } from '../lib/supabaseClient';
 import SiteNav from '@/components/marketing/SiteNav';
 import SiteFooter from '@/components/marketing/SiteFooter';
 import { ctaBoks, CTA_MEDIUM, CTA_STOR } from '../lib/cta';
+import { fmtDato, periodeVis } from '../lib/datoer';
 
 /**
  * Offentlige indsamlingsregnskaber, detaljen. Dokumentstak for ét regnskab.
@@ -16,9 +17,9 @@ import { ctaBoks, CTA_MEDIUM, CTA_STOR } from '../lib/cta';
  *   400 ugyldig_id og 404 regnskab_findes_ikke -> samme "ikke fundet".
  *   502 opslag_fejlede -> proev igen.
  *
- * fil_url er NULL paa erstattede dokumenter. Backend tilbageholder den
- * bevidst. Derfor bygges INGEN handling naar fil_url er null, og der vises
- * ingen graa knap der ikke virker.
+ * fil_url og revideret_fil_url er NULL paa erstattede dokumenter. Backend
+ * tilbageholder dem bevidst. Derfor bygges INGEN handling naar de er null,
+ * og der vises ingen graa knap der ikke virker.
  */
 
 // Se noten i IndsamlingsregnskaberPage: app-tokenet --smh-muted (#6B7280,
@@ -34,31 +35,6 @@ function kr(oere) {
       maximumFractionDigits: dec ? 2 : 0,
     }) + ' kr.'
   );
-}
-
-const MND = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
-
-function fmtDato(v) {
-  if (!v) return '';
-  const s = String(v);
-  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return s;
-  return `${parseInt(m[3], 10)}. ${MND[parseInt(m[2], 10) - 1]} ${m[1]}`;
-}
-
-function periodeVis(startRaw, slutRaw) {
-  const start = fmtDato(startRaw);
-  const slut = fmtDato(slutRaw);
-  if (!start && !slut) return '';
-  if (!start || !slut) return [start, slut].filter(Boolean).join(' til ');
-  const sp = start.split(' ');
-  const sl = slut.split(' ');
-  const sAar = sp[sp.length - 1];
-  const eAar = sl[sl.length - 1];
-  const sDM = sp.slice(0, -1).join(' ');
-  const eDM = sl.slice(0, -1).join(' ');
-  if (sAar === eAar) return `${sDM} - ${eDM} ${eAar}`;
-  return `${sDM} ${sAar} - ${eDM} ${eAar}`;
 }
 
 function stort(v) {
@@ -133,7 +109,7 @@ function DokIkon({ storrelse = 16 }) {
   );
 }
 
-function PdfKnap({ url }) {
+function PdfKnap({ url, label = 'Se regnskabet' }) {
   if (!url) return null;
   return (
     <a
@@ -144,7 +120,7 @@ function PdfKnap({ url }) {
       style={{ ...ctaBoks(CTA_MEDIUM), display: 'inline-flex', gap: 8, background: 'var(--brand)', color: '#fff', border: 'none', marginTop: 16 }}
     >
       <DokIkon />
-      Se regnskabet
+      {label}
       <span style={{ fontSize: 11, fontWeight: 700, opacity: 0.8 }}>PDF</span>
     </a>
   );
@@ -338,7 +314,10 @@ export default function IndsamlingsregnskabPage() {
                   </p>
                 )}
 
-                <PdfKnap url={regnskab.fil_url} />
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <PdfKnap url={regnskab.fil_url} />
+                  {regnskab.revideret_fil_url && <PdfKnap url={regnskab.revideret_fil_url} label="Se revisors påtegning" />}
+                </div>
               </div>
 
               {erklaeringer.map((e) => {

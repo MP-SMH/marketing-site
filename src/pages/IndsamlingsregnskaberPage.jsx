@@ -4,6 +4,7 @@ import { SMH_API_URL } from '../lib/supabaseClient';
 import SiteNav from '@/components/marketing/SiteNav';
 import SiteFooter from '@/components/marketing/SiteFooter';
 import { ctaBoks, CTA_STOR, CTA_MEDIUM } from '../lib/cta';
+import { fmtDato, periodeVis } from '../lib/datoer';
 
 /**
  * Offentlige indsamlingsregnskaber, listen. En offentlig
@@ -37,34 +38,6 @@ function kr(oere) {
       maximumFractionDigits: dec ? 2 : 0,
     }) + ' kr.'
   );
-}
-
-const MND = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
-
-// Datoerne fra kontrakten formateres kun hvis de ligner ISO. Er de allerede
-// en dansk streng, vises de uaendret. Parses fra tekst, ikke via Date, for at
-// undgaa tidszone-forskydning paa datoer uden klokkeslaet.
-function fmtDato(v) {
-  if (!v) return '';
-  const s = String(v);
-  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return s;
-  return `${parseInt(m[3], 10)}. ${MND[parseInt(m[2], 10) - 1]} ${m[1]}`;
-}
-
-function periodeLinjer(startRaw, slutRaw) {
-  const start = fmtDato(startRaw);
-  const slut = fmtDato(slutRaw);
-  if (!start && !slut) return [];
-  if (!start || !slut) return [[start, slut].filter(Boolean).join(' til ')];
-  const sp = start.split(' ');
-  const sl = slut.split(' ');
-  const sAar = sp[sp.length - 1];
-  const eAar = sl[sl.length - 1];
-  const sDM = sp.slice(0, -1).join(' ');
-  const eDM = sl.slice(0, -1).join(' ');
-  if (sAar === eAar) return [`${sDM} - ${eDM}`, eAar];
-  return [`${sDM} ${sAar} - ${eDM}`, eAar];
 }
 
 function stort(v) {
@@ -128,9 +101,9 @@ const STIL = `
   .reg-c-info{order:1;}.reg-belob{order:2;}.reg-periode{order:3;}.reg-status{order:4;align-items:flex-start;}
 }
 @media(min-width:520px){
-  .reg-row{grid-template-columns:minmax(0,1fr) 150px 118px 190px;align-items:center;gap:24px;}
+  .reg-row{grid-template-columns:minmax(0,1fr) 215px 118px 190px;align-items:center;gap:24px;}
   .reg-belob{font-size:15.5px;font-weight:700;text-align:right;}
-  .reg-head{display:grid;grid-template-columns:minmax(0,1fr) 150px 118px 190px;gap:24px;margin-top:12px;padding:14px 23px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--label);border-bottom:1px solid var(--smh-border);}
+  .reg-head{display:grid;grid-template-columns:minmax(0,1fr) 215px 118px 190px;gap:24px;margin-top:12px;padding:14px 23px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--label);border-bottom:1px solid var(--smh-border);}
   .reg-h-belob{text-align:right;}
 }
 .reg-spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--smh-border);border-top-color:var(--brand-hover);margin:0 auto 20px;animation:regSpin .9s linear infinite;}
@@ -317,7 +290,7 @@ export default function IndsamlingsregnskaberPage() {
         <div style={{ background: 'var(--surface)', border: '1px solid var(--smh-border)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 16px 44px -36px rgba(8,14,26,.16)' }}>
           {rows.map((r) => {
             const st = STATUS[r.status] || { label: String(r.status || '').toUpperCase(), tone: 'neutral' };
-            const pl = periodeLinjer(r.periode_start, r.periode_slut);
+            const periode = periodeVis(r.periode_start, r.periode_slut);
             const forening = stort(r.foreningsnavn) || 'Forening uden navn';
             const formaal = stort(r.formaal);
             const dato = fmtDato(r.offentliggjort_dato);
@@ -330,11 +303,7 @@ export default function IndsamlingsregnskaberPage() {
                   </div>
                   {formaal && <div style={{ fontSize: 13.5, lineHeight: 1.45, color: 'var(--body)', marginTop: 2 }}>{formaal}</div>}
                 </div>
-                <div className="reg-periode">
-                  {pl.map((linje, i) => (
-                    <div key={i}>{linje}</div>
-                  ))}
-                </div>
+                <div className="reg-periode" style={{ whiteSpace: 'nowrap' }}>{periode}</div>
                 <div className="reg-belob">{kr(r.indsamlet_oere)}</div>
                 <div className="reg-status">
                   {st.label && <span style={badgeStil(st.tone)}>{st.label}</span>}
