@@ -1,4 +1,4 @@
-// Visningsdata til Heartland United på beta. Ingen myndighedsgodkendelse eller betaling.
+// Visningsdata til Heartland United på beta. Ingen myndighedsgodkendelse; kun eksplicit sandboxbetaling.
 export const TESTFORENING_SLUG = 'heartland-united';
 export const TEST_JOURNALNUMMER = 'TEST-HU-2026-10-30';
 export const TEST_HJERTESAG_SLUG = 'nye-maal-til-ungdomsafdelingen';
@@ -21,5 +21,9 @@ export function erTestforening(foreningsdata) {
 }
 
 export function kanModtageOffentligeBidrag(foreningsdata) {
-  return foreningsdata?.payment_ready === true && !erTestforening(foreningsdata);
+  if (foreningsdata?.payment_ready !== true) return false;
+  if (!erTestforening(foreningsdata)) return true;
+  return foreningsdata?.testbetaling === true
+    && typeof window !== 'undefined'
+    && window.location.hostname === 'beta.stotmedhjerte.dk';
 }
