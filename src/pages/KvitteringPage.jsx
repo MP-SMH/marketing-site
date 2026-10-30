@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { SMH_API_URL } from '../lib/supabaseClient';
+import { erTestforening } from '../lib/testforening';
+import TestforeningNotice from '@/components/marketing/TestforeningNotice';
 import SiteNav from '@/components/marketing/SiteNav';
 import SiteFooter from '@/components/marketing/SiteFooter';
 import { ctaBoks, CTA_STOR, CTA_MEDIUM } from '../lib/cta';
@@ -421,10 +423,13 @@ export default function KvitteringPage() {
   const sag = harIndhold(data?.hjertesagsnavn) ? data.hjertesagsnavn : null;
   const slug = harIndhold(data?.hjertesagsslug) ? data.hjertesagsslug : null;
   const foreningsslug = harIndhold(data?.foreningsslug) ? data.foreningsslug : null;
+  const testforening = erTestforening(foreningsslug);
   const amountStr = data ? fmtKr(data.beloeb_oere) : '';
   const timeStr = fmtTid(data?.oprettet);
 
-  const direkte = (
+  const direkte = testforening ? (
+    <span style={S.direct}>TESTBETALING</span>
+  ) : (
     <span style={S.direct}>
       <Check storrelse={14} tykkelse={2.2} />
       Direkte til foreningens MobilePay
@@ -457,12 +462,12 @@ export default function KvitteringPage() {
 
     indhold = (
       <div>
-        <p style={S.kicker}>Tak for din støtte</p>
+        <p style={S.kicker}>{testforening ? 'Testbetaling gennemført' : 'Tak for din støtte'}</p>
         <div style={S.emblem}>
           <Check />
         </div>
         <div style={S.amount}>{amountStr}</div>
-        <p style={S.lead}>{successLine}</p>
+        <p style={S.lead}>{testforening ? 'Betalingen hører til en testforening og tæller ikke som et offentligt bidrag.' : successLine}</p>
         <div style={S.meta}>
           {timeStr && <span style={S.time}>{timeStr}</span>}
           {direkte}
@@ -479,7 +484,7 @@ export default function KvitteringPage() {
     const waitingLine =
       phase === 'loading'
         ? 'Vi henter din kvittering.'
-        : `Din betaling${recip} er registreret. Pengene lander om et øjeblik.`;
+        : `Vi afventer bekræftelse på betalingen${recip}. Den er endnu ikke gennemført.`;
 
     indhold = (
       <div>
@@ -492,8 +497,8 @@ export default function KvitteringPage() {
         {phase === 'undervejs' && timeout && (
           <div>
             <p style={S.note}>
-              Det tager længere end normalt. Du kan roligt lukke siden. Din betaling er
-              registreret, og der kræves ikke mere af dig.
+              Det tager længere end normalt. Betalingen er endnu ikke bekræftet.
+              Du kan tjekke status igen senere.
             </p>
             <button type="button" className="kvp-secondary" style={S.secondary} onClick={opdater}>
               Opdater status
@@ -512,7 +517,7 @@ export default function KvitteringPage() {
     if (phase === 'mislykkedes') {
       errorTitle = 'Betalingen blev ikke gennemført';
       errorBody =
-        'Der er ikke trukket nogen penge. Du er velkommen til at prøve igen, når det passer dig.';
+        'Der er ikke registreret et gennemført bidrag. Tjek din status i MobilePay, før du prøver igen.';
     } else if (phase === 'fejl502') {
       errorTitle = 'Vi kan ikke slå betalingen op lige nu';
       errorBody =
@@ -564,7 +569,10 @@ export default function KvitteringPage() {
       <SiteNav />
       <main style={{ position: 'relative' }}>
         <section style={S.section}>
-          <div style={S.card}>{indhold}</div>
+          <div style={S.card}>
+            {testforening && <TestforeningNotice sandboxEnabled />}
+            {indhold}
+          </div>
         </section>
       </main>
       <SiteFooter />

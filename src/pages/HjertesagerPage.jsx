@@ -18,6 +18,7 @@ import SiteFooter from "@/components/marketing/SiteFooter";
 import FilterBar from "@/components/marketing/FilterBar";
 import { SMH_API_URL } from "../lib/supabaseClient";
 import { hentFroe } from "../lib/froe";
+import { erTestforening, kanModtageOffentligeBidrag } from "../lib/testforening";
 import "./Hjertesager.css";
 
 const kr = (v) => (v || 0).toLocaleString("da-DK") + " kr.";
@@ -40,13 +41,16 @@ function ShieldBadge() {
 
 function HjertesagKort({ hs }) {
   const f = hs.forening || {};
-  const godkendt = f.payment_ready === true && !!f.indsamlingsnaevn_journal_nr;
+  const testforening = erTestforening(f);
+  const godkendt = !testforening && kanModtageOffentligeBidrag(f) && !!f.indsamlingsnaevn_journal_nr;
   const pct = Math.round(andel(hs) * 100);
   const barBg = godkendt ? "linear-gradient(90deg,#16A34A,#22C55E)" : "#C6CDD8";
   const sti = f.slug && hs.slug ? `/hjertesag/${f.slug}/${hs.slug}` : null;
-  const statusLine = godkendt
-    ? `Journalnr. ${f.indsamlingsnaevn_journal_nr} · Indsamlingsnævnet`
-    : "Afventer godkendelse hos Indsamlingsnævnet";
+  const statusLine = testforening
+    ? "TESTFORENING · ingen rigtige bidrag"
+    : godkendt
+      ? `Journalnr. ${f.indsamlingsnaevn_journal_nr} · Indsamlingsnævnet`
+      : "Afventer godkendelse hos Indsamlingsnævnet";
 
   const cardInner = (
     <>
@@ -57,6 +61,7 @@ function HjertesagKort({ hs }) {
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="3" width="18" height="18" rx="4" /><circle cx="8.5" cy="9" r="1.6" /><path d="M21 16l-5-5L5 21" /></svg>
             </div>}
         {godkendt && <ShieldBadge />}
+        {testforening && <span style={{ position: "absolute", top: 12, left: 12, padding: "6px 11px", borderRadius: 999, background: "#FFF5E8", color: "#713F12", fontSize: 12, fontWeight: 800 }}>TESTFORENING</span>}
       </div>
 
       <div style={{ padding: "22px", display: "flex", flexDirection: "column", flex: 1 }}>
@@ -73,6 +78,12 @@ function HjertesagKort({ hs }) {
           </div>
         </div>
 
+        {testforening ? (
+          <p style={{ color: "var(--body)", fontSize: 13.5, lineHeight: 1.6, margin: "0 0 20px" }}>
+            Indsamlingstal fra afprøvningen vises ikke som rigtige bidrag.
+          </p>
+        ) : (
+          <>
         <div style={{ height: "9px", borderRadius: "999px", background: "var(--alt)", overflow: "hidden", marginBottom: "8px" }}>
           <div style={{ height: "100%", width: `${Math.min(pct, 100)}%`, borderRadius: "999px", background: barBg }} />
         </div>
@@ -90,6 +101,9 @@ function HjertesagKort({ hs }) {
           ))}
         </div>
 
+          </>
+        )}
+
         {godkendt
           ? (sti
               ? <Link to={sti} className="cta-flat-brand" style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", fontSize: "15px", fontWeight: 600, color: "#fff", textDecoration: "none" }}>Støt hjertesagen</Link>
@@ -98,10 +112,10 @@ function HjertesagKort({ hs }) {
               ? <Link to={sti} style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", background: "var(--alt)", border: "1px solid var(--smh-border)", color: "var(--ink)", fontSize: "15px", fontWeight: 600, textDecoration: "none" }}>Se hjertesagen</Link>
               : <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", height: "50px", borderRadius: "999px", background: "var(--alt)", border: "1px solid var(--smh-border)", color: "var(--ink)", fontSize: "15px", fontWeight: 600 }}>Se hjertesagen</div>)}
 
-        <div style={{ marginTop: "11px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", color: "var(--smh-muted)", fontSize: "12px", textAlign: "center" }}>
+        {!testforening && <div style={{ marginTop: "11px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", color: "var(--smh-muted)", fontSize: "12px", textAlign: "center" }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
           Bidrag går direkte til foreningens egen MobilePay-konto.
-        </div>
+        </div>}
       </div>
     </>
   );
@@ -117,18 +131,20 @@ export default function HjertesagerPage() {
   const froe = useMemo(() => hentFroe(), []);
   const [alle, setAlle] = useState([]);
   const [status, setStatus] = useState("indlaeser");
+  const [foresporgsel, setForesporgsel] = useState(0);
   const [q, setQ] = useState("");
   const [forening, setForening] = useState("");
   const [sort, setSort] = useState("roterende");
 
   useEffect(() => {
     let live = true;
+    setStatus("indlaeser");
     fetch(`${SMH_API_URL}/api/public/hjertesager?froe=${encodeURIComponent(froe)}`)
       .then((r) => { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
       .then((d) => { if (live) { setAlle(d.hjertesager || []); setStatus("klar"); } })
       .catch(() => { if (live) setStatus("fejl"); });
     return () => { live = false; };
-  }, [froe]);
+  }, [froe, foresporgsel]);
 
   const foreninger = useMemo(
     () => [...new Set(alle.map((h) => h.forening?.foreningsnavn).filter(Boolean))].sort((a, b) => a.localeCompare(b, "da")),
@@ -184,12 +200,13 @@ export default function HjertesagerPage() {
         ) : status === "fejl" ? (
           <div style={{ textAlign: "center", padding: "clamp(40px,7vw,72px) 24px", background: "var(--surface)", border: "1px solid var(--smh-border)", borderRadius: "24px" }}>
             <h3 style={{ margin: "0 0 10px", fontSize: "clamp(18px,2.6vw,21px)", fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>Vi kan ikke hente hjertesagerne lige nu.</h3>
-            <p style={{ margin: 0, fontSize: "15px", color: "var(--body)" }}>Prøv igen om lidt.</p>
+            <p style={{ margin: "0 0 18px", fontSize: "15px", color: "var(--body)" }}>Prøv igen om lidt.</p>
+            <button type="button" onClick={() => setForesporgsel((n) => n + 1)} className="cta-flat-ghost" style={{ height: 50, padding: "0 24px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer" }}>Prøv igen</button>
           </div>
         ) : vist.length === 0 ? (
           <div style={{ textAlign: "center", padding: "clamp(40px,7vw,72px) 24px", background: "var(--surface)", border: "1px solid var(--smh-border)", borderRadius: "24px" }}>
-            <h3 style={{ margin: "0 0 18px", fontSize: "clamp(18px,2.6vw,21px)", fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>Der er ikke fundet hjertesager, der matcher din søgning.</h3>
-            <button type="button" onClick={reset} className="cta-flat-ghost" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", height: "50px", padding: "0 24px", borderRadius: "999px", fontSize: "15px", fontWeight: 600, color: "var(--ink)", fontFamily: "inherit", cursor: "pointer" }}>Nulstil filter</button>
+            <h3 style={{ margin: "0 0 18px", fontSize: "clamp(18px,2.6vw,21px)", fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>{alle.length === 0 ? "Der er endnu ingen offentliggjorte hjertesager." : "Der er ikke fundet hjertesager, der matcher din søgning."}</h3>
+            {alle.length > 0 && <button type="button" onClick={reset} className="cta-flat-ghost" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", height: "50px", padding: "0 24px", borderRadius: "999px", fontSize: "15px", fontWeight: 600, color: "var(--ink)", fontFamily: "inherit", cursor: "pointer" }}>Nulstil filter</button>}
           </div>
         ) : (
           <div className="hs-cards">

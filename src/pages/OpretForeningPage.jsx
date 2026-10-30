@@ -1,15 +1,4 @@
-/**
- * OpretForeningPage - 3-step forening signup wizard
- *
- * Step 1: Email + send OTP via /api/auth/otp/request
- * Step 2: OTP-indtastning (8 cifre) via /api/auth/otp/verify
- * Step 3: Forening-data + password via /api/signup/forening
- *
- * Design: Pulse (matcher resten af platformen)
- * Trust-elementer: ALLE SYSTEMER KORER + TLS + Bygget i Danmark
- *
- * Reference: docs/strategy/auth-strategy.md Model D
- */
+/** Four logical signup steps. First payment belongs to step four. */
 
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ShieldCheck, ArrowRight, Loader, Check, AlertCircle, AlertTriangle, ChevronDown, FileText, ChevronRight, Info } from 'lucide-react';
@@ -20,6 +9,12 @@ import { useSystemStatus } from '@/hooks/useSystemStatus';
 import { fetchActiveConsents, ConsentFetchError } from '@/lib/consents';
 import ConsentModal from '@/components/ConsentModal';
 import './OpretForeningOnboarding.css';
+import SignupPlanChoice from '@/components/SignupPlanChoice';
+import SignupCheckout from '@/components/SignupCheckout';
+import {readSignupDraft,saveSignupDraft,SIGNUP_DRAFT_KEY} from '@/lib/signup-draft';
+import {signupPlan} from '@/lib/signup-plans';
+import {PASSWORD_MIN_LENGTH as MIN_PASSWORD_LENGTH} from '../../../shared/account-policy';
+import {SIGNUP_LOGIN_URL} from '@/lib/signup-transition';
 
 // Brand color tokens
 const BRAND_TEAL = '#0891B2';
@@ -61,7 +56,6 @@ function mapConsentErrorToMessage(err) {
 const CVR_REGEX = /^\d{8}$/;
 const POSTNUMMER_REGEX = /^\d{4}$/;
 const TLF_REGEX = /^\d{8}$/;
-const MIN_PASSWORD_LENGTH = 10;
 const MIN_PASSWORD_SCORE = 3;
 
 const computePasswordScore = (password) => {
@@ -116,7 +110,7 @@ const validateStep3Field = (name, value) => {
 };
 
 const validateStep3Password = (password) => {
-  if (!password || password.length < MIN_PASSWORD_LENGTH) {
+  if (!password || Array.from(password).length < MIN_PASSWORD_LENGTH) {
     return `Adgangskode skal være mindst ${MIN_PASSWORD_LENGTH} tegn`;
   }
   if (password.length > 128) {
@@ -133,12 +127,20 @@ const validateStep3Password = (password) => {
   return null;
 };
 
-export default function OpretForeningPage() {
+export default function OpretForeningPage({purchaseApi=null,onPurchaseContinue}) {
   const navigate = useNavigate();
   const status = useSystemStatus();
 
   // Step state
   const [step, setStep] = useState(1);
+  const [emailStage,setEmailStage]=useState('address');
+  const [emailVerified,setEmailVerified]=useState(false);
+  const contentRef=useRef(null);
+  const otpLock=useRef(false);
+  const emailEpoch=useRef(0);
+  const cvrRequest=useRef(0);
+  const [savedDraft,setSavedDraft]=useState(()=>{try{return readSignupDraft(window.localStorage);}catch{return null;}});
+  const [draftNotice,setDraftNotice]=useState('');
 
   // Step 1: email
   const [email, setEmail] = useState('');
@@ -187,10 +189,11 @@ export default function OpretForeningPage() {
   const [aftaleTemplateUuid, setAftaleTemplateUuid] = useState(null);
   const [aftaleVersion, setAftaleVersion] = useState(null);
   const [aftaleModalOpen, setAftaleModalOpen] = useState(false);
+  const [aftaleLoading,setAftaleLoading]=useState(true);
+  const [aftaleError,setAftaleError]=useState('');
 
   // Step 3 submit state
-  const [submitLoading, setSubmitLoading] = useState(false);
-  const [submitError, setSubmitError] = useState('');
+  const submitLoading=false,signupComplete=false,signupUncertain=false;
   const [fieldErrors, setFieldErrors] = useState({});
 
   // Modal state: hvilken consent-type er åben (null = ingen modal aktiv)
@@ -199,49 +202,43 @@ export default function OpretForeningPage() {
   // --- S66 O3: additive state (roerer ikke eksisterende hooks) ---
   // Trin 6 binding-valg (persisteres juridisk via signup-payload)
   const [binding, setBinding] = useState('');
+  const [product, setProduct] = useState('donationer');
 
-  // Fetch consent_versions ved mount, cancel ved unmount via AbortController
-  useEffect(() => {
-    const abortController = new AbortController();
+  const discardDraft=()=>{try{window.localStorage.removeItem(SIGNUP_DRAFT_KEY);}catch{}setSavedDraft(null);};
+  const saveDraft=()=>{try{saveSignupDraft(window.localStorage,{email,foreningsnavn,cvrNummer,postnummer,kontaktNavn,kontaktRolle,kontaktTlf,product,binding});setDraftNotice('Kladde gemt på denne enhed i op til 7 dage. Åbn oprettelsen igen for at fortsætte. Adgangskode og accepter gemmes ikke.');}catch{setDraftNotice('Browseren kunne ikke gemme kladden. Hold siden åben for at bevare oplysningerne.');}};
+  const restoreDraft=()=>{if(!savedDraft)return;setEmail(savedDraft.email);setForeningsnavn(savedDraft.foreningsnavn);setCvrNummer(savedDraft.cvrNummer);setPostnummer(savedDraft.postnummer);setKontaktNavn(savedDraft.kontaktNavn);setKontaktRolle(savedDraft.kontaktRolle||'Formand');setKontaktTlf(savedDraft.kontaktTlf);setProduct(savedDraft.product);setBinding(savedDraft.binding);setSavedDraft(null);setDraftNotice('Kladden er hentet. Bekræft e-mailen igen, og vælg en adgangskode. Dokumenterne skal accepteres på ny.');};
 
-    setConsentLoading(true);
-    setConsentError('');
+  async function loadConsents(signal){
+    setConsentLoading(true);setConsentError('');
+    setConsentTermsChecked(false);setConsentGdprChecked(false);setConsentPiiChecked(false);setConsentMarketingChecked(false);
+    try{const versions=await fetchActiveConsents({signal});if(!signal?.aborted)setConsentVersions(versions);}
+    catch(err){if(!signal?.aborted){setConsentVersions(null);setConsentError(mapConsentErrorToMessage(err));}}
+    finally{if(!signal?.aborted)setConsentLoading(false);}
+  }
+  useEffect(()=>{const controller=new AbortController();loadConsents(controller.signal);return()=>controller.abort();},[]);
+  // A material change invalidates acceptance of the previous review.
+  useEffect(()=>{setAftaleAccepteret(false);},[product,binding,email,kontaktNavn,kontaktRolle,cvrNummer,foreningsnavn,postnummer,kontaktTlf]);
+  useEffect(()=>{
+    if(step===1&&emailStage==='code')return;
+    const heading=contentRef.current?.querySelector('h2');
+    heading?.setAttribute('tabindex','-1');heading?.focus({preventScroll:true});
+    contentRef.current?.scrollIntoView?.({block:'start',behavior:'instant'});
+  },[step,emailStage]);
 
-    fetchActiveConsents({ signal: abortController.signal })
-      .then((versions) => {
-        if (abortController.signal.aborted) return;
-        setConsentVersions(versions);
-        setConsentLoading(false);
-      })
-      .catch((err) => {
-        if (abortController.signal.aborted) return;
-        if (err instanceof ConsentFetchError && err.code === 'ABORTED') return;
-        setConsentError(mapConsentErrorToMessage(err));
-        setConsentLoading(false);
-      });
-
-    return () => {
-      abortController.abort();
-    };
-  }, []);
-
-  // S69: hent aktiv aftale-skabelons template_uuid (audit-defensible: forening kan ikke oprettes uden)
-  useEffect(() => {
-    const ac = new AbortController();
-    fetch(`${SMH_API_URL}/api/forening/aftale/skabelon`, { signal: ac.signal })
-      .then((r) => r.json())
-      .then((d) => {
-        if (d?.template_uuid) setAftaleTemplateUuid(d.template_uuid);
-        if (d?.content) setAftaleVersion({
-          title: d.title,
-          version: d.version,
-          content_markdown: d.content,
-          effective_from: null,
-        });
-      })
-      .catch(() => { /* template_uuid forbliver null -> videre-knap blokeres */ });
-    return () => ac.abort();
-  }, []);
+  // A failed agreement load must have a self-service retry and no stale acceptance.
+  async function loadAgreement(signal){
+    setAftaleLoading(true);setAftaleError('');setAftaleAccepteret(false);setAftaleTemplateUuid(null);setAftaleVersion(null);
+    try{
+      const response=await fetch(`${SMH_API_URL}/api/forening/aftale/skabelon`,{signal});
+      if(!response.ok)throw Error('agreement');
+      const data=await response.json();
+      if(!data?.template_uuid||!data?.content||!data?.version)throw Error('agreement');
+      if(signal?.aborted)return;
+      setAftaleTemplateUuid(data.template_uuid);setAftaleVersion({title:data.title,version:data.version,content_markdown:data.content,effective_from:null});
+    }catch{if(!signal?.aborted)setAftaleError('Samarbejdsaftalen kunne ikke hentes. Prøv igen; jeres oplysninger er bevaret.');}
+    finally{if(!signal?.aborted)setAftaleLoading(false);}
+  }
+  useEffect(()=>{const controller=new AbortController();loadAgreement(controller.signal);return()=>controller.abort();},[]);
 
   // Modal handlers
   const openConsentModal = (consentType) => {
@@ -296,7 +293,7 @@ export default function OpretForeningPage() {
 
       // Success: gå videre til Step 2
       setEmail(trimmed);
-      setStep(2);
+      setEmailVerified(false);setEmailStage('code');
       setResendCooldown(RESEND_COOLDOWN_SECONDS);                  // start cooldown timer
     } catch (err) {
       console.error('OTP request failed:', err);
@@ -312,65 +309,24 @@ export default function OpretForeningPage() {
 
   // Resend cooldown timer
   useEffect(() => {
-    if (step !== 2 || resendCooldown <= 0) return;
+    if (step !== 1 || emailStage !== 'code' || resendCooldown <= 0) return;
 
     const timer = setTimeout(() => {
       setResendCooldown((s) => s - 1);
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [step, resendCooldown]);
+  }, [step, emailStage, resendCooldown]);
 
   // Auto-fokus paa foerste input naar vi entrerer Step 2
   useEffect(() => {
-    if (step === 2 && otpInputRefs.current[0]) {
+    if (step === 1 && emailStage === 'code' && otpInputRefs.current[0]) {
       otpInputRefs.current[0].focus();
     }
-  }, [step]);
+  }, [step,emailStage]);
 
-  /**
-   * Handle OTP-input change
-   * - Accepterer kun cifre
-   * - Auto-tab til naeste boks ved indtastning
-   * - Auto-submit naar alle 8 cifre er udfyldt
-   */
-  const handleOtpChange = (index, value) => {
-    // Only accept digits
-    const digit = value.replace(/\D/g, '').slice(-1);
-
-    const newDigits = [...otpDigits];
-    newDigits[index] = digit;
-    setOtpDigits(newDigits);
-
-    // Clear errors ved ny indtastning
-    if (otpError) setOtpError('');
-
-    // Auto-tab til naeste boks
-    if (digit && index < OTP_LENGTH - 1) {
-      otpInputRefs.current[index + 1]?.focus();
-    }
-
-    // Auto-submit naar alle cifre er udfyldt
-    if (newDigits.every((d) => d !== '') && newDigits.join('').length === OTP_LENGTH) {
-      handleVerifyOtp(newDigits.join(''));
-    }
-  };
-
-  /**
-   * Handle keyboard-events i OTP-input
-   * - Backspace: clear current og fokus til forrige boks
-   * - Arrow keys: naviger mellem bokse
-   */
-  const handleOtpKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
-      // Tom boks + backspace -> ga tilbage til forrige
-      otpInputRefs.current[index - 1]?.focus();
-    } else if (e.key === 'ArrowLeft' && index > 0) {
-      otpInputRefs.current[index - 1]?.focus();
-    } else if (e.key === 'ArrowRight' && index < OTP_LENGTH - 1) {
-      otpInputRefs.current[index + 1]?.focus();
-    }
-  };
+  // One full-width field supports keyboard, paste and native one-time-code autofill.
+  const handleOtpInput=value=>{const code=value.replace(/\D/g,'').slice(0,OTP_LENGTH);setOtpDigits(Array.from({length:OTP_LENGTH},(_,i)=>code[i]||''));setOtpError('');if(code.length===OTP_LENGTH)handleVerifyOtp(code);};
 
   /**
    * Handle paste-event
@@ -402,6 +358,8 @@ export default function OpretForeningPage() {
    * Verify OTP-koden mod backend
    */
   const handleVerifyOtp = async (code) => {
+    if(otpLock.current)return;
+    otpLock.current=true;const epoch=emailEpoch.current;
     setOtpError('');
     setOtpLoading(true);
 
@@ -413,6 +371,7 @@ export default function OpretForeningPage() {
       });
 
       const data = await response.json();
+      if(epoch!==emailEpoch.current)return;
 
       if (!response.ok) {
         // Auto-clear felter ved fejl + fokus til foerste boks
@@ -435,14 +394,14 @@ export default function OpretForeningPage() {
       }
 
       // Success: ga til Step 3
-      setStep(3);
+      setEmailVerified(true);setEmailStage('verified');setOtpDigits(Array(OTP_LENGTH).fill(''));setStep(2);
     } catch (err) {
       console.error('OTP verify failed:', err);
       setOtpError('Netværksfejl. Tjek din forbindelse og prøv igen.');
       setOtpDigits(Array(OTP_LENGTH).fill(''));
       otpInputRefs.current[0]?.focus();
     } finally {
-      setOtpLoading(false);
+      setOtpLoading(false);otpLock.current=false;
     }
   };
 
@@ -484,7 +443,6 @@ export default function OpretForeningPage() {
 
   const canSubmitStep3 = () => {
     if (submitLoading) return false;
-    if (!consentVersions) return false;
     if (validateStep3Field('foreningsnavn', foreningsnavn)) return false;
     if (validateStep3Field('cvrNummer', cvrNummer)) return false;
     // P1-CVR-001: Bloker submit hvis CVR-lookup endnu ikke faerdig eller ugyldig
@@ -496,9 +454,6 @@ export default function OpretForeningPage() {
     if (validateStep3Field('kontaktRolle', kontaktRolle)) return false;
     if (validateStep3Field('kontaktTlf', kontaktTlf)) return false;
     if (validateStep3Password(password)) return false;
-    if (!consentTermsChecked) return false;
-    if (!consentGdprChecked) return false;
-    if (!consentPiiChecked) return false;
     return true;
   };
 
@@ -511,11 +466,13 @@ export default function OpretForeningPage() {
       return;
     }
 
+    const request=++cvrRequest.current;
     setCvrLookupState({ status: 'loading' });
 
     try {
       const res = await fetch(`${SMH_API_URL}/cvr/lookup?cvr=${cvrNummer}`);
 
+      if(request!==cvrRequest.current)return;
       if (!res.ok) {
         // 5xx = backend/cvrapi nede - tillad signup, vis warning
         setCvrLookupState({ status: 'error' });
@@ -523,6 +480,7 @@ export default function OpretForeningPage() {
       }
 
       const data = await res.json();
+      if(request!==cvrRequest.current)return;
 
       if (data.valid && data.active) {
         // Aktiv forening - auto-fill foreningsnavn HVIS tomt
@@ -547,151 +505,28 @@ export default function OpretForeningPage() {
         setCvrLookupState({ status: 'not_found' });
       }
     } catch (err) {
-      // Network error / timeout
+      // Ignore a previous lookup after the CVR changed.
+      if(request!==cvrRequest.current)return;
       setCvrLookupState({ status: 'error' });
     }
   };
 
-  const handleStep3Submit = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-
-    if (!canSubmitStep3()) return;
-
-    if (binding !== 'binding' && binding !== 'ingen') {
-      setSubmitError('Vælg en betalingsperiode for at oprette foreningen.');
-      return;
-    }
-
-    setSubmitLoading(true);
-    setSubmitError('');
-    setFieldErrors({});
-
-    const payload = {
-      email,
-      password,
-      foreningsnavn: foreningsnavn.trim(),
-      cvr_nummer: cvrNummer.trim(),
-      kontaktperson_navn: kontaktNavn.trim(),
-      kontaktperson_rolle: kontaktRolle,
-      kontaktperson_tlf: kontaktTlf.trim(),
-      aftale_template_uuid: aftaleTemplateUuid,
-      aftale_signer_name: kontaktNavn.trim(),
-      aftale_signer_role: kontaktRolle,
-      postnummer: postnummer.trim(),
-      consent_terms_id: consentVersions.platform_terms?.id,
-      consent_gdpr_id: consentVersions.gdpr_terms?.id,
-      consent_pii_id: consentVersions.pii_consent?.id,
-      consent_marketing_id: consentMarketingChecked
-        ? consentVersions.marketing_consent?.id || null
-        : null,
-      abonnement_produkt: 'donationer',
-      abonnement_binding: binding,
-      abonnement_maanedspris: binding === 'binding' ? 149 : 179,
+  const purchasePayload = () => {
+    const selectedPlan=signupPlan(product,binding);
+    if(!selectedPlan||!emailVerified||!canSubmitStep3()||!aftaleAccepteret||!aftaleTemplateUuid||!consentVersions||!consentTermsChecked||!consentGdprChecked||!consentPiiChecked)throw Error('Incomplete review');
+    return {
+      email,password,foreningsnavn:foreningsnavn.trim(),cvr_nummer:cvrNummer.trim(),
+      kontaktperson_navn:kontaktNavn.trim(),kontaktperson_rolle:kontaktRolle,kontaktperson_tlf:kontaktTlf.trim(),
+      aftale_template_uuid:aftaleTemplateUuid,aftale_accepted:true,aftale_signer_name:kontaktNavn.trim(),
+      aftale_signer_role:kontaktRolle,postnummer:postnummer.trim(),
+      consent_terms_id:consentVersions.platform_terms?.id,consent_gdpr_id:consentVersions.gdpr_terms?.id,
+      consent_pii_id:consentVersions.pii_consent?.id,
+      consent_marketing_id:consentMarketingChecked?consentVersions.marketing_consent?.id||null:null,
+      abonnement_produkt:selectedPlan.product,abonnement_binding:selectedPlan.binding,
+      abonnement_maanedspris:selectedPlan.monthlyAmount,
     };
-
-    try {
-      const response = await fetch(`${SMH_API_URL}/api/signup/forening`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        // Field-level errors fra backend Zod-validation
-        if (response.status === 400 && Array.isArray(data.field_errors)) {
-          const mapped = {};
-          for (const fe of data.field_errors) {
-            const fieldName = fe.field || fe.path;
-            if (fieldName === 'cvr_nummer') mapped.cvrNummer = fe.message || 'Ugyldigt CVR-nummer';
-            else if (fieldName === 'postnummer') mapped.postnummer = fe.message || 'Ugyldigt postnummer';
-            else if (fieldName === 'kontaktperson_navn') mapped.kontaktNavn = fe.message || 'Ugyldigt navn';
-            else if (fieldName === 'kontaktperson_rolle') mapped.kontaktRolle = fe.message || 'Ugyldig rolle';
-            else if (fieldName === 'kontaktperson_tlf') mapped.kontaktTlf = fe.message || 'Ugyldigt telefonnummer';
-            else if (fieldName === 'foreningsnavn') mapped.foreningsnavn = fe.message || 'Ugyldigt foreningsnavn';
-            else if (fieldName === 'password') mapped.password = fe.message || 'Ugyldig adgangskode';
-          }
-          setFieldErrors(mapped);
-          if (Object.keys(mapped).length === 0) {
-            setSubmitError(data.message || 'Nogle felter er ugyldige - tjek formularen og prøv igen.');
-          }
-          setSubmitLoading(false);
-          return;
-        }
-
-        // Status-specifikke fejl (matcher strategy v1.3 sektion 3.4)
-        if (response.status === 401) {
-          setSubmitError(data.message || 'Din email-bekræftelse er udløbet. Bekræft venligst din email igen.');
-        } else if (response.status === 403) {
-          setSubmitError(data.message || 'Du er allerede registreret som tegningsberettiget i en anden forening. Kontakt support hvis du har behov for at oprette en yderligere forening.');
-        } else if (response.status === 409) {
-          if (data.error_code === 'EMAIL_ALREADY_REGISTERED') {
-            setSubmitError(data.message || 'Denne email er allerede registreret. Log ind i stedet.');
-          } else if (data.error_code === 'CVR_DUPLICATE') {
-            setFieldErrors({ cvrNummer: 'Denne forening er allerede oprettet hos StøtMedHjerte. Kontakt support hvis du mener det er en fejl.' });
-          } else {
-            setSubmitError(data.message || 'Konflikt med eksisterende data. Tjek formularen.');
-          }
-        } else if (response.status === 429) {
-          setSubmitError(data.message || 'For mange forsøg. Vent et øjeblik og prøv igen.');
-        } else {
-          setSubmitError(data.message || 'Noget gik galt. Prøv igen om et øjeblik.');
-        }
-        setSubmitLoading(false);
-        return;
-      }
-
-      // ----------------------------------------------------------------
-      // 3-TIER REDIRECT CASCADE (BUG-002 fix, 4/5-2026)
-      //
-      // PRIORITY 1: Cross-domain handoff (happy path)
-      //   handoff_redirect_url = full URL til app.stotmedhjerte.dk/handoff?token=...
-      //   Bruger redirectes til smh-app HandoffPage som exchanger token.
-      //
-      // PRIORITY 2: Same-domain fallback (handoff_failed=true)
-      //   Signup lykkedes men handoff-token kunne ikke oprettes.
-      //   Bruger sendes til manual login.
-      //
-      // PRIORITY 3: Error state (intet redirect target)
-      //   Server-respons mangler både handoff_redirect_url og fallback_redirect.
-      //   Vis eksplicit fejl til bruger i stedet for silent failure.
-      // ----------------------------------------------------------------
-
-      // PRIORITY 1: Cross-domain handoff (happy path)
-      const isValidUrl = (url) =>
-        typeof url === 'string' && url.length > 0 && /^https?:\/\//.test(url);
-
-      if (isValidUrl(data.handoff_redirect_url)) {
-        console.info('[signup] Cross-domain handoff initiated');
-        setSubmitLoading(false);
-        // P1-UX-001: Direct redirect — Step 4 success-skærm fjernet.
-        // HandoffPage er nu det eneste opsætnings-vindue (11s trust window).
-        window.location.href = data.handoff_redirect_url;
-        return;
-      }
-
-      // PRIORITY 2: Same-domain fallback (handoff_failed=true)
-      if (data.handoff_failed && isValidUrl(data.fallback_redirect)) {
-        console.warn('[signup] Handoff failed - using fallback redirect to manual login');
-        window.location.href = data.fallback_redirect;
-        return;
-      }
-
-      // PRIORITY 3: Error state - no valid redirect target
-      console.error('[signup] No valid redirect target in response', {
-        has_handoff_url: Boolean(data.handoff_redirect_url),
-        has_fallback: Boolean(data.fallback_redirect),
-        handoff_failed: data.handoff_failed,
-      });
-      setSubmitError('Foreningen er oprettet, men overgangen til app fejlede. Prøv at logge ind manuelt.');
-      setSubmitLoading(false);
-    } catch (err) {
-      setSubmitError('Netværksfejl - tjek din internetforbindelse og prøv igen.');
-      setSubmitLoading(false);
-    }
   };
-
+  const purchaseEligible=emailVerified&&canSubmitStep3()&&!!signupPlan(product,binding)&&!!aftaleAccepteret&&!!aftaleTemplateUuid&&!!consentVersions&&consentTermsChecked&&consentGdprChecked&&consentPiiChecked;
 
   // ===========================================================================
   // Render
@@ -701,8 +536,8 @@ export default function OpretForeningPage() {
   const ofoP = { margin: '0 0 20px', fontSize: 14.5, lineHeight: 1.6, color: 'var(--body)' };
   const ofoFieldErr = { marginTop: 7, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--brand)' };
   const ofoCvrRow = (color) => ({ marginTop: 9, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, fontWeight: 600, color });
-  const ofoRail = [['E-mail', 1], ['Bekræft', 2], ['Forening', 3], ['Aftale', 4], ['MobilePay', 5], ['Abonnement', 6]];
-  const ofoPct = (step / 6) * 100;
+  const ofoRail = [['E-mail', 1], ['Forening', 2], ['Løsning', 3], ['Gennemgå', 4]];
+  const ofoPct = (step / 4) * 100;
   const pwMeter = [
     { color: '#EF4444', label: 'Meget svag' },
     { color: '#F97316', label: 'Svag' },
@@ -717,7 +552,7 @@ export default function OpretForeningPage() {
       {/* Minimal top-bar */}
       <header className="ofo-topbar">
         <div className="ofo-wrap ofo-topbar-inner">
-          <button type="button" className="ofo-back" onClick={() => (step === 1 ? navigate('/opret-forening') : setStep(step - 1))} aria-label="Tilbage">
+          <button type="button" className="ofo-back" disabled={submitLoading||signupComplete||signupUncertain} onClick={() => {if(step===1&&emailStage==='code'){++emailEpoch.current;setEmailStage('address');setEmailVerified(false);setOtpDigits(Array(OTP_LENGTH).fill(''));}else if(step===1)navigate('/opret-forening');else setStep(step-1);}} aria-label="Tilbage">
             <ArrowLeft size={18} /> Tilbage
           </button>
           <Link to="/" className="ofo-wordmark">StøtMedHjerte<sup>™</sup></Link>
@@ -727,22 +562,8 @@ export default function OpretForeningPage() {
 
       {/* Wizard */}
       <main className="ofo-wrap ofo-main">
+        {savedDraft&&<aside className="ofo-draft"><p>Der ligger en gemt oprettelse på denne enhed.</p><div className="ofo-draft-actions"><button type="button" className="ofo-linkbtn" onClick={restoreDraft}>Fortsæt gemt oprettelse <ArrowRight size={16}/></button><button type="button" className="ofo-linkbtn" onClick={discardDraft}>Slet kladde</button></div></aside>}
         <div className="ofo-frame">
-          {import.meta.env.DEV && (
-            <div style={{ display: 'flex', gap: 6, padding: '10px 12px', marginBottom: 12, background: '#FEF6DC', border: '1px dashed #B45309', borderRadius: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#7A5B00', letterSpacing: 0.4 }}>KUN LOKALT</span>
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setStep(n)}
-                  style={{ padding: '4px 10px', fontSize: 12, fontWeight: 700, cursor: 'pointer', borderRadius: 999, border: '1px solid #B45309', background: step === n ? '#B45309' : 'transparent', color: step === n ? '#fff' : '#7A5B00' }}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-          )}
           <div className="ofo-frame-header">
             <div className="ofo-frame-head-row">
               <div>
@@ -752,7 +573,7 @@ export default function OpretForeningPage() {
               <span className="ofo-securebadge"><ShieldCheck size={13} /> Sikker oprettelse</span>
             </div>
             {/* Rail */}
-            <div className="ofo-rail">
+            <div className="ofo-rail" aria-label="Oprettelsens fire trin">
               {(() => {
                 const out = [];
                 ofoRail.forEach((st, idx) => {
@@ -760,7 +581,7 @@ export default function OpretForeningPage() {
                   const done = step > n;
                   const cur = step === n;
                   out.push(
-                    <div key={'n' + n} className="ofo-rail-node">
+                    <div key={'n' + n} className="ofo-rail-node" aria-current={cur?'step':undefined}>
                       {done ? (
                         <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--success)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Check size={15} /></span>
                       ) : (
@@ -779,34 +600,34 @@ export default function OpretForeningPage() {
             <div className="ofo-frame-progress"><div className="ofo-frame-progress-fill" style={{ width: ofoPct + '%' }} /></div>
           </div>
 
-          <div className="ofo-white">
+          <div className="ofo-white ofo-enter" key={`${step}:${emailStage}`} ref={contentRef}>
             {/* ---- Trin 1: e-mail ---- */}
-            {step === 1 && (
+            {step === 1 && emailStage === 'address' && (
               <form onSubmit={handleSendOtp}>
                 <h2 style={ofoH}>Opret din konto</h2>
                 <p style={ofoP}>Vi sender en engangskode til jeres e-mail, så vi ved, at det er jer.</p>
                 <label style={{ display: 'block' }}>
                   <span className="ofo-label">E-mail</span>
-                  <input className="ofo-field" type="email" inputMode="email" placeholder="navn@forening.dk" value={email} onChange={(e) => setEmail(e.target.value)} disabled={emailLoading} autoFocus required style={emailError ? { borderColor: 'var(--brand)' } : undefined} />
+                  <input className="ofo-field" type="email" inputMode="email" placeholder="navn@forening.dk" value={email} onChange={(e) => {++emailEpoch.current;setEmailVerified(false);setEmail(e.target.value);}} disabled={emailLoading} autoFocus required style={emailError ? { borderColor: 'var(--brand)' } : undefined} />
                 </label>
-                {emailError ? <div style={{ margin: '8px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{emailError}</div> : null}
+                {emailError ? <div role="alert" style={{ margin: '8px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{emailError}</div> : null}
                 <button type="submit" className="ofo-primary" disabled={emailLoading || !email} style={{ marginTop: 18 }}>
                   {emailLoading ? <><Loader size={16} style={{ animation: 'ofoSpin .7s linear infinite' }} /> Sender kode ...</> : <>Send bekræftelseskode <ArrowRight size={17} /></>}
                 </button>
               </form>
             )}
 
+            {step===1&&emailStage==='verified'&&<div><h2 style={ofoH}>E-mail bekræftet</h2><p style={ofoP}>{email}</p><button type="button" className="ofo-primary" onClick={()=>setStep(2)}>Fortsæt til foreningen <ArrowRight size={17}/></button><button type="button" className="ofo-linkbtn" onClick={()=>{++emailEpoch.current;setEmailVerified(false);setEmailStage('address');}}>Skift e-mail</button></div>}
+
             {/* ---- Trin 2: OTP (auto-verify via handleOtpChange) ---- */}
-            {step === 2 && (
+            {step === 1 && emailStage === 'code' && (
               <div>
                 <h2 style={ofoH}>Indtast bekræftelseskode</h2>
                 <p style={ofoP}>Vi har sendt en 8-cifret kode til <strong style={{ color: 'var(--ink)' }}>{email}</strong>. Indtast koden nedenfor.</p>
-                <div className="ofo-otp-grid">
-                  {otpDigits.map((digit, index) => (
-                    <input key={index} ref={(el) => (otpInputRefs.current[index] = el)} className="ofo-otp-box" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={1} value={digit} onChange={(e) => handleOtpChange(index, e.target.value)} onKeyDown={(e) => handleOtpKeyDown(index, e)} onPaste={index === 0 ? handleOtpPaste : undefined} disabled={otpLoading} style={{ border: '1px solid ' + (otpError ? 'var(--brand)' : 'var(--smh-border)') }} />
-                  ))}
-                </div>
-                {otpError ? <div style={{ margin: '12px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{otpError}</div> : null}
+                <label className="ofo-label" htmlFor="signup-otp">Bekræftelseskode</label>
+                <input id="signup-otp" ref={el=>{otpInputRefs.current[0]=el;}} className="ofo-field ofo-code-field" aria-label="Bekræftelseskode" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={OTP_LENGTH} value={otpDigits.join('')} onChange={e=>handleOtpInput(e.target.value)} onPaste={handleOtpPaste} disabled={otpLoading} aria-invalid={!!otpError} aria-describedby="signup-otp-hint"/>
+                <p id="signup-otp-hint" className="ofo-note">Skriv eller indsæt alle 8 cifre. Koden bekræftes automatisk.</p>
+                {otpError ? <div role="alert" style={{ margin: '12px 2px 0', display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{otpError}</div> : null}
                 {otpLoading ? <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--smh-muted)' }}><Loader size={14} style={{ animation: 'ofoSpin .7s linear infinite' }} />Verificerer kode ...</div> : null}
                 <div style={{ marginTop: 18, textAlign: 'center' }}>
                   {resendCooldown > 0
@@ -817,36 +638,26 @@ export default function OpretForeningPage() {
             )}
 
             {/* ---- Trin 3: foreningsoplysninger ---- */}
-            {step === 3 && (
+            {step === 2 && (
               <div>
                 <h2 style={ofoH}>Foreningsoplysninger</h2>
                 <p style={ofoP}>Indtast foreningens CVR-nummer, så henter vi de officielle oplysninger. Udfyld derefter kontaktperson og adgangskode.</p>
-                {consentLoading ? (
-                  <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--smh-muted)' }}>
-                    <Loader size={20} style={{ animation: 'ofoSpin .7s linear infinite', marginBottom: 10 }} />
-                    <div style={{ fontSize: 14 }}>Indlæser samtykke-tekster ...</div>
-                  </div>
-                ) : consentError ? (
-                  <div style={{ padding: 20, borderRadius: 14, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 16 }}>
-                    <div style={{ fontSize: 14, color: 'var(--brand-hover)', marginBottom: 12 }}>{consentError}</div>
-                    <button type="button" className="ofo-linkbtn" onClick={() => window.location.reload()}>Genindlæs siden</button>
-                  </div>
-                ) : consentVersions ? (
-                  <form onSubmit={(e) => { e.preventDefault(); if (canSubmitStep3()) setStep(4); }}>
-                    {submitError ? <div style={{ margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{submitError}</div> : null}
+                  <form onSubmit={(e) => { e.preventDefault(); if (canSubmitStep3()) setStep(3); }}>
 
                     {/* CVR-nummer: eneste org-input, resten auto-hentes */}
                     <div style={{ marginBottom: 16 }}>
                       <label style={{ display: 'block' }}>
                         <span className="ofo-label">CVR-nummer *</span>
-                        <input className="ofo-field" value={cvrNummer} onChange={(e) => { setCvrNummer(e.target.value.replace(/\D/g, '').slice(0, 8)); if (cvrLookupState.status !== 'idle') { setCvrLookupState({ status: 'idle' }); setForeningsnavn(''); setPostnummer(''); } }} onBlur={handleCvrBlur} disabled={submitLoading} placeholder="12345678" autoComplete="off" inputMode="numeric" maxLength={8} style={{ fontFamily: 'ui-monospace, monospace', ...(fieldErrors.cvrNummer ? { borderColor: 'var(--brand)' } : {}) }} />
+                        <input className="ofo-field" value={cvrNummer} onChange={(e) => { ++cvrRequest.current;setCvrNummer(e.target.value.replace(/\D/g, '').slice(0, 8)); if (cvrLookupState.status !== 'idle') { setCvrLookupState({ status: 'idle' }); setForeningsnavn(''); setPostnummer(''); } }} onBlur={handleCvrBlur} disabled={submitLoading} placeholder="12345678" autoComplete="off" inputMode="numeric" maxLength={8} style={{ fontFamily: 'ui-monospace, monospace', ...(fieldErrors.cvrNummer ? { borderColor: 'var(--brand)' } : {}) }} />
                       </label>
                       {!fieldErrors.cvrNummer && cvrLookupState.status === 'loading' ? <div style={ofoCvrRow('var(--smh-muted)')}><Loader size={14} style={{ animation: 'ofoSpin .7s linear infinite' }} />Slår op i CVR-registret ...</div> : null}
                       {!fieldErrors.cvrNummer && cvrLookupState.status === 'inactive' ? <div style={ofoCvrRow('#B45309')}><AlertTriangle size={15} />Inaktiv eller ophørt forening. Kan ikke oprettes.</div> : null}
                       {!fieldErrors.cvrNummer && cvrLookupState.status === 'not_found' ? <div style={ofoCvrRow('var(--brand)')}><AlertCircle size={15} />CVR ikke registreret. Tjek tallet.</div> : null}
                       {!fieldErrors.cvrNummer && cvrLookupState.status === 'error' ? <div style={ofoCvrRow('#B45309')}><AlertTriangle size={15} />Kunne ikke verificere CVR lige nu. Du kan fortsætte.</div> : null}
-                      {fieldErrors.cvrNummer ? <div style={ofoFieldErr}>{fieldErrors.cvrNummer}</div> : null}
+                      {fieldErrors.cvrNummer ? <div role="alert" style={ofoFieldErr}>{fieldErrors.cvrNummer}</div> : null}
                     </div>
+
+                    {cvrLookupState.status==='error'&&<div style={{marginBottom:20,padding:16,border:'1px solid var(--smh-border)',borderRadius:14}}><p style={ofoP}>Udfyld oplysningerne manuelt. CVR-status er endnu ikke bekræftet.</p><label style={{display:'block',marginBottom:14}}><span className="ofo-label">Foreningsnavn *</span><input className="ofo-field" value={foreningsnavn} onChange={e=>setForeningsnavn(e.target.value)} maxLength={200}/></label><label style={{display:'block'}}><span className="ofo-label">Postnummer *</span><input className="ofo-field" value={postnummer} onChange={e=>setPostnummer(e.target.value.replace(/\D/g,'').slice(0,4))} inputMode="numeric" maxLength={4}/></label></div>}
 
                     {/* Bekraeftelseskort: vises naar CVR er aktiv */}
                     {cvrLookupState.status === 'active' ? (
@@ -864,7 +675,7 @@ export default function OpretForeningPage() {
                           <input className="ofo-field" value={postnummer} onChange={(e) => setPostnummer(e.target.value.replace(/\D/g, '').slice(0, 4))} disabled={submitLoading} placeholder="Fx 3400" inputMode="numeric" maxLength={4} style={{ background: '#fff', fontFamily: 'ui-monospace, monospace', ...(fieldErrors.postnummer ? { borderColor: 'var(--brand)' } : {}) }} />
                         </label>
                         {!postnummer.trim() && !fieldErrors.postnummer ? <div style={{ marginTop: 7, fontSize: 12, color: 'var(--smh-muted)' }}>CVR gav ikke et postnummer, udfyld det manuelt.</div> : null}
-                        {fieldErrors.postnummer ? <div style={ofoFieldErr}>{fieldErrors.postnummer}</div> : null}
+                        {fieldErrors.postnummer ? <div role="alert" style={ofoFieldErr}>{fieldErrors.postnummer}</div> : null}
                       </div>
                     ) : null}
 
@@ -875,7 +686,7 @@ export default function OpretForeningPage() {
                           <span className="ofo-label">Kontaktperson *</span>
                           <input className="ofo-field" value={kontaktNavn} onChange={(e) => setKontaktNavn(e.target.value)} disabled={submitLoading} placeholder="F.eks. Anders Hansen" maxLength={200} autoComplete="name" style={fieldErrors.kontaktNavn ? { borderColor: 'var(--brand)' } : undefined} />
                         </label>
-                        {fieldErrors.kontaktNavn ? <div style={ofoFieldErr}>{fieldErrors.kontaktNavn}</div> : null}
+                        {fieldErrors.kontaktNavn ? <div role="alert" style={ofoFieldErr}>{fieldErrors.kontaktNavn}</div> : null}
                       </div>
 
                       <div>
@@ -886,7 +697,7 @@ export default function OpretForeningPage() {
                             <input className="ofo-field" autoComplete="tel" inputMode="numeric" placeholder="12 34 56 78" value={kontaktTlf} onChange={(e) => setKontaktTlf(e.target.value.replace(/\D/g, '').slice(0, 8))} disabled={submitLoading} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }} />
                           </div>
                         </label>
-                        {fieldErrors.kontaktTlf ? <div style={ofoFieldErr}>{fieldErrors.kontaktTlf}</div> : null}
+                        {fieldErrors.kontaktTlf ? <div role="alert" style={ofoFieldErr}>{fieldErrors.kontaktTlf}</div> : null}
                       </div>
 
                       <div>
@@ -900,15 +711,15 @@ export default function OpretForeningPage() {
                             <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--smh-muted)', display: 'flex' }}><ChevronDown size={16} /></span>
                           </div>
                         </label>
-                        {fieldErrors.kontaktRolle ? <div style={ofoFieldErr}>{fieldErrors.kontaktRolle}</div> : null}
+                        {fieldErrors.kontaktRolle ? <div role="alert" style={ofoFieldErr}>{fieldErrors.kontaktRolle}</div> : null}
                       </div>
 
                       <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display: 'block' }}>
                           <span className="ofo-label">Adgangskode *</span>
                           <div style={{ position: 'relative' }}>
-                            <input className="ofo-field" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} disabled={submitLoading} placeholder="Mindst 10 tegn" autoComplete="new-password" maxLength={128} style={{ paddingRight: 66, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.password ? { borderColor: 'var(--brand)' } : {}) }} />
-                            <button type="button" className="ofo-showpw" onClick={() => setShowPassword(!showPassword)} tabIndex={-1}>{showPassword ? 'Skjul' : 'Vis'}</button>
+                            <input className="ofo-field" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} disabled={submitLoading} placeholder={`Mindst ${MIN_PASSWORD_LENGTH} tegn`} autoComplete="new-password" maxLength={128} style={{ paddingRight: 66, fontFamily: 'ui-monospace, monospace', ...(fieldErrors.password ? { borderColor: 'var(--brand)' } : {}) }} />
+                            <button type="button" className="ofo-showpw" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword?'Skjul adgangskode':'Vis adgangskode'} aria-pressed={showPassword}>{showPassword ? 'Skjul' : 'Vis'}</button>
                           </div>
                         </label>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, marginTop: 10 }}>
@@ -917,54 +728,33 @@ export default function OpretForeningPage() {
                           ))}
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                          <span style={{ fontSize: 12, color: pwScore >= 3 ? '#15803D' : 'var(--smh-muted)' }}>Mindst 10 tegn, niveau God eller bedre.</span>
+                          <span style={{ fontSize: 12, color: pwScore >= 3 ? '#15803D' : 'var(--smh-muted)' }}>Mindst {MIN_PASSWORD_LENGTH} tegn, niveau God eller bedre.</span>
                           {pwScore >= 0 ? <span style={{ fontSize: 12, fontWeight: 700, color: pwMeter[pwScore].color }}>{pwMeter[pwScore].label}</span> : null}
                         </div>
-                        {fieldErrors.password ? <div style={ofoFieldErr}>{fieldErrors.password}</div> : null}
+                        {fieldErrors.password ? <div role="alert" style={ofoFieldErr}>{fieldErrors.password}</div> : null}
                       </div>
                     </div>
 
-                    {/* Samtykke: dine 3 obligatoriske + 1 marketing */}
-                    <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid var(--smh-border)' }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--smh-muted)', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12 }}>Samtykker</div>
-                      {[
-                        { type: 'platform_terms', title: 'Vilkår og betingelser', accepted: consentTermsChecked },
-                        { type: 'gdpr_terms', title: 'GDPR databehandling', accepted: consentGdprChecked },
-                        { type: 'pii_consent', title: 'Persondata-behandling', accepted: consentPiiChecked },
-                      ].map((c) => (
-                        <div key={c.type} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', borderRadius: 13, border: '1px solid ' + (c.accepted ? 'var(--success)' : 'var(--smh-border)'), background: c.accepted ? '#F0FDF4' : 'var(--surface)', marginBottom: 8 }}>
-                          {c.accepted ? <Check size={18} color="#15803D" /> : <ShieldCheck size={18} color="var(--brand)" />}
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{c.title}</div>
-                            <div style={{ fontSize: 11, color: c.accepted ? '#15803D' : 'var(--smh-muted)' }}>{c.accepted ? 'Accepteret' : 'Læs og accepter for at fortsætte'}</div>
-                          </div>
-                          <button type="button" className="ofo-linkbtn" onClick={() => openConsentModal(c.type)}>{c.accepted ? 'Vis igen' : 'Læs'}</button>
-                        </div>
-                      ))}
-                      <button type="button" onClick={() => !submitLoading && setConsentMarketingChecked(!consentMarketingChecked)} disabled={submitLoading} style={{ display: 'flex', alignItems: 'center', gap: 11, width: '100%', textAlign: 'left', padding: '12px 14px', borderRadius: 13, border: '1px solid var(--smh-border)', background: 'var(--surface)', cursor: 'pointer', fontFamily: 'inherit' }}>
-                        <span style={{ flexShrink: 0, width: 20, height: 20, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', ...(consentMarketingChecked ? { background: 'var(--brand)', border: '1.5px solid var(--brand)', color: '#fff' } : { background: 'var(--surface)', border: '1.5px solid var(--smh-border)' }) }}>
-                          {consentMarketingChecked ? <Check size={12} color="#fff" /> : null}
-                        </span>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>Marketing-emails <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--smh-muted)', background: 'var(--alt)', padding: '2px 6px', borderRadius: 4, letterSpacing: '.06em', textTransform: 'uppercase' }}>Frivilligt</span></div>
-                          <div style={{ fontSize: 11, color: 'var(--smh-muted)' }}>Tilmeld nyhedsbrev og tips.</div>
-                        </div>
-                      </button>
-                    </div>
-
                     <button type="submit" className="ofo-primary" disabled={!canSubmitStep3()} style={{ marginTop: 22 }}>
-                      Fortsæt til samarbejdsaftale <ArrowRight size={17} />
+                      Fortsæt til løsning <ArrowRight size={17} />
                     </button>
                   </form>
-                ) : null}
               </div>
             )}
 
             {/* ---- Trin 4: Samarbejdsaftale (accept, Variant B) ---- */}
             {step === 4 && (
               <div>
-                <h2 style={ofoH}>Underskriv samarbejdsaftalen</h2>
-                <p style={ofoP}>Foreningen indgår en samarbejdsaftale med StøtMedHjerte. Læs aftalen igennem og accepter for at fortsætte.</p>
+                <h2 style={ofoH}>Gennemgå aftale og betal</h2>
+                <p style={ofoP}>Kontrollér jeres oplysninger, læs aftalen og betal første måned. I kan rette jeres valg, før I åbner betalingsvinduet.</p>
+                <div className="ofo-review-list">
+                  <section><div><h3>Forening og kontakt</h3><button type="button" className="ofo-linkbtn" onClick={()=>setStep(2)} disabled={submitLoading||signupComplete||signupUncertain}>Ret oplysninger <ArrowRight size={16}/></button></div><dl><dt>Forening</dt><dd>{foreningsnavn} · CVR {cvrNummer}</dd><dt>Postnummer</dt><dd>{postnummer}</dd><dt>Kontaktperson</dt><dd>{kontaktNavn} · {kontaktRolle}</dd><dt>E-mail</dt><dd>{email}</dd><dt>Telefon</dt><dd>+45 {kontaktTlf}</dd></dl><p className="ofo-note">Du bliver foreningsadministrator og kan invitere teammedlemmer. Hvert medlem bruger sit eget login.</p></section>
+                  <section><div><h3>Løsning og binding</h3><button type="button" className="ofo-linkbtn" onClick={()=>setStep(3)} disabled={submitLoading||signupComplete||signupUncertain}>Ret løsning <ArrowRight size={16}/></button></div><strong>{signupPlan(product,binding)?.title||'Vælg løsning'}</strong><p>{signupPlan(product,binding)?.monthlyAmount} kr./md. inkl. moms · {signupPlan(product,binding)?.bindingLabel}</p></section>
+                </div>
+                <h3 className="ofo-section-title">Samarbejdsaftale</h3>
+                <p style={ofoP}>Læs aftalen for jeres valgte løsning og binding. Du accepterer på vegne af foreningen.</p>
+                {aftaleError&&<div role="alert" style={{padding:16,marginBottom:20,border:'1px solid var(--brand-border)',borderRadius:14}}><p>{aftaleError}</p><button type="button" className="ofo-linkbtn" disabled={aftaleLoading} onClick={()=>loadAgreement()}>Hent aftalen igen</button></div>}
+                {aftaleLoading&&<p role="status">Henter samarbejdsaftalen…</p>}
                 <button type="button" onClick={() => setAftaleModalOpen(true)} disabled={!aftaleVersion} style={{ width: '100%', font: 'inherit', textAlign: 'left', cursor: aftaleVersion ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '15px 16px', borderRadius: 16, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 22 }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                     <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 11, background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FileText size={20} /></span>
@@ -977,70 +767,48 @@ export default function OpretForeningPage() {
                   <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>{kontaktNavn || '(dit navn)'}, {kontaktRolle}</div>
                 </div>
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 11, cursor: 'pointer' }}>
-                  <input type="checkbox" checked={aftaleAccepteret} onChange={(e) => setAftaleAccepteret(e.target.checked)} style={{ marginTop: 3, width: 18, height: 18, flexShrink: 0, accentColor: 'var(--brand)' }} />
+                  <input type="checkbox" checked={aftaleAccepteret} disabled={!aftaleVersion||submitLoading||signupComplete} onChange={(e) => setAftaleAccepteret(e.target.checked)} style={{ marginTop: 3, width: 18, height: 18, flexShrink: 0, accentColor: 'var(--brand)' }} />
                   <span style={{ fontSize: 13.5, lineHeight: 1.5, color: 'var(--ink)' }}>Jeg har læst og accepterer samarbejdsaftalen på vegne af foreningen.</span>
                 </label>
-                <button type="button" className="ofo-primary" onClick={() => { if (aftaleAccepteret && aftaleTemplateUuid) setStep(5); }} disabled={!aftaleAccepteret || !aftaleTemplateUuid} style={{ marginTop: 22, opacity: aftaleAccepteret ? 1 : 0.5 }}>
-                  Fortsæt til MobilePay <ArrowRight size={17} />
-                </button>
+                    {/* Samtykke: dine 3 obligatoriske + 1 marketing */}
+                    <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid var(--smh-border)' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--smh-muted)', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12 }}>Obligatoriske dokumenter</div>
+                      {[
+                        { type: 'platform_terms', title: 'Vilkår og betingelser', accepted: consentTermsChecked },
+                        { type: 'gdpr_terms', title: 'GDPR databehandling', accepted: consentGdprChecked },
+                        { type: 'pii_consent', title: 'Persondata-behandling', accepted: consentPiiChecked },
+                      ].map((c) => (
+                        <div key={c.type} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', borderRadius: 13, border: '1px solid ' + (c.accepted ? 'var(--success)' : 'var(--smh-border)'), background: c.accepted ? '#F0FDF4' : 'var(--surface)', marginBottom: 8 }}>
+                          <input id={`consent-${c.type}`} type="checkbox" checked={c.accepted} disabled={!consentVersions||submitLoading||signupComplete} onChange={e=>({platform_terms:setConsentTermsChecked,gdpr_terms:setConsentGdprChecked,pii_consent:setConsentPiiChecked}[c.type])(e.target.checked)} style={{width:18,height:18,accentColor:'var(--brand)',flexShrink:0}}/>
+                          <div style={{ flex: 1 }}>
+                            <label htmlFor={`consent-${c.type}`} style={{fontSize:13,fontWeight:600,color:'var(--ink)',cursor:'pointer'}}>Jeg accepterer {c.title.toLowerCase()}</label>
+                            <div style={{ fontSize: 11, color: c.accepted ? '#15803D' : 'var(--smh-muted)' }}>{c.accepted ? 'Accepteret' : 'Obligatorisk'}</div>
+                          </div>
+                          <button type="button" className="ofo-linkbtn" onClick={() => openConsentModal(c.type)}>{c.accepted ? 'Vis igen' : 'Læs'}</button>
+                        </div>
+                      ))}
+                      <label className="ofo-marketing"><input type="checkbox" checked={consentMarketingChecked} onChange={e=>setConsentMarketingChecked(e.target.checked)} disabled={submitLoading}/><span>Nyheder og tips fra StøtMedHjerte <small>Frivilligt · kan altid fravælges</small></span></label>
+                    </div>
+                {consentLoading&&<p role="status">Henter dokumenter…</p>}
+                {consentError&&<div role="alert"><p>{consentError}</p><button type="button" className="ofo-linkbtn" onClick={()=>loadConsents()}>Hent dokumenterne igen</button></div>}
+                <p className="ofo-note ofo-after-create"><ShieldCheck size={19} aria-hidden="true"/>Når første måned er betalt, fortsætter I til Kom godt i gang og foreningens MobilePay. I skal ikke registrere kortet igen.</p>
+                <SignupCheckout api={purchaseApi} product={product} binding={binding} payload={purchasePayload} eligible={purchaseEligible} onContinue={()=>{discardDraft();setPassword('');if(onPurchaseContinue)onPurchaseContinue();else window.location.href=SIGNUP_LOGIN_URL;}}/>
+                <p className="ofo-checkout-login">Har I allerede en konto eller forening? <a href={SIGNUP_LOGIN_URL}>Log ind og fortsæt jeres eksisterende forløb</a>.</p>
               </div>
             )}
 
-            {/* ---- Trin 5: MobilePay MSN (visuelt only) ---- */}
-            {step === 5 && (
-              <div>
-                <h2 style={ofoH}>Det sidste sker i jeres dashboard</h2>
-                <p style={ofoP}>Når foreningen er oprettet, fortsætter opsætningen i jeres dashboard. Her går I i gang med både ansøgningen til Indsamlingsnævnet og ansøgningen om et salgsstedsnummer hos MobilePay. De to forløb kan starte samtidig, og der går normalt noget tid, før begge er godkendt.</p>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '15px 16px', borderRadius: 16, background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', marginBottom: 22 }}>
-                  <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 11, background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShieldCheck size={20} /></span>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>MobilePay godkender foreningen</div>
-                    <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--body)' }}>Når MobilePay behandler ansøgningen, kontrollerer de, hvem der tegner foreningen, og bekræfter identiteten med MitID. Det kaldes KYC og hvidvaskkontrol. Bidragene modtages direkte på foreningens egen MobilePay-konto, og StøtMedHjerte tager ingen andel af bidragene.</div>
-                  </div>
-                </div>
-                <p style={{ margin: '0 0 22px', fontSize: 14, lineHeight: 1.6, color: 'var(--body)' }}>Vi viser jer de næste skridt i dashboardet, så snart foreningen er oprettet.</p>
-                <button type="button" className="ofo-primary" onClick={() => setStep(6)} style={{ marginTop: 22 }}>
-                  Fortsæt til abonnement <ArrowRight size={17} />
-                </button>
-              </div>
-            )}
-
-            {/* ---- Trin 6: abonnement -> submit (din handleStep3Submit) ---- */}
-            {step === 6 && (
-              <form onSubmit={handleStep3Submit}>
-                <h2 style={ofoH}>Vælg jeres betalingsperiode</h2>
-                <p style={ofoP}>Foreningen betaler et fast abonnement for at bruge StøtMedHjerte. Vælg om I vil binde jer i 5 måneder til en lavere månedspris, eller betale månedligt uden binding.</p>
-                <div className="ofo-binding-grid">
-                  {[
-                    // TEKST IKKE GODKENDT AF CMO - maa ikke i produktion foer den er det
-                    { key: 'binding', price: 149, heading: 'Med binding', note: 'Foreningen binder sig i 5 måneder og kan derefter opsige med 1 måneds varsel. Lavere månedspris.' },
-                    { key: 'ingen', price: 179, heading: 'Uden binding', note: 'Foreningen betaler månedligt og kan opsige frit. Højere månedspris.' },
-                  ].map((o) => {
-                    const sel = binding === o.key;
-                    return (
-                      <button key={o.key} type="button" onClick={() => setBinding(o.key)} aria-pressed={sel} style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left', background: '#fff', borderRadius: 20, padding: '24px 20px', cursor: 'pointer', fontFamily: 'inherit', border: sel ? '2px solid var(--brand)' : '1px solid var(--smh-border)', boxShadow: '0 16px 40px -32px rgba(8,14,26,.18)' }}>
-                        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink)' }}>{o.heading}</div>
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                          <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-1.4px', color: 'var(--ink)' }}>{o.price}</span>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--smh-muted)' }}>kr./md.</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12.5, lineHeight: 1.5, fontWeight: 600, color: 'var(--smh-muted)', flex: 1 }}><Info size={16} style={{ flexShrink: 0, marginTop: 1 }} />{o.note}</div>
-                        <div style={{ width: '100%', padding: 12, minHeight: 48, borderRadius: 999, fontSize: 14.5, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, ...(sel ? { background: 'var(--brand)', color: '#fff' } : { background: '#fff', color: 'var(--ink)', border: '1px solid var(--smh-border)' }) }}>
-                          {sel ? <><Check size={16} />Valgt</> : 'Vælg'}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                <p style={{ margin: '0 0 22px', padding: '14px 16px', borderRadius: 14, background: 'var(--alt)', border: '1px solid var(--smh-border)', fontSize: 12.5, lineHeight: 1.55, color: 'var(--smh-muted)', textAlign: 'center' }}>Abonnementet er foreningens betaling for at bruge platformen. Alle bidrag går direkte til foreningens egen MobilePay-konto, og StøtMedHjerte tager ikke en andel af bidragene.</p>
-                {submitError ? <div style={{ margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}><AlertCircle size={15} />{submitError}</div> : null}
-                <button type="submit" className="ofo-primary" disabled={submitLoading}>
-                  {submitLoading ? <><Loader size={18} style={{ animation: 'ofoSpin .7s linear infinite' }} /> Opretter foreningen ...</> : <>Opret forening <Check size={17} /></>}
-                </button>
+            {step === 3 && (
+              <form onSubmit={e=>{e.preventDefault();if(signupPlan(product,binding))setStep(4);}}>
+                <h2 style={ofoH}>Vælg jeres løsning</h2>
+                <p style={ofoP}>Vælg de bidrag, I vil kunne modtage, og derefter binding. Prisen er jeres samlede abonnement hos StøtMedHjerte.</p>
+                <SignupPlanChoice product={product} binding={binding} onProductChange={setProduct} onBindingChange={setBinding}/>
+                <button type="submit" className="ofo-primary" disabled={!signupPlan(product,binding)}>Gennemgå aftale og betal <ArrowRight size={17}/></button>
               </form>
             )}
           </div>
         </div>
+        {!signupComplete&&<div className="ofo-save"><button type="button" className="ofo-linkbtn" onClick={saveDraft} disabled={submitLoading}>Gem og fortsæt senere</button><p>Gemmer oplysninger på denne enhed. Brug kun funktionen på en enhed, du har tillid til.</p></div>}
+        {draftNotice&&<div className="ofo-save"><p role="status">{draftNotice}</p></div>}
       </main>
 
       {/* Slim footer */}

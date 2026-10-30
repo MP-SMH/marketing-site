@@ -7,8 +7,7 @@
  * Arkitektur:
  *  - <AuthProvider> wrapper hele app for at give global auth-state
  *  - INGEN auth-blocker: public pages renderer instant
- *  - HashRouter bevares for at understoette eksisterende URL-struktur
- *    (skiftes til BrowserRouter naar Shopify-migration er klar)
+ *  - BrowserRouter giver læsbare URLer; gamle hash-links flyttes i klienten
  *  - <ScrollToTop> resetter scroll-position ved route-changes
  *  - <QueryClientProvider> deler @tanstack/react-query cache
  *
@@ -32,7 +31,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClientInstance } from '@/lib/query-client';
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
+  useNavigate,
   Route,
   Routes,
   useLocation,
@@ -41,6 +41,7 @@ import { useEffect } from 'react';
 
 import { AuthProvider } from '@/lib/AuthContext';
 import PageNotFound from '@/lib/PageNotFound';
+import RouteSeo from '@/components/marketing/RouteSeo';
 
 // Page imports
 import HomeNy from './pages/HomeNy';
@@ -76,12 +77,31 @@ import ForeningAuthPage from './pages/ForeningAuthPage';
 import OpretForeningPage from './pages/OpretForeningPage';
 import OpretForeningLanding from './pages/OpretForeningLanding';
 
+// Gør gamle delte #/adresser til læsbare stier uden at miste destinationen.
+function LegacyHashRedirect() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const migrate = () => {
+      const oldPath = window.location.hash.slice(1);
+      if (oldPath.startsWith("/") && !oldPath.startsWith("//")) navigate(oldPath, { replace: true });
+    };
+    migrate();
+    window.addEventListener("hashchange", migrate);
+    return () => window.removeEventListener("hashchange", migrate);
+  }, [navigate]);
+  return null;
+}
+
 // Scroll-to-top ved route-changes
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    if (hash) {
+      requestAnimationFrame(() => document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView());
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
   return null;
 }
 
@@ -90,7 +110,9 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
+          <LegacyHashRedirect />
           <ScrollToTop />
+          <RouteSeo />
           <Routes>
             {/* Public marketing pages */}
             <Route path="/" element={<HomeNy showTrustBand={false} />} />
@@ -108,7 +130,6 @@ function App() {
             <Route path="/priser" element={<PriserPage />} />
             <Route path="/den-rene-model" element={<DenReneModelPage />} />
             <Route path="/donationer" element={<DonationerPage />} />
-            <Route path="/den-rene-model" element={<DenReneModelPage />} />
             <Route path="/om-os" element={<OmOsPage />} />
             <Route path="/vores-mission" element={<VoresMissionPage />} />
             <Route path="/founder" element={<FounderPage />} />

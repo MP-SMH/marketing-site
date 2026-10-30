@@ -289,7 +289,7 @@ export default function IndsamlingsregnskaberPage() {
         <p style={{ margin: '0 0 16px', fontSize: 14.5, fontWeight: 600, color: 'var(--ink)' }}>{antalTekst}</p>
         <div style={{ background: 'var(--surface)', border: '1px solid var(--smh-border)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 16px 44px -36px rgba(8,14,26,.16)' }}>
           {rows.map((r) => {
-            const st = STATUS[r.status] || { label: String(r.status || '').toUpperCase(), tone: 'neutral' };
+            const st = STATUS[r.anvendelse_status||r.status] || { label: String(r.status || '').toUpperCase(), tone: 'neutral' };
             const periode = periodeVis(r.periode_start, r.periode_slut);
             const forening = stort(r.foreningsnavn) || 'Forening uden navn';
             const formaal = stort(r.formaal);

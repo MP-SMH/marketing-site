@@ -13,9 +13,12 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { SMH_API_URL } from "../lib/supabaseClient";
+import { setPageSeo } from "../lib/pageSeo";
 import SiteNav from "@/components/marketing/SiteNav";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import ForeningIkkeKlar from "@/components/ForeningIkkeKlar";
+import TestforeningNotice from "@/components/marketing/TestforeningNotice";
+import { erTestforening, kanModtageOffentligeBidrag, TEST_FORENING, TEST_HJERTESAG } from "../lib/testforening";
 import { visForeningstype, visCvr } from "../lib/foreningstype";
 import { FormaalIkon } from "../lib/formaalIkoner";
 import "./Forening.css";
@@ -51,6 +54,12 @@ export default function ForeningPage() {
 
     async function hent() {
       setStatus("indlaeser");
+      const visTestDemo = () => {
+        setForening(TEST_FORENING);
+        setFormaal([]);
+        setHjertesager([TEST_HJERTESAG]);
+        setStatus("klar");
+      };
 
       try {
         const svar = await fetch(
@@ -60,12 +69,14 @@ export default function ForeningPage() {
         if (afbrudt) return;
 
         if (svar.status === 404) {
-          setStatus("findes-ikke");
+          if (erTestforening(slug)) visTestDemo();
+          else setStatus("findes-ikke");
           return;
         }
 
         if (!svar.ok) {
-          setStatus("fejl");
+          if (erTestforening(slug)) visTestDemo();
+          else setStatus("fejl");
           return;
         }
 
@@ -76,8 +87,8 @@ export default function ForeningPage() {
         // ikke er komplet. Saa viser vi en "snart klar"-tilstand med kun de
         // minimale data backend sender (navn, by, cvr), ikke den fulde side.
         if (data.klar === false) {
-          setForening(data.forening);
-          setStatus("ikke-klar");
+          if (erTestforening(slug)) visTestDemo();
+          else { setForening(data.forening); setStatus("ikke-klar"); }
           return;
         }
 
@@ -86,7 +97,10 @@ export default function ForeningPage() {
         setHjertesager(Array.isArray(data.hjertesager) ? data.hjertesager : []);
         setStatus("klar");
       } catch {
-        if (!afbrudt) setStatus("fejl");
+        if (!afbrudt) {
+          if (erTestforening(slug)) visTestDemo();
+          else setStatus("fejl");
+        }
       }
     }
 
@@ -96,6 +110,17 @@ export default function ForeningPage() {
       afbrudt = true;
     };
   }, [slug]);
+
+  useEffect(() => {
+    if (status !== "klar" || !forening) return;
+    const navn = forening.foreningsnavn || "Forening";
+    setPageSeo({
+      pathname: "/forening/" + encodeURIComponent(slug),
+      title: navn + " | StøtMedHjerte",
+      description: "Se " + navn + "s offentliggjorte hjertesager og læs om foreningen på StøtMedHjerte.",
+      noindex: erTestforening(slug) || forening.payment_ready !== true,
+    });
+  }, [status, forening, slug]);
 
   async function kopierLink() {
     try {
@@ -112,15 +137,16 @@ export default function ForeningPage() {
       <div style={{ background: "var(--page)", minHeight: "100vh" }}>
         <SiteNav />
         <main style={{ maxWidth: 620, margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
+          {erTestforening(slug) && <TestforeningNotice />}
           {status === "indlaeser" && (
             <p style={{ color: "var(--smh-muted)", fontSize: 15 }}>Henter foreningen…</p>
           )}
-          {status === "ikke-klar" && <ForeningIkkeKlar forening={forening} />}
+          {status === "ikke-klar" && (erTestforening(slug) ? <h1 style={{ color: "var(--ink)" }}>Testprofilen er endnu ikke klar</h1> : <ForeningIkkeKlar forening={forening} />)}
           {status === "findes-ikke" && (
             <>
-              <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--ink)", margin: "0 0 12px" }}>Vi kunne ikke finde denne forening</h1>
+              <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--ink)", margin: "0 0 12px" }}>{erTestforening(slug) ? "Heartland United er en TESTFORENING" : "Vi kunne ikke finde denne forening"}</h1>
               <p style={{ fontSize: 15, lineHeight: 1.7, color: "var(--body)", margin: 0 }}>
-                Tjek linket, eller find andre foreninger på <Link to="/foreninger" style={{ color: "var(--brand-hover)", fontWeight: 700 }}>oversigten</Link>.
+                {erTestforening(slug) ? "Profilen er ikke offentliggjort som en godkendt indsamling. Der kan ikke gives bidrag her." : <>Tjek linket, eller find andre foreninger på <Link to="/foreninger" style={{ color: "var(--brand-hover)", fontWeight: 700 }}>oversigten</Link>.</>}
               </p>
             </>
           )}
@@ -132,6 +158,39 @@ export default function ForeningPage() {
               </p>
             </>
           )}
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
+
+
+  if (erTestforening(slug)) {
+    return (
+      <div style={{ background: "var(--page)", minHeight: "100vh" }}>
+        <SiteNav />
+        <main className="f-wrap" style={{ paddingTop: "clamp(32px,5vw,64px)", paddingBottom: 80 }}>
+          <TestforeningNotice sandboxEnabled={kanModtageOffentligeBidrag(forening)} />
+          <div style={{ background: "var(--surface)", border: "1px solid var(--smh-border)", borderRadius: 24, padding: "clamp(24px,5vw,40px)" }}>
+            <p style={{ color: "var(--brand-hover)", fontWeight: 800, letterSpacing: ".06em", margin: "0 0 10px" }}>TESTFORENING</p>
+            <h1 style={{ color: "var(--ink)", fontSize: "clamp(30px,4vw,44px)", margin: "0 0 16px" }}>{forening.foreningsnavn}</h1>
+            <p style={{ color: "var(--body)", lineHeight: 1.7, maxWidth: 660, margin: "0 0 28px" }}>
+              Denne profil bruger et TEST-journalnummer og er ikke en myndighedsgodkendt indsamling. Følg testhjertesagen for at afprøve sandboxforløbet, når det er aktiveret.
+            </p>
+            <h2 style={{ color: "var(--ink)", fontSize: 24, margin: "0 0 16px" }}>Testhjertesager</h2>
+            {hjertesager.length === 0 ? (
+              <p style={{ color: "var(--body)" }}>Der er ingen synlige testhjertesager lige nu.</p>
+            ) : (
+              <div className="f-cards">
+                {hjertesager.map((hs) => (
+                  <Link key={hs.slug} to={'/hjertesag/' + slug + '/' + hs.slug} style={{ display: "block", padding: 22, borderRadius: 18, background: "var(--alt)", border: "1px solid var(--smh-border)", textDecoration: "none", color: "var(--ink)" }}>
+                    <strong style={{ display: "block", marginBottom: 8 }}>{hs.kampagnenavn}</strong>
+                    <span>Se testhjertesagen</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </main>
         <SiteFooter />
       </div>

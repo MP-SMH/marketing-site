@@ -1,3 +1,4 @@
+import OffentligtRegnskab from '../components/OffentligtRegnskab';
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { SMH_API_URL } from '../lib/supabaseClient';
@@ -271,15 +272,16 @@ export default function IndsamlingsregnskabPage() {
 
           {/* Dokumentstak */}
           <div style={{ padding: 'clamp(18px,3vw,28px)' }}>
+            {regnskab.grundlag&&<OffentligtRegnskab grundlag={regnskab.grundlag} pdfUrl={regnskab.fil_url} offentliggjort={regnskab.offentliggjort_dato}/>}
             {/* Periodelinje */}
-            <div style={{ ...etiketLinje, marginBottom: 16 }}>
+            <div hidden={!!regnskab.grundlag} style={{ ...etiketLinje, marginBottom: 16, ...(regnskab.grundlag?{display:'none'}:{}) }}>
               <span style={etiketLabel}>Indsamlingsperiode</span>
               <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--body)', fontVariantNumeric: 'tabular-nums' }}>{periodeVis(regnskab.periode_start, regnskab.periode_slut)}</span>
               <span style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, letterSpacing: '-.4px', color: 'var(--ink)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{kr(regnskab.indsamlet_oere)}</span>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ background: erstattet ? 'var(--alt)' : 'var(--surface)', border: erstattet ? '1px solid var(--smh-border)' : '1.5px solid var(--brand-border)', borderRadius: 20, padding: '22px 24px' }}>
+              <div hidden={!!regnskab.grundlag} style={{ display:regnskab.grundlag?'none':undefined, background: erstattet ? 'var(--alt)' : 'var(--surface)', border: erstattet ? '1px solid var(--smh-border)' : '1.5px solid var(--brand-border)', borderRadius: 20, padding: '22px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap', marginBottom: 10 }}>
                   <span style={badgeStil(hovedBadge.tone)}>{hovedBadge.label}</span>
                   {regnskab.revisor_paategnet === true && <span style={badgeStil('neutral')}>GODKENDT AF REVISOR</span>}
@@ -316,7 +318,7 @@ export default function IndsamlingsregnskabPage() {
 
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                   <PdfKnap url={regnskab.fil_url} />
-                  {regnskab.revideret_fil_url && <PdfKnap url={regnskab.revideret_fil_url} label="Se revisors påtegning" />}
+                  {regnskab.revideret_fil_url && regnskab.revideret_fil_url!==regnskab.fil_url && <PdfKnap url={regnskab.revideret_fil_url} label="Se revisors påtegning" />}
                 </div>
               </div>
 
@@ -330,7 +332,7 @@ export default function IndsamlingsregnskabPage() {
                     <div style={{ fontSize: 14.5, fontWeight: 700, letterSpacing: '-.2px', color: 'var(--ink)' }}>Overskudserklæring</div>
                     {e.periode_slut && <div style={{ fontSize: 13, color: MUTED, fontVariantNumeric: 'tabular-nums', marginTop: 4 }}>Regnskabsår til {fmtDato(e.periode_slut)}</div>}
                     {e.offentliggjort_dato && <div style={{ fontSize: 13, color: MUTED, fontVariantNumeric: 'tabular-nums', marginTop: 4 }}>Offentliggjort {fmtDato(e.offentliggjort_dato)}</div>}
-                    <PdfKnap url={e.fil_url} />
+                    {e.grundlag?<OffentligtRegnskab grundlag={e.grundlag} pdfUrl={e.fil_url} offentliggjort={e.offentliggjort_dato}/>:<PdfKnap url={e.fil_url} />}
                   </div>
                 );
               })}
@@ -349,7 +351,7 @@ export default function IndsamlingsregnskabPage() {
             {regnskab.alle_midler_anvendt === true && (
               <div style={{ ...etiketLinje, marginTop: 16 }}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#166534" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M20 6 9 17l-5-5" /></svg>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: '#166534' }}>Alle midler anvendt. Sporet er lukket.</span>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: '#166534' }}>Alle midler anvendt. Ingen yderligere overskudserklæring nødvendig.</span>
               </div>
             )}
 

@@ -60,7 +60,7 @@ export default function ForeningAuthPage() {
               </div>
 
               <div style={{ marginTop: "20px", paddingTop: "18px", borderTop: "1px solid rgba(255,255,255,.08)" }}>
-                <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.5, color: "#AEB9CC" }}>Har I ikke en konto endnu? <a href="/opret-forening#form" style={{ textDecoration: "none", color: "#fff", fontWeight: 600, borderBottom: "1px solid rgba(224,25,63,.6)" }}>Opret forening</a></p>
+                <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.5, color: "#AEB9CC" }}>Har I ikke en konto endnu? <Link to="/opret-forening" style={{ textDecoration: "none", color: "#fff", fontWeight: 600, borderBottom: "1px solid rgba(224,25,63,.6)" }}>Opret forening</Link></p>
               </div>
             </div>
 
@@ -200,7 +200,7 @@ export default function ForeningAuthPage() {
               </div>
               <div style={{ fontSize: "20px", fontWeight: 800, color: "#fff", letterSpacing: "-.4px", marginBottom: "10px" }}>Log ind</div>
               <p style={{ margin: "0 0 22px", fontSize: "15px", lineHeight: 1.6, color: "#AEB9CC" }}>Administrer hjertesager, se bidrag og fast støtte, og hent regnskab fra ét samlet overblik.</p>
-              <a href="/opret-forening#form" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "8px", color: "#fff", fontSize: "14.5px", fontWeight: 600, padding: "12px 22px", borderRadius: "999px", background: "var(--brand)", boxShadow: "0 10px 26px rgba(224,25,63,.3)" }}>Opret forening</a>
+              <Link to="/opret-forening" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "8px", color: "#fff", fontSize: "14.5px", fontWeight: 600, padding: "12px 22px", borderRadius: "999px", background: "var(--brand)", boxShadow: "0 10px 26px rgba(224,25,63,.3)" }}>Opret forening</Link>
             </div>
           </div>
         </div>
@@ -234,14 +234,14 @@ export default function ForeningAuthPage() {
               <span style={{ marginTop: "auto", paddingTop: "6px", fontSize: "13.5px", fontWeight: 600, color: "var(--brand)" }}>Kontakt os →</span>
             </Link>
 
-            <a href="/opret-forening#form" style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "12px", background: "var(--surface)", border: "1px solid var(--smh-border)", borderRadius: "18px", padding: "24px" }}>
+            <Link to="/opret-forening" style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "12px", background: "var(--surface)", border: "1px solid var(--smh-border)", borderRadius: "18px", padding: "24px" }}>
               <span style={{ width: "42px", height: "42px", borderRadius: "12px", background: "var(--brand-surface)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Ic d='<path d="M12 5v14M5 12h14"/>' size={21} stroke="var(--brand)" />
               </span>
               <span style={{ fontSize: "17px", fontWeight: 700, color: "var(--ink)", letterSpacing: "-.3px" }}>Opret forening</span>
               <span style={{ fontSize: "14px", lineHeight: 1.55, color: "var(--body)" }}>Har I ikke en konto endnu? Kom i gang på få minutter.</span>
               <span style={{ marginTop: "auto", paddingTop: "6px", fontSize: "13.5px", fontWeight: 600, color: "var(--brand)" }}>Opret forening →</span>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -253,7 +253,7 @@ export default function ForeningAuthPage() {
           <h2 style={{ margin: "0 auto 18px", fontSize: "clamp(28px,4.4vw,44px)", lineHeight: 1.08, fontWeight: 800, letterSpacing: "-1.2px", color: "#fff", maxWidth: "680px" }}>Klar til at administrere jeres indsamling?</h2>
           <p style={{ margin: "0 auto 34px", fontSize: "clamp(16px,2vw,18.5px)", lineHeight: 1.6, color: "#AEB9CC", maxWidth: "540px" }}>Opret foreningen og få adgang til overblikket. Det tager få minutter.</p>
           <div className="li-cta-row">
-            <a href="/opret-forening#form" className="li-cta-w" style={{ textDecoration: "none", textAlign: "center", color: "#fff", fontSize: "16px", fontWeight: 600, padding: "16px 32px", minHeight: "54px", borderRadius: "999px", background: "var(--brand)", boxShadow: "0 14px 34px rgba(224,25,63,.32)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>Opret forening</a>
+            <Link to="/opret-forening" className="li-cta-w" style={{ textDecoration: "none", textAlign: "center", color: "#fff", fontSize: "16px", fontWeight: 600, padding: "16px 32px", minHeight: "54px", borderRadius: "999px", background: "var(--brand)", boxShadow: "0 14px 34px rgba(224,25,63,.32)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>Opret forening</Link>
             <Link to="/kontakt" className="li-cta-w" style={{ textDecoration: "none", textAlign: "center", color: "#fff", fontSize: "16px", fontWeight: 600, padding: "16px 32px", minHeight: "54px", borderRadius: "999px", background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.16)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>Kontakt support</Link>
           </div>
         </div>
