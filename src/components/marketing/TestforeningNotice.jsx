@@ -1,4 +1,4 @@
-export default function TestforeningNotice() {
+export default function TestforeningNotice({ sandboxEnabled = false }) {
   return (
     <div
       role="status"
@@ -13,7 +13,7 @@ export default function TestforeningNotice() {
       }}
     >
       <strong style={{ display: 'block', fontSize: 16, letterSpacing: '.04em' }}>TESTFORENING</strong>
-      Heartland United bruges kun til afprøvning. TEST-HU-2026-10-30 er et internt testnummer, ikke en tilladelse fra Indsamlingsnævnet. Betaling er lukket.
+      Heartland United bruges kun til afprøvning. TEST-HU-2026-10-30 er et internt testnummer, ikke en tilladelse fra Indsamlingsnævnet. {sandboxEnabled ? 'Kun MobilePays sandboxbetaling er åben; ingen rigtige penge overføres.' : 'Betaling er lukket.'}
     </div>
   );
 }
