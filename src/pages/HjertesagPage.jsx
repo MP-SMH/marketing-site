@@ -6,7 +6,7 @@ import SiteNav from '@/components/marketing/SiteNav';
 import SiteFooter from '@/components/marketing/SiteFooter';
 import HjertesagCheckout from './HjertesagCheckout';
 import TestforeningNotice from '@/components/marketing/TestforeningNotice';
-import { erTestforening, TEST_FORENING, TEST_HJERTESAG } from '../lib/testforening';
+import { erTestforening, kanModtageOffentligeBidrag, TEST_FORENING, TEST_HJERTESAG } from '../lib/testforening';
 import { CTA_STOR, CTA_MEDIUM, CTA_RADIUS, CTA_PADDING, CTA_SKRIFT, CTA_SKRIFT_SEKUNDAER, CTA_VAEGT, CTA_SPAERRING } from '../lib/cta';
 
 /**
@@ -352,14 +352,13 @@ export default function HjertesagPage() {
     async function hent() {
       setStatus('indlaeser');
       setCoverFejlede(false);
-      if (erTestforening(foreningSlug)) {
+      const visTestDemo = () => {
         if (hjertesagSlug !== TEST_HJERTESAG.slug) { setStatus('findes-ikke'); return; }
         setHjertesag(TEST_HJERTESAG);
         setForening(TEST_FORENING);
         setStoettevaeg([]);
         setStatus('klar');
-        return;
-      }
+      };
 
       try {
         const svar = await fetch(
@@ -369,12 +368,14 @@ export default function HjertesagPage() {
         if (afbrudt) return;
 
         if (svar.status === 404) {
-          setStatus('findes-ikke');
+          if (erTestforening(foreningSlug)) visTestDemo();
+          else setStatus('findes-ikke');
           return;
         }
 
         if (!svar.ok) {
-          setStatus('fejl');
+          if (erTestforening(foreningSlug)) visTestDemo();
+          else setStatus('fejl');
           return;
         }
 
@@ -386,7 +387,10 @@ export default function HjertesagPage() {
         setStoettevaeg(Array.isArray(data.stoettevaeg) ? data.stoettevaeg : []);
         setStatus('klar');
       } catch {
-        if (!afbrudt) setStatus('fejl');
+        if (!afbrudt) {
+          if (erTestforening(foreningSlug)) visTestDemo();
+          else setStatus('fejl');
+        }
       }
     }
 
@@ -450,11 +454,15 @@ export default function HjertesagPage() {
 
 
   if (erTestforening(foreningSlug)) {
+    const sandboxEnabled = kanModtageOffentligeBidrag(forening);
+    if (sandboxEnabled && visning === 'checkout') {
+      return <HjertesagCheckout hjertesag={hjertesag} forening={forening} onTilbage={() => setVisning('detalje')} />;
+    }
     return (
       <div style={S.side} className="hs-side">
         <SiteNav />
         <main style={{ ...S.wrap, paddingTop: 40, paddingBottom: 80 }}>
-          <TestforeningNotice />
+          <TestforeningNotice sandboxEnabled={sandboxEnabled} />
           <div style={{ background: 'var(--surface)', border: '1px solid var(--smh-border)', borderRadius: 26, padding: 'clamp(24px,5vw,42px)' }}>
             <Link to={'/forening/' + foreningSlug} style={{ color: 'var(--brand-hover)', fontWeight: 700, textDecoration: 'none' }}>
               Tilbage til testforeningen
@@ -465,8 +473,9 @@ export default function HjertesagPage() {
               <p style={{ color: 'var(--body)', lineHeight: 1.7, maxWidth: 680 }}>{hjertesag.kort_beskrivelse}</p>
             )}
             <p style={{ color: 'var(--body)', lineHeight: 1.7 }}>
-              Indsamlingstal fra afprøvningen vises ikke som rigtige bidrag. Betaling er lukket på denne testhjertesag.
+              Indsamlingstal fra afprøvningen vises ikke som rigtige bidrag. {sandboxEnabled ? "Du kan gennemføre en sandboxbetaling uden rigtige penge." : "Betaling er lukket på denne testhjertesag."}
             </p>
+            {sandboxEnabled && <button type="button" onClick={() => setVisning('checkout')} style={{ marginTop: 16, padding: '14px 24px', borderRadius: 999, border: 0, background: 'var(--brand)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>Start TEST-betaling med MobilePay</button>}
           </div>
         </main>
         <SiteFooter />
