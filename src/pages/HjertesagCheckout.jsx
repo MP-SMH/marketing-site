@@ -431,7 +431,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
 
     // Ruten kraever https. Paa localhost afvises kaldet derfor med 400, og det
     // er korrekt: en returadresse over http maa ikke indgaa i et betalingsflow.
-    const returUrl = `${window.location.origin}/#/kvittering`;
+    const returUrl = `${window.location.origin}/kvittering`;
 
     const krop = {
       association_uuid: forening.association_uuid,
@@ -623,7 +623,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
         }}
         role="button"
         tabIndex={0}
-        aria-label="Betal med MobilePay"
+        aria-label={erTestforening(forening) ? "Start testbetaling med MobilePay" : "Betal med MobilePay"}
         aria-busy={sender}
         style={{
           width: '100%',
@@ -709,10 +709,11 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
             }}
           >
             <LaasIkon />
-            SIKKER BETALING
+            {erTestforening(forening) ? "MOBILEPAY SANDBOX" : "SIKKER BETALING"}
           </span>
         </section>
 
+        {erTestforening(forening) && <section style={{ ...S.wrap, paddingTop: 12 }}><TestforeningNotice sandboxEnabled /></section>}
         <section style={{ ...S.wrap, paddingTop: 14, paddingBottom: 'clamp(44px,9vw,72px)' }}>
           <div className="hs-co-grid">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
