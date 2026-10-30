@@ -42,7 +42,7 @@ function ShieldBadge() {
 function HjertesagKort({ hs }) {
   const f = hs.forening || {};
   const testforening = erTestforening(f);
-  const godkendt = kanModtageOffentligeBidrag(f) && !!f.indsamlingsnaevn_journal_nr;
+  const godkendt = !testforening && kanModtageOffentligeBidrag(f) && !!f.indsamlingsnaevn_journal_nr;
   const pct = Math.round(andel(hs) * 100);
   const barBg = godkendt ? "linear-gradient(90deg,#16A34A,#22C55E)" : "#C6CDD8";
   const sti = f.slug && hs.slug ? `/hjertesag/${f.slug}/${hs.slug}` : null;
