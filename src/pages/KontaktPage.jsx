@@ -50,10 +50,26 @@ const FIELDS = [
 
 export default function KontaktPage() {
   const [form, setForm] = useState({ navn: "", email: "", telefon: "", forening: "", cvr: "", emne: "", besked: "" });
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState("idle");
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
-  const submit = () => setSubmitted(true);
+  const submit = async (event) => {
+    event.preventDefault();
+    setSubmitted("sending");
+    const formData = new FormData(event.currentTarget);
+    try {
+      const response = await fetch("/__forms.html", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(formData).toString(),
+      });
+      if (!response.ok) throw new Error("Kontaktformularen blev ikke modtaget");
+      setSubmitted("success");
+      setForm({ navn: "", email: "", telefon: "", forening: "", cvr: "", emne: "", besked: "" });
+    } catch {
+      setSubmitted("error");
+    }
+  };
 
   return (
     <>
@@ -129,27 +145,34 @@ export default function KontaktPage() {
             {/* Formular */}
             <div style={{ background: "var(--surface)", border: "1px solid var(--smh-border)", borderRadius: "24px", padding: "clamp(24px,3.5vw,40px)", boxShadow: "0 30px 70px -38px rgba(8,14,26,.16)" }}>
               <h2 style={{ margin: "0 0 24px", fontSize: "clamp(20px,3vw,25px)", fontWeight: 800, letterSpacing: "-.5px", color: "var(--ink)" }}>Send os en besked</h2>
+              <form name="beta-kontakt" method="POST" data-netlify="true" netlify-honeypot="bot-field" onSubmit={submit}>
+                <input type="hidden" name="form-name" value="beta-kontakt" />
+                <p style={{ position: "absolute", left: "-10000px" }} aria-hidden="true"><label>Udfyld ikke dette felt<input name="bot-field" tabIndex={-1} autoComplete="off" /></label></p>
               <div className="kon-form-grid">
                 {FIELDS.map((f) => (
                   <label key={f.key} style={{ display: "block" }}>
                     <span style={{ display: "block", fontSize: "13.5px", fontWeight: 600, color: "var(--body)", marginBottom: "8px" }}>{f.label}</span>
-                    <input className="kon-field" type={f.type} inputMode={f.inputMode} value={form[f.key]} onChange={set(f.key)} placeholder={f.placeholder} />
+                    <input className="kon-field" name={f.key} type={f.type} inputMode={f.inputMode} value={form[f.key]} onChange={set(f.key)} placeholder={f.placeholder} required={["navn", "email", "emne"].includes(f.key)} />
                   </label>
                 ))}
                 <label className="kon-col-2" style={{ display: "block" }}>
                   <span style={{ display: "block", fontSize: "13.5px", fontWeight: 600, color: "var(--body)", marginBottom: "8px" }}>Besked</span>
-                  <textarea className="kon-field" value={form.besked} onChange={set("besked")} placeholder="Skriv din besked her." />
+                  <textarea className="kon-field" name="besked" value={form.besked} onChange={set("besked")} placeholder="Skriv din besked her." required />
                 </label>
               </div>
 
-              <button onClick={submit} className="kon-submit" style={{ marginTop: "24px", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "9px", padding: "16px", minHeight: "54px", border: "none", borderRadius: "999px", background: "var(--brand)", color: "#fff", fontSize: "16px", fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 14px 30px rgba(224,25,63,.24)" }}>Send besked</button>
+              <button type="submit" disabled={submitted === "sending"} className="kon-submit" style={{ marginTop: "24px", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "9px", padding: "16px", minHeight: "54px", border: "none", borderRadius: "999px", background: "var(--brand)", color: "#fff", fontSize: "16px", fontWeight: 600, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 14px 30px rgba(224,25,63,.24)" }}>{submitted === "sending" ? "Sender…" : "Send besked"}</button>
 
-              {submitted && (
+              {submitted === "success" && (
                 <div style={{ marginTop: "16px", display: "flex", alignItems: "center", gap: "11px", padding: "16px 18px", borderRadius: "16px", background: "#ECFDF3", border: "1px solid #BBF7D0" }}>
                   <span style={{ flexShrink: 0, width: "26px", height: "26px", borderRadius: "50%", background: "var(--success)", display: "flex", alignItems: "center", justifyContent: "center" }}><Ic d={CHECK} size={15} sw={3.2} stroke="#fff" /></span>
                   <span style={{ fontSize: "14.5px", lineHeight: 1.5, color: "#166534", fontWeight: 500 }}>Tak for din besked. Vi vender tilbage hurtigst muligt.</span>
                 </div>
               )}
+              {submitted === "error" && (
+                <div role="alert" style={{ marginTop: "16px", color: "#991B1B" }}>Beskeden blev ikke sendt. Prøv igen, eller skriv direkte til <a href="mailto:hej@stotmedhjerte.dk">hej@stotmedhjerte.dk</a>.</div>
+              )}
+              </form>
             </div>
 
             {/* Kontakt-info (navy) */}

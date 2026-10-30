@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { PRICING } from "../data/pricing";
+import { PRICING, BINDING_TEKST } from "../data/pricing";
 import SiteNav from "@/components/marketing/SiteNav";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import "./Priser.css";
@@ -26,7 +26,7 @@ const GRUPPER = [
     titel: "Kom i gang",
     donationer: true,
     rows: [
-      ["Regnskabet laves automatisk", "Når tilladelsen udløber, er regnskabet klar til indsendelse."],
+      ["Regnskabsgrundlaget samles løbende", "Tal og dokumentation samles, så foreningen får et tydeligt grundlag til regnskabet."],
       ["Bidrag direkte til jeres MobilePay", "Pengene går ind på foreningens egen konto. Vi rører dem aldrig."],
       ["Op til 5 hjertesager", "En side pr. formål, fx nye trøjer eller en klubtur."],
       ["Del og promover med ét klik", "Færdige opslag og links til Facebook, mail og SMS."],
@@ -43,7 +43,7 @@ const GRUPPER = [
       ["Faste månedlige bidrag", "Støtter kan give et fast beløb hver måned."],
       ["Støtteaftaler og historik", "Se hvem der støtter fast, og hvad der er givet."],
       ["Rapport hver måned", "Et samlet overblik til bestyrelsesmødet."],
-      ["Revisor godkender digitalt", "Inviter jeres revisor og få underskriften online."],
+      ["Udvidet regnskabsgrundlag", "Saml relevante tal og dokumentation ét sted gennem hele forløbet."],
     ],
   },
 ];
@@ -167,7 +167,7 @@ export default function PriserPage() {
               ))}
 
               <div style={{ display: "grid", gridTemplateColumns: GRID, alignItems: "center", borderTop: "1px solid var(--smh-border)" }}>
-                <div style={{ padding: "20px 22px", fontSize: "14px", fontWeight: 600, color: "var(--body)" }}>{binding ? "5 måneders binding, derefter 1 måneds varsel" : "Opsig når som helst"}</div>
+                <div style={{ padding: "20px 22px", fontSize: "14px", fontWeight: 600, color: "var(--body)" }}>{binding ? BINDING_TEKST : "Opsig når som helst"}</div>
                 <div style={{ padding: "20px 16px" }}><Link to="/opret-forening" className="cta-flat-ghost" style={CTA}>Opret forening</Link></div>
                 <div style={{ padding: "20px 16px" }}><Link to="/opret-forening" className="cta-flat-brand" style={{ ...CTA, color: "#fff" }}>Opret forening</Link></div>
               </div>

@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { SMH_API_URL } from '../lib/supabaseClient';
+import { setPageSeo } from '../lib/pageSeo';
 import SiteNav from '@/components/marketing/SiteNav';
 import SiteFooter from '@/components/marketing/SiteFooter';
 import HjertesagCheckout from './HjertesagCheckout';
+import TestforeningNotice from '@/components/marketing/TestforeningNotice';
+import { erTestforening } from '../lib/testforening';
 import { CTA_STOR, CTA_MEDIUM, CTA_RADIUS, CTA_PADDING, CTA_SKRIFT, CTA_SKRIFT_SEKUNDAER, CTA_VAEGT, CTA_SPAERRING } from '../lib/cta';
 
 /**
@@ -386,6 +389,18 @@ export default function HjertesagPage() {
     };
   }, [foreningSlug, hjertesagSlug]);
 
+  useEffect(() => {
+    if (status !== 'klar' || !hjertesag || !forening) return;
+    const navn = hjertesag.kampagnenavn || 'Hjertesag';
+    const foreningsnavn = forening.foreningsnavn || 'foreningen';
+    setPageSeo({
+      pathname: '/hjertesag/' + encodeURIComponent(foreningSlug) + '/' + encodeURIComponent(hjertesagSlug),
+      title: navn + ' hos ' + foreningsnavn + ' | StøtMedHjerte',
+      description: 'Læs om ' + navn + ' hos ' + foreningsnavn + ', og se formålet med hjertesagen.',
+      noindex: erTestforening(foreningSlug) || forening.payment_ready !== true,
+    });
+  }, [status, hjertesag, forening, foreningSlug, hjertesagSlug]);
+
   async function kopierLink() {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -401,13 +416,14 @@ export default function HjertesagPage() {
       <div style={S.side} className="hs-side">
         <SiteNav />
         <main style={S.besked}>
+          {erTestforening(foreningSlug) && <TestforeningNotice />}
           {status === 'indlaeser' && (
             <p style={{ color: 'var(--smh-muted)', fontSize: 15 }}>Henter hjertesagen…</p>
           )}
           {status === 'findes-ikke' && (
             <>
-              <h1 style={S.h1Besked}>Vi kunne ikke finde denne hjertesag</h1>
-              <p style={S.pBesked}>Tjek linket, eller find andre hjertesager på oversigten.</p>
+              <h1 style={S.h1Besked}>{erTestforening(foreningSlug) ? "Heartland United er en TESTFORENING" : "Vi kunne ikke finde denne hjertesag"}</h1>
+              <p style={S.pBesked}>{erTestforening(foreningSlug) ? "Testhjertesagen er ikke en offentlig godkendt indsamling. Der kan ikke gives bidrag her." : "Tjek linket, eller find andre hjertesager på oversigten."}</p>
             </>
           )}
           {status === 'fejl' && (
@@ -418,6 +434,32 @@ export default function HjertesagPage() {
               </p>
             </>
           )}
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
+
+
+  if (erTestforening(foreningSlug)) {
+    return (
+      <div style={S.side} className="hs-side">
+        <SiteNav />
+        <main style={{ ...S.wrap, paddingTop: 40, paddingBottom: 80 }}>
+          <TestforeningNotice />
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--smh-border)', borderRadius: 26, padding: 'clamp(24px,5vw,42px)' }}>
+            <Link to={'/forening/' + foreningSlug} style={{ color: 'var(--brand-hover)', fontWeight: 700, textDecoration: 'none' }}>
+              Tilbage til testforeningen
+            </Link>
+            <p style={{ margin: '26px 0 10px', color: 'var(--brand-hover)', fontWeight: 800, letterSpacing: '.06em' }}>TESTHJERTESAG</p>
+            <h1 style={{ margin: '0 0 18px', color: 'var(--ink)', fontSize: 'clamp(28px,4vw,42px)' }}>{hjertesag.kampagnenavn}</h1>
+            {harIndhold(hjertesag.kort_beskrivelse) && (
+              <p style={{ color: 'var(--body)', lineHeight: 1.7, maxWidth: 680 }}>{hjertesag.kort_beskrivelse}</p>
+            )}
+            <p style={{ color: 'var(--body)', lineHeight: 1.7 }}>
+              Indsamlingstal fra afprøvningen vises ikke som rigtige bidrag. Betaling er lukket på denne testhjertesag.
+            </p>
+          </div>
         </main>
         <SiteFooter />
       </div>

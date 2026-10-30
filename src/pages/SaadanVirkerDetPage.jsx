@@ -265,10 +265,10 @@ export default function SaadanVirkerDetPage() {
             <div>
               <div style={{ fontSize: "13px", fontWeight: 700, letterSpacing: ".6px", textTransform: "uppercase", color: "var(--brand)", marginBottom: "12px" }}>For foreninger</div>
               <h2 style={{ margin: 0, fontSize: "clamp(25px,3.9vw,40px)", lineHeight: 1.1, fontWeight: 800, letterSpacing: "-.9px", color: "var(--ink)", textWrap: "balance" }}>Fra oprettelse til dokumentation.</h2>
-              <p style={{ margin: "16px 0 0", fontSize: "clamp(15.5px,2.2vw,17.5px)", lineHeight: 1.65, color: "var(--body)" }}>Fem trin i foreningens dashboard. CVR valideres automatisk, journalnummeret registreres, og alt samles til regnskabsgrundlaget undervejs.</p>
+              <p style={{ margin: "16px 0 0", fontSize: "clamp(15.5px,2.2vw,17.5px)", lineHeight: 1.65, color: "var(--body)" }}>Efter oprettelsen guider Kom godt i gang jer gennem profil, ansvarlige, første hjertesag, tilladelse og betaling. I kan klargøre indhold, mens ansøgninger behandles.</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "24px" }}>
                 {[
-                  ["CVR-validering", " bekræfter foreningen automatisk."],
+                  ["Gemte oplysninger", " følger med fra oprettelsen."],
                   ["Journalnummer", " kobles til den offentlige indsamling."],
                   ["Dokumentation", " samles løbende til regnskabet."],
                 ].map(([b, rest]) => (

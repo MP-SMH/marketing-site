@@ -4,13 +4,12 @@
 //  Home.jsx er urørt. 1:1 port af Claude Design forsidens main-
 //  sektioner. Delt nav/footer via SiteNav/SiteFooter.
 //  Links: ROUTES.* -> react-router <Link>; in-page #anchors ->
-//  plain <a href> (appen kører HashRouter, så <Link to="#x">
-//  ville blive tolket som en rute og ødelægge scroll).
+//  plain <a href>; handlings-CTAer bruger rigtige sider.
 // ============================================================
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PRICING, MAANEDLIG_BESPARELSE, FEATURES as PRIS_FEATURES } from "../data/pricing";
+import { PRICING, BINDING_MONTHS, MAANEDLIG_BESPARELSE, FEATURES as PRIS_FEATURES } from "../data/pricing";
 import SiteNav from "@/components/marketing/SiteNav";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import "./Home.css";
@@ -146,8 +145,8 @@ function Hero() {
           <h1 style={{ margin: "0 0 20px", fontSize: "clamp(32px,5.4vw,54px)", lineHeight: 1.06, fontWeight: 800, letterSpacing: "-1.2px", color: "var(--ink)", textWrap: "balance" }}>Pengeindsamling gjort enkelt for danske foreninger.</h1>
           <p style={{ margin: "0 0 30px", fontSize: "clamp(16px,2.4vw,18.5px)", lineHeight: 1.6, color: "var(--body)", maxWidth: 520 }}>StøtMedHjerte samler hjertesager, donationer, fast støtte og regnskabsgrundlag ét sted, så foreningen får bedre overblik og mindre manuelt arbejde.</p>
           <div className="cta-row" style={{ marginBottom: 24 }}>
-            <a href="#foreninger" className="cta-w btn-brand" style={{ ...brandBtn("16px 30px"), display: "flex" }}>Opret forening</a>
-            <a href="#hjertesager" className="cta-w btn-ghost" style={{ ...ghostBtn("16px 30px"), display: "flex" }}>Find hjertesag</a>
+            <Link to={ROUTES.opretForening} className="cta-w btn-brand" style={{ ...brandBtn("16px 30px"), display: "flex" }}>Opret forening</Link>
+            <Link to={ROUTES.hjertesager} className="cta-w btn-ghost" style={{ ...ghostBtn("16px 30px"), display: "flex" }}>Find hjertesag</Link>
           </div>
           <div style={{ marginTop: 16 }}>
             <Link to={ROUTES.saadanVirkerDet} className="link-ink" style={{ textDecoration: "none", color: "var(--body)", fontSize: 15.5, fontWeight: 600, padding: "16px 14px", minHeight: 54, display: "inline-flex", alignItems: "center", gap: 6 }}>
@@ -181,15 +180,15 @@ function Hero() {
                   </div>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: "var(--label)", textTransform: "uppercase", letterSpacing: ".4px" }}>Hjertesag</div>
-                    <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--body)" }}>Aktiv · 19 dage tilbage</div>
+                    <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--body)" }}>Illustrativ hjertesag</div>
                   </div>
                 </div>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 11px", borderRadius: 999, background: "#ECFDF3", color: "#15803D", fontSize: 12.5, fontWeight: 600 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--success)" }} />Verificeret
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--success)" }} />Eksempel
                 </span>
               </div>
               <h3 style={{ margin: "0 0 4px", fontSize: 23, fontWeight: 700, letterSpacing: "-.5px", color: "var(--ink)" }}>Svømmestævner 2026</h3>
-              <p style={{ margin: "0 0 22px", fontSize: 14.5, lineHeight: 1.5, color: "var(--smh-muted)" }}>Hillerød Svømmeklub · Udstyr og rejser til årets stævner</p>
+              <p style={{ margin: "0 0 22px", fontSize: 14.5, lineHeight: 1.5, color: "var(--smh-muted)" }}>Hillerød Fællesskab · Udstyr og rejser til årets stævner</p>
               <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 9 }}>
                 <div style={{ fontSize: 27, fontWeight: 800, letterSpacing: "-.6px", color: "var(--ink)" }}>5.600 kr.</div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: "var(--smh-muted)" }}>af 15.000 kr.</div>
@@ -202,7 +201,7 @@ function Hero() {
                 <span style={{ fontSize: 13.5, fontWeight: 500, color: "var(--smh-muted)" }}>68 støtter</span>
               </div>
               <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, padding: 15, minHeight: 52, border: "none", borderRadius: 999, background: "#080E1A", color: "#fff", fontSize: 15.5, fontWeight: 600, fontFamily: "inherit", boxShadow: "0 12px 26px rgba(8,14,26,.30)" }}>
-                <Ic d={PATH.heart} size={18} fill color="#fff" />Støt med MobilePay
+                <Ic d={PATH.heart} size={18} fill color="#fff" />Eksempel på MobilePay-betaling
               </div>
               <div style={{ marginTop: 13, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, color: "var(--smh-muted)", fontSize: 12.5, textAlign: "center" }}>
                 <Ic d={PATH.lock} size={14} sw={2} style={{ flexShrink: 0 }} />Bidrag går direkte til foreningen
@@ -319,11 +318,11 @@ function SolutionSection() {
                 </div>
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", letterSpacing: "-.3px" }}>Foreningsoverblik</div>
-                  <div style={{ fontSize: 12.5, color: "var(--smh-muted)" }}>Hillerød Svømmeklub</div>
+                  <div style={{ fontSize: 12.5, color: "var(--smh-muted)" }}>Hillerød Fællesskab</div>
                 </div>
               </div>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 11px", borderRadius: 999, background: "#ECFDF3", color: "#15803D", fontSize: 12, fontWeight: 700 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--success)" }} />Verificeret
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--success)" }} />Eksempel
               </span>
             </div>
             <div className="g2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
@@ -374,7 +373,7 @@ function TwoPaths() {
             <div style={{ width: "100%", maxWidth: 230, background: "var(--surface)", border: "1px solid var(--smh-border)", borderRadius: 16, boxShadow: "0 22px 44px -22px rgba(8,14,26,.28)", padding: 14 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
                 <span style={{ fontSize: 11.5, fontWeight: 700, color: "var(--ink)" }}>Foreningsoverblik</span>
-                <span style={{ fontSize: 9.5, fontWeight: 700, color: "#15803D", background: "#ECFDF3", padding: "3px 7px", borderRadius: 999 }}>Verificeret</span>
+                <span style={{ fontSize: 9.5, fontWeight: 700, color: "#15803D", background: "#ECFDF3", padding: "3px 7px", borderRadius: 999 }}>Eksempel</span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <div style={{ background: "var(--page)", border: "1px solid var(--smh-border)", borderRadius: 10, padding: 9 }}><div style={{ fontSize: 9, color: "var(--smh-muted)", marginBottom: 3 }}>Hjertesager</div><div style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)" }}>3</div></div>
@@ -482,7 +481,7 @@ function SupporterSection() {
         ))}
       </div>
       <div style={{ textAlign: "center" }}>
-        <a href="#hjertesager" className="cta-w btn-brand" style={{ ...brandBtn("16px 30px") }}>Find hjertesag</a>
+        <Link to={ROUTES.hjertesager} className="cta-w btn-brand" style={{ ...brandBtn("16px 30px") }}>Find hjertesag</Link>
       </div>
     </section>
   );
@@ -512,7 +511,7 @@ function AssociationSection() {
                 </div>
               ))}
             </div>
-            <a href="#priser" className="cta-w btn-brand" style={{ ...brandBtn("16px 30px") }}>Opret forening</a>
+            <Link to={ROUTES.opretForening} className="cta-w btn-brand" style={{ ...brandBtn("16px 30px") }}>Opret forening</Link>
           </div>
         </div>
       </div>
@@ -541,7 +540,7 @@ function PermitSection() {
             <h2 style={{ margin: "0 0 18px", fontSize: "clamp(25px,3.8vw,34px)", lineHeight: 1.14, fontWeight: 800, letterSpacing: "-.7px", color: "var(--ink)" }}>Har I styr på tilladelsen?</h2>
             <p style={{ margin: "0 0 14px", fontSize: "clamp(16px,2.2vw,16.5px)", lineHeight: 1.65, color: "var(--body)" }}>Mange indsamlinger skal anmeldes til Indsamlingsnævnet senest 14 dage før, de går i gang. StøtMedHjerte hjælper jer med at holde styr på journalnummer og dokumentation undervejs.</p>
             <p style={{ margin: "0 0 26px", fontSize: 14, color: "var(--smh-muted)" }}>Pris senest tjekket: juni 2026.</p>
-            <a href="#priser" className="cta-w btn-ghost" style={{ ...ghostBtn("15px 26px", 52, 15.5), display: "inline-flex" }}>Læs om tilladelse og regnskab</a>
+            <Link to={ROUTES.tilladelse} className="cta-w btn-ghost" style={{ ...ghostBtn("15px 26px", 52, 15.5), display: "inline-flex" }}>Læs om tilladelse og regnskab</Link>
           </div>
           <div style={{ background: "var(--alt)", borderRadius: 22, padding: 28 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -568,7 +567,7 @@ function Pricing() {
   const grp = binding ? PRICING.med_binding : PRICING.uden_binding;
   const noteFor = (key) =>
     binding
-      ? "5 måneders binding. Spar " + MAANEDLIG_BESPARELSE[key] + " kr./md. mod uden binding."
+      ? BINDING_MONTHS + " måneders binding. Spar " + MAANEDLIG_BESPARELSE[key] + " kr./md. mod uden binding."
       : "Opsig når som helst.";
 
   const cards = [
@@ -677,7 +676,7 @@ function FinalCTA() {
     <section id="om" className="wrap sec-pad" style={{ textAlign: "center" }}>
       <h2 style={{ margin: "0 auto 28px", fontSize: "clamp(30px,5vw,44px)", lineHeight: 1.1, fontWeight: 800, letterSpacing: "-1.1px", color: "var(--ink)", maxWidth: 680, textWrap: "balance" }}>Klar til en mere struktureret måde at samle penge ind på?</h2>
       <div className="cta-row" style={{ justifyContent: "center" }}>
-        <a href="#foreninger" className="cta-w btn-brand" style={{ ...brandBtn("17px 34px", 56, 16.5), boxShadow: "0 14px 34px rgba(224,25,63,.24)" }}>Opret forening</a>
+        <Link to={ROUTES.opretForening} className="cta-w btn-brand" style={{ ...brandBtn("17px 34px", 56, 16.5), boxShadow: "0 14px 34px rgba(224,25,63,.24)" }}>Opret forening</Link>
         <a href="#priser" className="cta-w btn-ghost" style={{ ...ghostBtn("17px 34px", 56, 16.5), display: "flex" }}>Se priser</a>
       </div>
     </section>

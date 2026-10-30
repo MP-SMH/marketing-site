@@ -50,6 +50,15 @@ afterEach(() => {
 });
 
 describe('IndsamlingsregnskabPage - dokumentknapper', () => {
+  it('viser det fælles grundlag og én samlet PDF med regnskab og revisors erklæring', async () => {
+    const data=detalje({fil_url:'https://x/faelles.pdf',revideret_fil_url:'https://x/faelles.pdf'});
+    data.regnskab.grundlag={format:1,type:'regnskab',journalnummer:'JN-34',periode_start:'2025-01-01',periode_slut:'2025-12-31',aflagt_dato:'2026-10-22',indsamlet_oere:100000,omkostninger_oere:20000,anvendt_oere:30000,rest_oere:50000,kraever_revision:true,udgifter:[{tekst:'Gebyrer',beloeb_oere:20000}],anvendelse:[{tekst:'Fælles materialer',beloeb_oere:30000}]};
+    mockFetch(data);renderSiden();
+    await screen.findByText('Fælles materialer');
+    expect(screen.getAllByRole('link').filter(a=>a.href==='https://x/faelles.pdf')).toHaveLength(1);
+    expect(screen.getByText('Ikke anvendt ved aflæggelsen')).toBeTruthy();
+    expect(screen.queryByRole('link',{name:/Se revisors påtegning/i})).toBeNull();
+  });
   it('case 1: viser begge knapper med korrekte href', async () => {
     mockFetch(
       detalje({

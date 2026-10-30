@@ -17,6 +17,7 @@ import SiteFooter from "@/components/marketing/SiteFooter";
 import { SMH_API_URL } from "../lib/supabaseClient";
 import { hentFroe } from "../lib/froe";
 import { visForeningstype } from "../lib/foreningstype";
+import { erTestforening } from "../lib/testforening";
 import "./Foreninger.css";
 
 // Hoejst to initialer fra foreningsnavnet, til logo-pladsholderen.
@@ -141,6 +142,7 @@ export default function ForeningerPage() {
   const froe = useMemo(() => hentFroe("smh_foreninger_froe"), []);
   const [foreninger, setForeninger] = useState([]);
   const [status, setStatus] = useState("indlaeser");
+  const [foresporgsel, setForesporgsel] = useState(0);
 
   const [q, setQ] = useState("");
   const [kategori, setKategori] = useState("Alle kategorier");
@@ -151,12 +153,13 @@ export default function ForeningerPage() {
 
   useEffect(() => {
     let live = true;
+    setStatus("indlaeser");
     fetch(`${SMH_API_URL}/api/public/foreninger?froe=${encodeURIComponent(froe)}&limit=60`)
       .then((r) => { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
-      .then((d) => { if (live) { setForeninger(d.foreninger || []); setStatus("klar"); } })
+      .then((d) => { if (live) { setForeninger((d.foreninger || []).filter((f) => !erTestforening(f))); setStatus("klar"); } })
       .catch(() => { if (live) setStatus("fejl"); });
     return () => { live = false; };
-  }, [froe]);
+  }, [froe, foresporgsel]);
 
   useEffect(() => {
     if (!aabenMenu) return;
@@ -283,7 +286,10 @@ export default function ForeningerPage() {
         {status === "indlaeser" ? (
           <p style={{ textAlign: "center", color: "var(--body)", fontSize: "15px" }}>Henter foreninger …</p>
         ) : status === "fejl" ? (
-          <p style={{ textAlign: "center", color: "var(--body)", fontSize: "15px" }}>Vi kan ikke hente foreningerne lige nu. Prøv igen om lidt.</p>
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <p style={{ color: "var(--body)", fontSize: "15px" }}>Vi kan ikke hente foreningerne lige nu.</p>
+            <button type="button" onClick={() => setForesporgsel((n) => n + 1)} style={{ padding: "12px 22px", borderRadius: 999, border: "1px solid var(--smh-border)", background: "#fff", color: "var(--ink)", fontFamily: "inherit", cursor: "pointer" }}>Prøv igen</button>
+          </div>
         ) : foreninger.length === 0 ? (
           <p style={{ textAlign: "center", color: "var(--body)", fontSize: "15px" }}>Der er endnu ingen foreninger at vise.</p>
         ) : filtrerede.length === 0 ? (

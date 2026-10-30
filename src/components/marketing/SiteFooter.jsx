@@ -29,8 +29,11 @@ const ROUTES = {
   founder: "/founder",
   saadanVirkerDet: "/saadan-virker-det",
   kontakt: "/kontakt",
+  betingelser: "/betingelser",
+  privatlivspolitik: "/privatlivspolitik",
+  cookiepolitik: "/cookiepolitik",
   logInd: "/log-ind",
-  opretForening: "/opret-forening", // CTA deep-links to #form on that page
+  opretForening: "/opret-forening", // Registration landing; the wizard has its own /start route.
 };
 
 const FOOTER_COLS = [
@@ -72,7 +75,11 @@ function Wordmark({ color = "var(--ink)", tm = "var(--smh-muted)", size = 19 }) 
    SITE FOOTER
    ============================================================ */
 export default function SiteFooter() {
-  const legal = ["Privatlivspolitik", "Cookiepolitik", "Vilkår", "Databehandleraftale", "Tilgængelighed"];
+  const legal = [
+    { t: "Privatlivspolitik", href: ROUTES.privatlivspolitik },
+    { t: "Cookiepolitik", href: ROUTES.cookiepolitik },
+    { t: "Vilkår", href: ROUTES.betingelser },
+  ];
   return (
     <footer style={{ background: "var(--navy1)", color: "#fff", borderTop: "1px solid rgba(255,255,255,.06)" }}>
       <div className="wrap" style={{ paddingTop: 64 }}>
@@ -82,7 +89,7 @@ export default function SiteFooter() {
             <p style={{ margin: "0 0 24px", fontSize: 14.5, lineHeight: 1.65, color: "#9AA8BE", maxWidth: 320 }}>StøtMedHjerte er en dansk platform til foreningers pengeindsamling. Hjertesager, donationer, fast støtte og regnskabsgrundlag samlet ét sted.</p>
             <div className="cta-row">
               <Link to={ROUTES.hjertesager} className="cta-w btn-white" style={{ textDecoration: "none", textAlign: "center", color: "var(--ink)", fontSize: 14.5, fontWeight: 600, padding: "13px 22px", minHeight: 48, borderRadius: 999, background: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>Find hjertesag</Link>
-              <Link to={ROUTES.opretForening + "#form"} className="cta-w btn-brand" style={{ textDecoration: "none", textAlign: "center", color: "#fff", fontSize: 14.5, fontWeight: 600, padding: "13px 22px", minHeight: 48, borderRadius: 999, background: "var(--brand)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>Opret forening</Link>
+              <Link to={ROUTES.opretForening} className="cta-w btn-brand" style={{ textDecoration: "none", textAlign: "center", color: "#fff", fontSize: 14.5, fontWeight: 600, padding: "13px 22px", minHeight: 48, borderRadius: 999, background: "var(--brand)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>Opret forening</Link>
             </div>
           </div>
           {FOOTER_COLS.map((col) => (
@@ -99,8 +106,8 @@ export default function SiteFooter() {
         <div className="foot-legal" style={{ padding: "24px 0 32px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 14 }}>
           <span style={{ fontSize: 13.5, color: "#6B7A92" }}>© 2026 StøtMedHjerte. Alle rettigheder forbeholdes.</span>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 18 }}>
-            {legal.map((t) => (
-              <Link key={t} to={ROUTES.kontakt} className="legal-link" style={{ textDecoration: "none", color: "#6B7A92", fontSize: 13.5 }}>{t}</Link>
+            {legal.map((item) => (
+              <Link key={item.t} to={item.href} className="legal-link" style={{ textDecoration: "none", color: "#6B7A92", fontSize: 13.5 }}>{item.t}</Link>
             ))}
           </div>
         </div>

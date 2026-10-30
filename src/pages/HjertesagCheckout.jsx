@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { SMH_API_URL } from '../lib/supabaseClient';
+import { erTestforening, kanModtageOffentligeBidrag } from '../lib/testforening';
+import TestforeningNotice from '@/components/marketing/TestforeningNotice';
 import SiteNav from '@/components/marketing/SiteNav';
 import SiteFooter from '@/components/marketing/SiteFooter';
 import { CTA_MEDIUM, CTA_RADIUS, CTA_PADDING, CTA_SKRIFT, CTA_VAEGT, CTA_SPAERRING } from '../lib/cta';
@@ -320,7 +322,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
   const tidsurRef = useRef(null);
 
   // KRITISK: kun en maalt sand vaerdi aabner formularen. Ukendt betyder lukket.
-  const kanModtage = forening?.payment_ready === true;
+  const kanModtage = kanModtageOffentligeBidrag(forening);
 
   // Vipps' bibliotek hentes FOERST naar en donor faktisk er i checkout. Saa
   // modtager Vipps ingen forespoergsel fra besoegende der bare laeser siden.
@@ -417,7 +419,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
   }
 
   async function betal() {
-    if (sender) return;
+    if (sender || !kanModtage) return;
 
     if (!gyldig) {
       setVisFejl(true);
@@ -508,6 +510,7 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                 boxShadow: '0 30px 70px -42px rgba(8,14,26,.22)',
               }}
             >
+              {erTestforening(forening) && <TestforeningNotice />}
               <span
                 style={{
                   width: 60,
@@ -543,7 +546,9 @@ export default function HjertesagCheckout({ hjertesag, forening, onTilbage }) {
                   color: 'var(--body)',
                 }}
               >
-                Vi arbejder på at få foreningens MobilePay klar. Prøv igen om et par dage.
+                {erTestforening(forening)
+                  ? 'Dette er kun en testforening. Betaling og rigtige bidrag er lukket.'
+                  : 'Foreningen kan ikke modtage bidrag endnu. Prøv igen senere.'}
               </p>
               <button
                 type="button"

@@ -1,16 +1,15 @@
 // Kanonisk kilde til abonnementspriser paa marketing-site.
 // Alle beloeb i danske kroner INKLUSIVE moms, jf. markedsfoeringsloven 12a.
 // Begge varianter faktureres MAANEDLIGT. Forskellen er bindingen.
-// Bindingen er 5 maaneder uopsigelig plus 1 maaneds varsel til udgangen
-// af en maaned, jf. forbrugeraftaleloven 28. Laengere binding kan ikke
-// aftales gyldigt over for forbrugere, og foreninger regnes som
-// forbrugere, samme praemis som momsvisningen.
-// Aendres priser her, aendres de alle steder. Hardkod aldrig et beloeb
-// i en side. Kilde: docs/context/smh-forretningsmodel.md afsnit 3.
+// Produktvalg: 12 maaneder, udtrykkeligt valgt af Mario 27. oktober 2026.
+// Juridisk kundeklassifikation og den aktive aftaleskabelon skal afstemmes
+// foer publicering. Eksisterende kunders accepterede aftaler omskrives ikke.
+import {BINDING_MONTHS} from '../../../shared/association-onboarding.js';
+export {BINDING_MONTHS};
 
 export const MOMSSATS = 0.25;
 
-export const BINDING_TEKST = "5 maaneders binding, derefter 1 maaneds varsel";
+export const BINDING_TEKST = `${BINDING_MONTHS} måneders binding`;
 
 export const PRICING = {
   med_binding: {
@@ -32,15 +31,15 @@ export const MAANEDLIG_BESPARELSE = { donationer: 30, samlet: 56 };
 export const FEATURES = {
   donationer: {
     kort: [
-      "Regnskabet laves automatisk",
+      "Regnskabsgrundlaget samles løbende",
       "Bidrag direkte til jeres MobilePay",
       "Op til 5 hjertesager",
     ],
     fuld: [
       "Donationer via MobilePay",
-      "Ubegrænset antal hjertesager",
+      "Op til 5 aktive hjertesager",
       "CVR-validering",
-      "Journalnummer pr. hjertesag",
+      "Indsamlingstilladelse for perioden",
       "Bidragsoverblik",
       "Dokumentation samlet ét sted",
     ],
@@ -49,7 +48,7 @@ export const FEATURES = {
     kort: [
       "Alt i Donationer",
       "Faste månedlige bidrag",
-      "Revisor godkender digitalt",
+      "Udvidet regnskabsgrundlag",
     ],
     fuld: [
       "Alt i Donationer",
@@ -59,7 +58,7 @@ export const FEATURES = {
       "Supporter-overblik",
       "Månedlige rapporter",
       "Udvidet dokumentation",
-      "Indsamlingsregnskab pr. hjertesag",
+      "Indsamlingsregnskab pr. periode",
     ],
   },
 };

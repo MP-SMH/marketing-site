@@ -33,7 +33,7 @@ const ROUTES = {
   saadanVirkerDet: "/saadan-virker-det",
   kontakt: "/kontakt",
   logInd: "/log-ind",
-  opretForening: "/opret-forening", // CTA deep-links to #form on that page
+  opretForening: "/opret-forening", // Registration landing; the wizard has its own /start route.
 };
 
 /* ============================================================
@@ -208,7 +208,7 @@ export default function SiteNav() {
         <div className="smh-cta">
           <Link to={ROUTES.logInd} className="link-ink" style={{ textDecoration: "none", color: "var(--body)", fontSize: 14.5, fontWeight: 600, padding: "9px 6px" }}>Log ind</Link>
           <Link to={ROUTES.hjertesager} className="btn-ghost" style={{ ...ghostBtn("12px 20px", undefined, 14.5), minHeight: undefined }}>Find hjertesag</Link>
-          <Link to={ROUTES.opretForening + "#form"} className="btn-brand" style={{ ...brandBtn("12px 22px", undefined, 14.5), minHeight: undefined, boxShadow: "0 6px 18px rgba(224,25,63,.22)" }}>Opret forening</Link>
+          <Link to={ROUTES.opretForening} className="btn-brand" style={{ ...brandBtn("12px 22px", undefined, 14.5), minHeight: undefined, boxShadow: "0 6px 18px rgba(224,25,63,.22)" }}>Opret forening</Link>
         </div>
 
         {/* burger */}
@@ -246,7 +246,7 @@ export default function SiteNav() {
           </div>
 
           <div style={{ flexShrink: 0, padding: "14px 20px calc(18px + env(safe-area-inset-bottom))", borderTop: "1px solid var(--smh-border)", background: "var(--page)" }}>
-            <Link to={ROUTES.opretForening + "#form"} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "#fff", fontSize: 16, fontWeight: 600, padding: 15, borderRadius: 999, background: "var(--brand)", minHeight: 54, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(224,25,63,.22)" }}>Opret forening</Link>
+            <Link to={ROUTES.opretForening} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "#fff", fontSize: 16, fontWeight: 600, padding: 15, borderRadius: 999, background: "var(--brand)", minHeight: 54, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(224,25,63,.22)" }}>Opret forening</Link>
             <Link to={ROUTES.hjertesager} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "var(--brand)", fontSize: 16, fontWeight: 600, padding: 15, borderRadius: 999, border: "1px solid var(--brand)", background: "var(--surface)", minHeight: 54, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 10 }}>Find hjertesag</Link>
             <Link to={ROUTES.logInd} onClick={close} style={{ textDecoration: "none", textAlign: "center", color: "var(--body)", fontSize: 15, fontWeight: 600, padding: 10, marginTop: 6, display: "block" }}>Log ind</Link>
           </div>
