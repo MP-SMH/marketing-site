@@ -18,7 +18,7 @@ import SiteNav from "@/components/marketing/SiteNav";
 import SiteFooter from "@/components/marketing/SiteFooter";
 import ForeningIkkeKlar from "@/components/ForeningIkkeKlar";
 import TestforeningNotice from "@/components/marketing/TestforeningNotice";
-import { erTestforening } from "../lib/testforening";
+import { erTestforening, TEST_FORENING, TEST_HJERTESAG } from "../lib/testforening";
 import { visForeningstype, visCvr } from "../lib/foreningstype";
 import { FormaalIkon } from "../lib/formaalIkoner";
 import "./Forening.css";
@@ -54,6 +54,13 @@ export default function ForeningPage() {
 
     async function hent() {
       setStatus("indlaeser");
+      if (erTestforening(slug)) {
+        setForening(TEST_FORENING);
+        setFormaal([]);
+        setHjertesager([TEST_HJERTESAG]);
+        setStatus("klar");
+        return;
+      }
 
       try {
         const svar = await fetch(
@@ -164,7 +171,7 @@ export default function ForeningPage() {
             <p style={{ color: "var(--brand-hover)", fontWeight: 800, letterSpacing: ".06em", margin: "0 0 10px" }}>TESTFORENING</p>
             <h1 style={{ color: "var(--ink)", fontSize: "clamp(30px,4vw,44px)", margin: "0 0 16px" }}>{forening.foreningsnavn}</h1>
             <p style={{ color: "var(--body)", lineHeight: 1.7, maxWidth: 660, margin: "0 0 28px" }}>
-              Denne profil bruges til at afprøve foreningsoplevelsen. Offentlig indsamling og betaling er lukket, indtil den nødvendige godkendelse er på plads.
+              Denne profil er en visningsdemo med TEST-journalnummer. Den er ikke en godkendt indsamling, og betaling er lukket.
             </p>
             <h2 style={{ color: "var(--ink)", fontSize: 24, margin: "0 0 16px" }}>Testhjertesager</h2>
             {hjertesager.length === 0 ? (
