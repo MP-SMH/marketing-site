@@ -86,7 +86,8 @@ function ForeningKort({ f }) {
             loading="lazy"
           />
         )}
-        {f.har_fast_stoette && (
+        {erTestforening(f) && <span style={{ position: "absolute", top: 12, left: 12, padding: "6px 11px", borderRadius: 999, background: "#FFF5E8", color: "#713F12", fontSize: 12, fontWeight: 800 }}>TESTFORENING</span>}
+        {f.har_fast_stoette && !erTestforening(f) && (
           <span style={{ position: "absolute", top: 12, right: 12, display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999, background: "rgba(255,255,255,.94)", color: "var(--brand-ink)", fontSize: 11, fontWeight: 700, backdropFilter: "blur(6px)" }}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
             Fast støtte
@@ -156,7 +157,7 @@ export default function ForeningerPage() {
     setStatus("indlaeser");
     fetch(`${SMH_API_URL}/api/public/foreninger?froe=${encodeURIComponent(froe)}&limit=60`)
       .then((r) => { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
-      .then((d) => { if (live) { setForeninger((d.foreninger || []).filter((f) => !erTestforening(f))); setStatus("klar"); } })
+      .then((d) => { if (live) { setForeninger((d.foreninger || []).filter((f) => !erTestforening(f) || f.testbetaling === true)); setStatus("klar"); } })
       .catch(() => { if (live) setStatus("fejl"); });
     return () => { live = false; };
   }, [froe, foresporgsel]);
