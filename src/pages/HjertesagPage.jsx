@@ -6,7 +6,7 @@ import SiteNav from '@/components/marketing/SiteNav';
 import SiteFooter from '@/components/marketing/SiteFooter';
 import HjertesagCheckout from './HjertesagCheckout';
 import TestforeningNotice from '@/components/marketing/TestforeningNotice';
-import { erTestforening } from '../lib/testforening';
+import { erTestforening, TEST_FORENING, TEST_HJERTESAG } from '../lib/testforening';
 import { CTA_STOR, CTA_MEDIUM, CTA_RADIUS, CTA_PADDING, CTA_SKRIFT, CTA_SKRIFT_SEKUNDAER, CTA_VAEGT, CTA_SPAERRING } from '../lib/cta';
 
 /**
@@ -352,6 +352,14 @@ export default function HjertesagPage() {
     async function hent() {
       setStatus('indlaeser');
       setCoverFejlede(false);
+      if (erTestforening(foreningSlug)) {
+        if (hjertesagSlug !== TEST_HJERTESAG.slug) { setStatus('findes-ikke'); return; }
+        setHjertesag(TEST_HJERTESAG);
+        setForening(TEST_FORENING);
+        setStoettevaeg([]);
+        setStatus('klar');
+        return;
+      }
 
       try {
         const svar = await fetch(
