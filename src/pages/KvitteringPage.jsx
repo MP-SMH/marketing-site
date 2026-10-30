@@ -570,7 +570,7 @@ export default function KvitteringPage() {
       <main style={{ position: 'relative' }}>
         <section style={S.section}>
           <div style={S.card}>
-            {testforening && <TestforeningNotice />}
+            {testforening && <TestforeningNotice sandboxEnabled />}
             {indhold}
           </div>
         </section>
