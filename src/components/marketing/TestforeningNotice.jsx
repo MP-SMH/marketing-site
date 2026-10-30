@@ -13,8 +13,7 @@ export default function TestforeningNotice() {
       }}
     >
       <strong style={{ display: 'block', fontSize: 16, letterSpacing: '.04em' }}>TESTFORENING</strong>
-      Heartland United bruges kun til afprøvning. Journalnummer og dokumentgodkendelse
-      afventer, og her kan du ikke give et rigtigt bidrag.
+      Heartland United bruges kun til afprøvning. TEST-HU-2026-10-30 er et internt testnummer, ikke en tilladelse fra Indsamlingsnævnet. Betaling er lukket.
     </div>
   );
 }
