@@ -70,7 +70,7 @@ const assertContributionsClosed=()=>{
  expect(screen.queryByRole('heading',{name:'Godkendt hos Indsamlingsnævnet'})).toBeNull();
  expect(screen.queryByText(/Foreningen har Indsamlingsnævnets tilladelse/)).toBeNull();
  expect(screen.queryByText('Den rene model')).toBeNull();
- expect(screen.getByRole('button',{name:'Bidrag er ikke åbnet endnu'})).toBeDisabled();
+ expect(screen.getByRole('button',{name:'Lukket i TESTVISNING'})).toBeDisabled();
  expect(screen.queryByRole('button',{name:/betal|støt|godkend/i})).toBeNull();
 };
 test.each([false,true])('actual public profile remains readable with contributions closed and har_fast_stoette=%s',async recurring=>{
@@ -83,7 +83,7 @@ test.each([false,true])('actual public profile remains readable with contributio
  expect(screen.getByText(actualProfile.profiltekst)).toBeInTheDocument();
  expect(screen.getByText(actualProfile.lang_beskrivelse)).toBeInTheDocument();
  expect(screen.getByRole('heading',{name:'Lokalt fællesskab'})).toBeInTheDocument();
- expect(screen.getByRole('heading',{name:'Bidrag er ikke åbnet endnu'})).toBeInTheDocument();
+ expect(screen.getByRole('heading',{name:'Profil og deling'})).toBeInTheDocument();
  expect(screen.getByRole('status')).toHaveTextContent('Betaling er lukket.');
  expect(screen.getAllByRole('button',{name:'Kopiér link'}).length).toBeGreaterThan(0);
  expect(screen.getByRole('link',{name:/forening@example.invalid/})).toHaveAttribute('href','mailto:forening@example.invalid');
@@ -107,16 +107,29 @@ test('a private/not-found response cannot be opened by a profile flag in its bod
 test('a non-test pending profile uses the same original layout with a truthful closed-status notice',async()=>{
  vi.stubGlobal('fetch',vi.fn(async()=>response({klar:false,profile_available:true,forening:{...actualProfile,foreningsnavn:'Offentlig profil uden bidrag',slug:'public-profile',har_fast_stoette:true},hjertesager:[],formaal:[]})));
  renderProfile('public-profile');await screen.findByRole('heading',{name:'Offentlig profil uden bidrag'});
- expect(screen.getByRole('status')).toHaveTextContent('Foreningens profil er offentlig.');
+ expect(screen.getByRole('status')).toHaveTextContent('Bidrag og Fast Støtte er lukket i denne TESTVISNING.');
  assertContributionsClosed();
 });
-test.each([false,true])('the eligible profile keeps its original contribution presentation with recurring=%s',async recurring=>{
+test.each([false,true])('the production eligible profile keeps its original contribution presentation with recurring=%s',async recurring=>{
+ vi.stubEnv('VITE_SMH_PUBLIC_PROFILE_PROXY',undefined);
  const profile={...actualProfile,foreningsnavn:'Eligible test fixture',slug:'eligible-forening',payment_ready:true,har_fast_stoette:recurring,indsamlingsnaevn:{status:'Godkendt',journal_nr:'TEST-ELIGIBLE-FIXTURE'}};
  vi.stubGlobal('fetch',vi.fn(async()=>response({forening:profile,hjertesager:[{slug:'unit-cause',kampagnenavn:'Eligible cause fixture',kort_beskrivelse:'Unit fixture',maalbeloeb:100,indsamlet_beloeb:0}],formaal:purpose})));
  renderProfile('eligible-forening');await screen.findByRole('heading',{name:profile.foreningsnavn});
  expect(screen.getByRole('link',{name:recurring?'Støt fast hver måned':'Se foreningens hjertesager'})).toHaveAttribute('href',recurring?'#stoet':'#hjertesager');
  expect(screen.getByRole('heading',{name:'Godkendt hos Indsamlingsnævnet'})).toBeInTheDocument();
  expect(screen.getByText('Den rene model')).toBeInTheDocument();
- expect(screen.queryByRole('heading',{name:'Bidrag er ikke åbnet endnu'})).toBeNull();
+ expect(screen.queryByRole('heading',{name:'Profil og deling'})).toBeNull();
+ expect(screen.queryByRole('button',{name:'Lukket i TESTVISNING'})).toBeNull();
  expect(screen.getAllByRole('link').some(link=>link.getAttribute('href')==='/hjertesag/eligible-forening/unit-cause')).toBe(true);
+});
+
+test.each([false,true])('an eligible API profile is still read-only in this explicit TEST preview with recurring=%s',async recurring=>{
+ const profile={...actualProfile,foreningsnavn:'Eligible outside this TEST preview',slug:'eligible-forening',payment_ready:true,har_fast_stoette:recurring,indsamlingsnaevn:{status:'Godkendt',journal_nr:'TEST-ELIGIBLE-FIXTURE'}};
+ vi.stubGlobal('fetch',vi.fn(async()=>response({forening:profile,hjertesager:[{slug:'unit-cause',kampagnenavn:'Eligible cause fixture'}],formaal:purpose})));
+ renderProfile('eligible-forening');await screen.findByRole('heading',{name:profile.foreningsnavn});
+ expect(screen.getByRole('status')).toHaveTextContent('Bidrag og Fast Støtte er lukket i denne TESTVISNING.');
+ expect(screen.getByAltText('Foto fra '+profile.foreningsnavn)).toHaveAttribute('src',profile.coverbillede);
+ expect(screen.queryByText('Eligible cause fixture')).toBeNull();
+ expect(screen.queryByText('Foreningen er lige gået i luften')).toBeNull();
+ assertContributionsClosed();
 });

@@ -44,7 +44,6 @@ export default function ForeningPage() {
   const stagingProfilePreview = import.meta.env.VITE_SMH_PUBLIC_PROFILE_PROXY === 'true';
 
   const [status, setStatus] = useState("indlaeser");
-  const [profileReadOnly, setProfileReadOnly] = useState(false);
   const [forening, setForening] = useState(null);
   const [formaal, setFormaal] = useState([]);
   const [hjertesager, setHjertesager] = useState([]);
@@ -56,7 +55,6 @@ export default function ForeningPage() {
 
     async function hent() {
       setStatus("indlaeser");
-      setProfileReadOnly(false);
       const visTestDemo = () => {
         setForening(TEST_FORENING);
         setFormaal([]);
@@ -95,11 +93,9 @@ export default function ForeningPage() {
           return;
         }
 
-        const readOnly = stagingProfilePreview && (data.klar === false || data.forening?.payment_ready !== true);
-        setProfileReadOnly(readOnly);
         setForening(data.forening);
         setFormaal(Array.isArray(data.formaal) ? data.formaal : []);
-        setHjertesager(readOnly ? [] : (Array.isArray(data.hjertesager) ? data.hjertesager : []));
+        setHjertesager(stagingProfilePreview ? [] : (Array.isArray(data.hjertesager) ? data.hjertesager : []));
         setStatus("klar");
       } catch {
         if (!afbrudt) {
@@ -202,7 +198,7 @@ export default function ForeningPage() {
     );
   }
 
-  const bidragLukket = stagingProfilePreview && (profileReadOnly || forening.payment_ready !== true);
+  const bidragLukket = stagingProfilePreview;
   const visFastStoette = !bidragLukket && forening.har_fast_stoette;
   const visCover = harIndhold(forening.coverbillede);
 
@@ -213,8 +209,8 @@ export default function ForeningPage() {
       <section className="f-wrap" style={{ paddingTop: "clamp(26px,4vw,44px)", paddingBottom: "clamp(22px,3.5vw,34px)" }}>
         {bidragLukket && (erTestforening(slug) ? <TestforeningNotice /> : (
           <div role="status" style={{ background: "#FFF7EC", border: "1px solid #F3D6AA", borderRadius: 18, padding: "18px 20px", marginBottom: 24, color: "#8A3D06", lineHeight: 1.6 }}>
-            <strong>Bidrag er ikke åbnet endnu</strong>
-            <p style={{ margin: "6px 0 0" }}>Foreningens profil er offentlig. Du kan læse om foreningen og dele siden.</p>
+            <strong>Profilen kan læses og deles</strong>
+            <p style={{ margin: "6px 0 0" }}>Bidrag og Fast Støtte er lukket i denne TESTVISNING.</p>
           </div>
         ))}
 
@@ -274,7 +270,7 @@ export default function ForeningPage() {
 
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 {bidragLukket ? (
-                  <button type="button" disabled style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px 26px", minHeight: 52, borderRadius: 999, background: "#F3F5F8", color: "#5A6577", fontSize: 15, fontWeight: 700, textDecoration: "none", border: 0, fontFamily: "inherit", opacity: 1, cursor: "not-allowed" }}>Bidrag er ikke åbnet endnu</button>
+                  <button type="button" disabled style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px 26px", minHeight: 52, borderRadius: 999, background: "#F3F5F8", color: "#5A6577", fontSize: 15, fontWeight: 700, textDecoration: "none", border: 0, fontFamily: "inherit", opacity: 1, cursor: "not-allowed" }}>Lukket i TESTVISNING</button>
                 ) : <a
                   href={visFastStoette ? "#stoet" : "#hjertesager"}
                   style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px 26px", minHeight: 52, borderRadius: 999, background: "var(--brand)", color: "#fff", fontSize: 15, fontWeight: 700, textDecoration: "none" }}
@@ -474,8 +470,8 @@ export default function ForeningPage() {
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.3 2 4.5 5.6 4.5c2 0 3.4 1.1 4.4 2.6C11 5.6 12.4 4.5 14.4 4.5 18 4.5 19.6 8.3 18 11.7 15.5 16.3 12 21 12 21Z" /></svg>
                 </span>
                 <div>
-                  <h3 style={{ margin: "0 0 6px", fontSize: 16.5, fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>{bidragLukket ? "Indsamlinger er ikke åbnet endnu" : "Foreningen har ingen aktive indsamlinger lige nu"}</h3>
-                  <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6, color: "var(--body)" }}>{bidragLukket ? "Foreningens profil er offentlig, men det er endnu ikke muligt at støtte herfra." : visFastStoette ? "Det er stadig muligt at støtte foreningen fast hver måned. Fast støtte følger foreningen selv og er ikke bundet til en enkelt indsamling." : "Foreningen opretter nye hjertesager, når der er et formål at samle ind til. Kom gerne tilbage senere."}</p>
+                  <h3 style={{ margin: "0 0 6px", fontSize: 16.5, fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>{bidragLukket ? "Hjertesager vises ikke i denne TESTVISNING" : "Foreningen har ingen aktive indsamlinger lige nu"}</h3>
+                  <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6, color: "var(--body)" }}>{bidragLukket ? "Denne visning viser kun foreningens profil og delingslink. Bidrag og Fast Støtte er lukket her." : visFastStoette ? "Det er stadig muligt at støtte foreningen fast hver måned. Fast støtte følger foreningen selv og er ikke bundet til en enkelt indsamling." : "Foreningen opretter nye hjertesager, når der er et formål at samle ind til. Kom gerne tilbage senere."}</p>
                 </div>
               </div>
             )}
@@ -622,8 +618,8 @@ export default function ForeningPage() {
                     })()
                   ) : (
                     <>
-                      <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, letterSpacing: "-.45px", color: "var(--ink)" }}>{bidragLukket ? "Bidrag er ikke åbnet endnu" : "Foreningen er lige gået i luften"}</h2>
-                      <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.6, color: "var(--body)" }}>{bidragLukket ? "Du kan læse om foreningen og dele siden. Der kan endnu ikke gives bidrag eller oprettes Fast Støtte." : "Der er ingen aktive indsamlinger lige nu. Kig forbi igen, eller del foreningens side, så flere kan finde den."}</p>
+                      <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, letterSpacing: "-.45px", color: "var(--ink)" }}>{bidragLukket ? "Profil og deling" : "Foreningen er lige gået i luften"}</h2>
+                      <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.6, color: "var(--body)" }}>{bidragLukket ? "Du kan læse om foreningen og dele siden. Bidrag og Fast Støtte er lukket i denne TESTVISNING." : "Der er ingen aktive indsamlinger lige nu. Kig forbi igen, eller del foreningens side, så flere kan finde den."}</p>
                       <button
                         type="button"
                         onClick={kopierLink}
