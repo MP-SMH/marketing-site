@@ -44,6 +44,7 @@ export default function ForeningPage() {
   const stagingProfilePreview = import.meta.env.VITE_SMH_PUBLIC_PROFILE_PROXY === 'true';
 
   const [status, setStatus] = useState("indlaeser");
+  const [profileReadOnly, setProfileReadOnly] = useState(false);
   const [forening, setForening] = useState(null);
   const [formaal, setFormaal] = useState([]);
   const [hjertesager, setHjertesager] = useState([]);
@@ -55,6 +56,7 @@ export default function ForeningPage() {
 
     async function hent() {
       setStatus("indlaeser");
+      setProfileReadOnly(false);
       const visTestDemo = () => {
         setForening(TEST_FORENING);
         setFormaal([]);
@@ -84,18 +86,20 @@ export default function ForeningPage() {
         const data = await svar.json();
         if (afbrudt) return;
 
-        // Backend svarer klar:false naar siden er slaaet til men profilen
-        // ikke er komplet. Saa viser vi en "snart klar"-tilstand med kun de
-        // minimale data backend sender (navn, by, cvr), ikke den fulde side.
-        if (data.klar === false) {
+        // API keeps klar:false while contributions are closed. Only the explicit
+        // preview profile_available flag permits its actual public profile to render;
+        // old, incomplete and private responses keep their existing closed states.
+        if (data.klar === false && !(stagingProfilePreview && data.profile_available === true)) {
           if (erTestforening(slug) && !stagingProfilePreview) visTestDemo();
           else { setForening(data.forening); setStatus("ikke-klar"); }
           return;
         }
 
+        const readOnly = stagingProfilePreview && (data.klar === false || data.forening?.payment_ready !== true);
+        setProfileReadOnly(readOnly);
         setForening(data.forening);
         setFormaal(Array.isArray(data.formaal) ? data.formaal : []);
-        setHjertesager(Array.isArray(data.hjertesager) ? data.hjertesager : []);
+        setHjertesager(readOnly ? [] : (Array.isArray(data.hjertesager) ? data.hjertesager : []));
         setStatus("klar");
       } catch {
         if (!afbrudt) {
@@ -198,6 +202,8 @@ export default function ForeningPage() {
     );
   }
 
+  const bidragLukket = stagingProfilePreview && (profileReadOnly || forening.payment_ready !== true);
+  const visFastStoette = !bidragLukket && forening.har_fast_stoette;
   const visCover = harIndhold(forening.coverbillede);
 
   return (
@@ -205,6 +211,13 @@ export default function ForeningPage() {
       <SiteNav />
 
       <section className="f-wrap" style={{ paddingTop: "clamp(26px,4vw,44px)", paddingBottom: "clamp(22px,3.5vw,34px)" }}>
+        {bidragLukket && (erTestforening(slug) ? <TestforeningNotice /> : (
+          <div role="status" style={{ background: "#FFF7EC", border: "1px solid #F3D6AA", borderRadius: 18, padding: "18px 20px", marginBottom: 24, color: "#8A3D06", lineHeight: 1.6 }}>
+            <strong>Bidrag er ikke åbnet endnu</strong>
+            <p style={{ margin: "6px 0 0" }}>Foreningens profil er offentlig. Du kan læse om foreningen og dele siden.</p>
+          </div>
+        ))}
+
         {visCover && (
           <div className="f-cover" style={{ marginBottom: 18 }}>
             <img src={forening.coverbillede} alt={`Foto fra ${forening.foreningsnavn}`} style={{ objectPosition: `50% ${forening.coverbillede_position ?? 50}%` }} />
@@ -260,12 +273,14 @@ export default function ForeningPage() {
               <h1 style={{ margin: 0, fontSize: "clamp(28px,4.6vw,40px)", fontWeight: 800, letterSpacing: "-1.1px", lineHeight: 1.12, color: "var(--ink)" }}>{forening.foreningsnavn}</h1>
 
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <a
-                  href={forening.har_fast_stoette ? "#stoet" : "#hjertesager"}
+                {bidragLukket ? (
+                  <button type="button" disabled style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px 26px", minHeight: 52, borderRadius: 999, background: "#F3F5F8", color: "#5A6577", fontSize: 15, fontWeight: 700, textDecoration: "none", border: 0, fontFamily: "inherit", opacity: 1, cursor: "not-allowed" }}>Bidrag er ikke åbnet endnu</button>
+                ) : <a
+                  href={visFastStoette ? "#stoet" : "#hjertesager"}
                   style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px 26px", minHeight: 52, borderRadius: 999, background: "var(--brand)", color: "#fff", fontSize: 15, fontWeight: 700, textDecoration: "none" }}
                 >
-                  {forening.har_fast_stoette ? "Støt fast hver måned" : "Se foreningens hjertesager"}
-                </a>
+                  {visFastStoette ? "Støt fast hver måned" : "Se foreningens hjertesager"}
+                </a>}
                 <button
                   type="button"
                   onClick={kopierLink}
@@ -327,10 +342,10 @@ export default function ForeningPage() {
                 <div className="f-rule" />
                 <div className="f-eyebrow" style={{ color: "#C8112F" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                  Hvad pengene bruges til
+                  {bidragLukket ? "Foreningens formål" : "Hvad pengene bruges til"}
                 </div>
-                <h2 className="f-h2">Sådan bruger foreningen bidragene</h2>
-                <p className="f-lead">Foreningen har selv beskrevet, hvad bidragene går til.</p>
+                <h2 className="f-h2">{bidragLukket ? "Det arbejder foreningen for" : "Sådan bruger foreningen bidragene"}</h2>
+                <p className="f-lead">{bidragLukket ? "Foreningen har selv beskrevet sine formål." : "Foreningen har selv beskrevet, hvad bidragene går til."}</p>
                 <div className="f-use">
                   {formaal.map((punkt, i) => (
                     <div key={i} style={{ display: "flex", gap: 14, padding: 20, border: "1px solid var(--smh-border)", borderRadius: 20, background: "#FFFFFF", boxShadow: "0 16px 44px -34px rgba(8,14,26,.14)" }}>
@@ -395,7 +410,7 @@ export default function ForeningPage() {
 
                 CSS til rullelistens scrollbar og til livePulse ligger
                 allerede klar i Forening.css. */}
-            {forening.har_fast_stoette && (
+            {visFastStoette && (
               <>
                 <div className="f-rule" />
                 <div className="f-eyebrow" style={{ color: "#C8112F" }}>
@@ -423,7 +438,7 @@ export default function ForeningPage() {
             {hjertesager.length > 0 ? (
               <>
                 <h2 className="f-h2">Aktive indsamlinger lige nu</h2>
-                <p className="f-lead">{forening.har_fast_stoette ? "En hjertesag er en konkret indsamling med et formål og en slutdato. Vil du støtte en enkelt sag frem for foreningen som helhed, kan du gøre det her." : "En hjertesag er en konkret indsamling med et formål og en slutdato. Vælg den sag, du vil støtte."}</p>
+                <p className="f-lead">{visFastStoette ? "En hjertesag er en konkret indsamling med et formål og en slutdato. Vil du støtte en enkelt sag frem for foreningen som helhed, kan du gøre det her." : "En hjertesag er en konkret indsamling med et formål og en slutdato. Vælg den sag, du vil støtte."}</p>
                 <div className="f-cards">
                   {hjertesager.map((hs) => {
                     const sti = slug && hs.slug ? `/hjertesag/${slug}/${hs.slug}` : null;
@@ -459,13 +474,13 @@ export default function ForeningPage() {
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.3 2 4.5 5.6 4.5c2 0 3.4 1.1 4.4 2.6C11 5.6 12.4 4.5 14.4 4.5 18 4.5 19.6 8.3 18 11.7 15.5 16.3 12 21 12 21Z" /></svg>
                 </span>
                 <div>
-                  <h3 style={{ margin: "0 0 6px", fontSize: 16.5, fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>Foreningen har ingen aktive indsamlinger lige nu</h3>
-                  <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6, color: "var(--body)" }}>{forening.har_fast_stoette ? "Det er stadig muligt at støtte foreningen fast hver måned. Fast støtte følger foreningen selv og er ikke bundet til en enkelt indsamling." : "Foreningen opretter nye hjertesager, når der er et formål at samle ind til. Kom gerne tilbage senere."}</p>
+                  <h3 style={{ margin: "0 0 6px", fontSize: 16.5, fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>{bidragLukket ? "Indsamlinger er ikke åbnet endnu" : "Foreningen har ingen aktive indsamlinger lige nu"}</h3>
+                  <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6, color: "var(--body)" }}>{bidragLukket ? "Foreningens profil er offentlig, men det er endnu ikke muligt at støtte herfra." : visFastStoette ? "Det er stadig muligt at støtte foreningen fast hver måned. Fast støtte følger foreningen selv og er ikke bundet til en enkelt indsamling." : "Foreningen opretter nye hjertesager, når der er et formål at samle ind til. Kom gerne tilbage senere."}</p>
                 </div>
               </div>
             )}
 
-            {(harIndhold(forening.indsamlingsnaevn?.status) || harIndhold(forening.indsamlingsnaevn?.journal_nr)) && (
+            {!bidragLukket && (harIndhold(forening.indsamlingsnaevn?.status) || harIndhold(forening.indsamlingsnaevn?.journal_nr)) && (
               <>
                 <div className="f-rule" />
                 <div className="f-eyebrow" style={{ color: "#C8112F" }}>
@@ -526,7 +541,7 @@ export default function ForeningPage() {
                   Kontakt
                 </div>
                 <h2 className="f-h2">Spørgsmål til foreningen</h2>
-                <p className="f-lead">Skriv til foreningen, hvis du har spørgsmål til et bidrag.</p>
+                <p className="f-lead">{bidragLukket ? "Skriv til foreningen, hvis du vil vide mere om dens arbejde." : "Skriv til foreningen, hvis du har spørgsmål til et bidrag."}</p>
                 <div style={{ background: "#FFFFFF", border: "1px solid var(--smh-border)", borderRadius: 22, overflow: "hidden", boxShadow: "0 16px 44px -34px rgba(8,14,26,.14)" }}>
                   <a href={`mailto:${forening.kontakt.email}`} style={{ display: "flex", alignItems: "center", gap: 16, padding: "20px 24px", textDecoration: "none" }}>
                     <span style={{ width: 44, height: 44, borderRadius: 13, background: "#F3F5F8", color: "var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -550,7 +565,7 @@ export default function ForeningPage() {
                   )}
                 </div>
                 <p style={{ margin: "16px 0 0", fontSize: 13.5, lineHeight: 1.6, color: "var(--smh-muted)" }}>Kan du ikke komme igennem, hjælper <Link to="/support" style={{ color: "var(--brand-hover)", fontWeight: 700 }}>StøtMedHjertes support</Link> dig videre.</p>
-                {forening.har_fast_stoette && (
+                {visFastStoette && (
                   <div style={{ marginTop: 24, padding: "22px 24px", border: "1px solid var(--smh-border)", borderRadius: 22, background: "#F3F5F8" }}>
                     <h3 style={{ margin: "0 0 6px", fontSize: 16.5, fontWeight: 700, letterSpacing: "-.3px", color: "var(--ink)" }}>Sådan stopper du din faste støtte</h3>
                     <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6, color: "var(--body)" }}>Du stopper selv aftalen i MobilePay-appen. Du behøver ikke kontakte foreningen.</p>
@@ -559,7 +574,7 @@ export default function ForeningPage() {
               </>
             )}
 
-            <div style={{ borderRadius: 24, background: "#0B1424", color: "#fff", padding: "clamp(26px,4vw,38px)", boxShadow: "0 30px 70px -40px rgba(8,14,26,.5)", marginTop: 60 }}>
+            {!bidragLukket && <div style={{ borderRadius: 24, background: "#0B1424", color: "#fff", padding: "clamp(26px,4vw,38px)", boxShadow: "0 30px 70px -40px rgba(8,14,26,.5)", marginTop: 60 }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 14, fontSize: 12.5, fontWeight: 700, letterSpacing: ".8px", textTransform: "uppercase", color: "#8FA0BC" }}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 Den rene model
@@ -567,10 +582,10 @@ export default function ForeningPage() {
               <h2 style={{ margin: "0 0 14px", fontSize: "clamp(21px,2.8vw,26px)", fontWeight: 800, letterSpacing: "-.6px", color: "#fff" }}>Bidraget går direkte til foreningen</h2>
               <p style={{ margin: "0 0 8px", fontSize: 15, lineHeight: 1.7, color: "#AEB9CC", maxWidth: 600 }}>Bidragene går ind på foreningens egen MobilePay-konto. StøtMedHjerte er aldrig i pengestrømmen, håndterer ikke betalingen og opbevarer ikke kort-, bank- eller kontooplysninger.</p>
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.7, color: "#AEB9CC", maxWidth: 600 }}>Foreningen betaler et fast månedligt abonnement for at bruge platformen. StøtMedHjerte tager ikke en andel af bidragene.</p>
-            </div>
+            </div>}
           </div>
 
-          {!forening.har_fast_stoette && (
+          {!visFastStoette && (
             <aside>
               <div className="sticky-inner">
                 <div style={{ background: "#FFFFFF", border: "1px solid var(--smh-border)", borderRadius: 22, padding: "clamp(20px,4vw,26px)", boxShadow: "0 30px 70px -42px rgba(8,14,26,.22)" }}>
@@ -607,8 +622,8 @@ export default function ForeningPage() {
                     })()
                   ) : (
                     <>
-                      <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, letterSpacing: "-.45px", color: "var(--ink)" }}>Foreningen er lige gået i luften</h2>
-                      <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.6, color: "var(--body)" }}>Der er ingen aktive indsamlinger lige nu. Kig forbi igen, eller del foreningens side, så flere kan finde den.</p>
+                      <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, letterSpacing: "-.45px", color: "var(--ink)" }}>{bidragLukket ? "Bidrag er ikke åbnet endnu" : "Foreningen er lige gået i luften"}</h2>
+                      <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.6, color: "var(--body)" }}>{bidragLukket ? "Du kan læse om foreningen og dele siden. Der kan endnu ikke gives bidrag eller oprettes Fast Støtte." : "Der er ingen aktive indsamlinger lige nu. Kig forbi igen, eller del foreningens side, så flere kan finde den."}</p>
                       <button
                         type="button"
                         onClick={kopierLink}
@@ -628,10 +643,10 @@ export default function ForeningPage() {
                       </button>
                     </>
                   )}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 9, marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--smh-border)", fontSize: 13, lineHeight: 1.55, color: "var(--body)" }}>
+                  {!bidragLukket && <div style={{ display: "flex", alignItems: "flex-start", gap: 9, marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--smh-border)", fontSize: 13, lineHeight: 1.55, color: "var(--body)" }}>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15803D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M20 6 9 17l-5-5" /></svg>
                     Bidraget går direkte til foreningens egen konto.
-                  </div>
+                  </div>}
                 </div>
               </div>
             </aside>
@@ -654,7 +669,7 @@ export default function ForeningPage() {
 
               Begge bygges sammen med Recurring API. Vaerdierne staar i
               CD-prototypen Forening.dc.html. */}
-          {forening.har_fast_stoette && (
+          {visFastStoette && (
             <aside>
               <div className="sticky-inner">
                 <a id="stoet" style={{ position: "relative", top: -80, display: "block" }} />
