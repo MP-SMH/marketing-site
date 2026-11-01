@@ -41,6 +41,7 @@ function initialer(navn) {
 
 export default function ForeningPage() {
   const { slug } = useParams();
+  const stagingProfilePreview = import.meta.env.VITE_SMH_PUBLIC_PROFILE_PROXY === 'true';
 
   const [status, setStatus] = useState("indlaeser");
   const [forening, setForening] = useState(null);
@@ -63,19 +64,19 @@ export default function ForeningPage() {
 
       try {
         const svar = await fetch(
-          `${SMH_API_URL}/api/public/forening/${encodeURIComponent(slug)}`
+          `${stagingProfilePreview ? window.location.origin : SMH_API_URL}/api/public/forening/${encodeURIComponent(slug)}`
         );
 
         if (afbrudt) return;
 
         if (svar.status === 404) {
-          if (erTestforening(slug)) visTestDemo();
+          if (erTestforening(slug) && !stagingProfilePreview) visTestDemo();
           else setStatus("findes-ikke");
           return;
         }
 
         if (!svar.ok) {
-          if (erTestforening(slug)) visTestDemo();
+          if (erTestforening(slug) && !stagingProfilePreview) visTestDemo();
           else setStatus("fejl");
           return;
         }
@@ -87,7 +88,7 @@ export default function ForeningPage() {
         // ikke er komplet. Saa viser vi en "snart klar"-tilstand med kun de
         // minimale data backend sender (navn, by, cvr), ikke den fulde side.
         if (data.klar === false) {
-          if (erTestforening(slug)) visTestDemo();
+          if (erTestforening(slug) && !stagingProfilePreview) visTestDemo();
           else { setForening(data.forening); setStatus("ikke-klar"); }
           return;
         }
@@ -98,7 +99,7 @@ export default function ForeningPage() {
         setStatus("klar");
       } catch {
         if (!afbrudt) {
-          if (erTestforening(slug)) visTestDemo();
+          if (erTestforening(slug) && !stagingProfilePreview) visTestDemo();
           else setStatus("fejl");
         }
       }
@@ -109,7 +110,7 @@ export default function ForeningPage() {
     return () => {
       afbrudt = true;
     };
-  }, [slug]);
+  }, [slug, stagingProfilePreview]);
 
   useEffect(() => {
     if (status !== "klar" || !forening) return;
@@ -165,7 +166,7 @@ export default function ForeningPage() {
   }
 
 
-  if (erTestforening(slug)) {
+  if (erTestforening(slug) && !stagingProfilePreview) {
     return (
       <div style={{ background: "var(--page)", minHeight: "100vh" }}>
         <SiteNav />

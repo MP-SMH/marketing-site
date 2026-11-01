@@ -9,3 +9,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Only Deploy Previews use the staging public-profile read path.
+[context.deploy-preview]
+  command = "npm test -- src/pages/ForeningPage.test.jsx src/lib/staging-public-profile-preview.test.js && VITE_SMH_PUBLIC_PROFILE_PROXY=true npm run build && node scripts/prepare-staging-profile-preview.mjs"
