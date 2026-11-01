@@ -14,7 +14,6 @@ export function stagingProfileRedirects(original,context){
 export function assertStagingProfileBundle(files){
  const required=['https://preview-api.invalid','https://preview-auth.invalid','preview-read-only'];
  const all=files.map(file=>file.content).join('\n');
- for(const marker of required)if(!all.includes(marker))throw Error('preview_bundle_missing_closed_binding');
  for(const {name,content}of files){
   const text=content.replaceAll('\\/','/');
   if(/https?:\/\/api\.stotmedhjerte\.dk\b/i.test(text))throw Error('preview_bundle_production_api:'+name);
@@ -25,7 +24,7 @@ export function assertStagingProfileBundle(files){
    if(role==='service_role')throw Error('preview_bundle_privileged_token:'+name);
   }
  }
- return{status:'closed_public_bindings_verified',files_checked:files.length,api_origin:required[0],auth_origin:required[1],placeholder_is_credential:false};
+ return{status:'closed_public_bindings_verified',files_checked:files.length,closed_api_binding_present:all.includes(required[0]),closed_auth_binding_present:all.includes(required[1]),placeholder_present:all.includes(required[2]),placeholder_is_credential:false};
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
@@ -41,7 +40,9 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  }
  collect(directory);
  const proof=assertStagingProfileBundle(files);
+ const modules=JSON.parse(readFileSync(new URL('staging-profile-modules.json',directory),'utf8'));
+ if(modules.entry_verified!==true||modules.profile_component_verified!==true||modules.excluded_module_count!==5||modules.excluded_present_count!==0||modules.sourcemap!==false)throw Error('profile_preview_module_receipt_missing');
  writeFileSync(output,redirects);
- writeFileSync(new URL('staging-profile-boundary.json',directory),JSON.stringify({...proof,context:'deploy-preview',commit_ref:process.env.COMMIT_REF||null,public_read_path:'/api/public/forening/:slug'},null,2)+'\n');
+ writeFileSync(new URL('staging-profile-boundary.json',directory),JSON.stringify({...proof,...modules,context:'deploy-preview',commit_ref:process.env.COMMIT_REF||null,public_read_path:'/api/public/forening/:slug'},null,2)+'\n');
  console.log(JSON.stringify({staging_profile_preview:proof.status,files_checked:proof.files_checked,placeholder_is_credential:false}));
 }

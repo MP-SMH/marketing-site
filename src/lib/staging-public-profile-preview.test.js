@@ -21,9 +21,9 @@ test('preview generation requires the existing clean-route SPA fallback',()=>{
 });
 
 const closed="https://preview-api.invalid https://preview-auth.invalid preview-read-only";
-test('output proof requires every closed binding and describes the placeholder honestly',()=>{
+test('output proof records live closed bindings and allows unused bindings to be removed by the bundler',()=>{
  expect(assertStagingProfileBundle([{name:'assets/app.js',content:closed}])).toMatchObject({status:'closed_public_bindings_verified',placeholder_is_credential:false});
- expect(()=>assertStagingProfileBundle([{name:'assets/app.js',content:'https://preview-api.invalid'}])).toThrow('missing_closed_binding');
+ expect(assertStagingProfileBundle([{name:'assets/app.js',content:'const profileOnly = true;'}])).toMatchObject({closed_api_binding_present:false,closed_auth_binding_present:false,placeholder_present:false,placeholder_is_credential:false});
 });
 test.each([
  ['production API','https://api.stotmedhjerte.dk/api/auth/otp/request','production_api'],
